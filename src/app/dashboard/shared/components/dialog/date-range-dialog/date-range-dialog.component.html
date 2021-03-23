@@ -1,0 +1,63 @@
+<!-- 05032021 - Gaurav - JIRA-CA-154: Date range picker dialog, for campaign survey results or for any other window -->
+<div class="container-fluid">
+  <h1 mat-dialog-title>{{ data.title }}</h1>
+  <h4 class="text-secondary">{{ data.subTitle }}</h4>
+
+  <div mat-dialog-content>
+    <form [formGroup]="dateRangeForm">
+      <mat-form-field class="col-12 col-sm-6">
+        <mat-label>Choose From Date</mat-label>
+        <input
+          matInput
+          [matDatepicker]="fromDate"
+          placeholder="MM/DD/YYYY"
+          formControlName="fromDate"
+          (dateChange)="setDates()"
+        />
+        <mat-error *ngIf="dateRangeForm?.controls?.fromDate?.errors?.required"
+          >From Date is a required field.</mat-error
+        >
+        <mat-error
+          *ngIf="dateRangeForm?.controls?.fromDate?.errors?.invalidDate"
+          >From Date cannot be a future date!</mat-error
+        >
+        <mat-datepicker-toggle matSuffix [for]="fromDate">
+          <mat-icon matDatepickerToggleIcon>keyboard_arrow_down</mat-icon>
+        </mat-datepicker-toggle>
+        <mat-datepicker #fromDate></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field class="col-12 col-sm-6">
+        <mat-label>Choose To Date</mat-label>
+        <input
+          matInput
+          [matDatepicker]="toDate"
+          placeholder="MM/DD/YYYY"
+          formControlName="toDate"
+          (dateChange)="setDates()"
+        />
+        <mat-error *ngIf="dateRangeForm?.controls?.toDate?.errors?.required"
+          >To Date is a required field.</mat-error
+        >
+        <mat-error *ngIf="dateRangeForm?.controls?.toDate?.errors?.invalidDate"
+          >To Date cannot be a future date!</mat-error
+        >
+        <mat-datepicker-toggle matSuffix [for]="toDate">
+          <mat-icon matDatepickerToggleIcon>keyboard_arrow_down</mat-icon>
+        </mat-datepicker-toggle>
+        <mat-datepicker #toDate></mat-datepicker>
+      </mat-form-field>
+    </form>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button
+      mat-button
+      [mat-dialog-close]="data.response"
+      cdkFocusInitial
+      [disabled]="!dateRangeForm.valid"
+    >
+      Proceed
+    </button>
+  </div>
+</div>

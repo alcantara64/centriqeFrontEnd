@@ -1,0 +1,153 @@
+<!-- 10122020 - Gaurav - Modified to add search/filter field for the holding orgs (if holdingOrgs[].length > 10) -->
+<!-- 09022021 - Abhishek - Change logic for global org selector is also shown when canUseGlobalOrgSelector===true -->
+<!-- 16022021 - Gaurav - JIRA CA-140: show org logo on header, when side toggle-menu is collapsed -->
+<mat-toolbar class="header">
+  <span
+    class="menu-title"
+    [style.width]="
+      drawerOpened
+        ? '0%'
+        : breakpoints['(max-width: 450px)']
+        ? '50%'
+        : setDrawerPercent
+    "
+    [style.height.px]="breakpoints['(max-width: 600px)'] ? 54 : 62"
+  >
+    <ng-container *ngIf="menuLocked; else hamburger">
+      <button
+        mat-icon-button
+        (click)="onHamburger()"
+        [style.margin-top.px]="12"
+        [style.margin-left.px]="40"
+      >
+        <mat-icon class="text-white">chevron_left</mat-icon>
+      </button>
+    </ng-container>
+    <ng-template #hamburger>
+      <mat-card
+        class="drawer-top"
+        [style.height.px]="breakpoints['(max-width: 600px)'] ? 54 : 62"
+      >
+        <div class="logo">
+          <mat-icon
+            *ngIf="breakpoints['(max-width: 600px)']"
+            class="menu-hamburger-icon"
+            (click)="onHamburger()"
+            >menu</mat-icon
+          >
+          <img
+            *ngIf="
+              selectedHoldingOrg && selectedHoldingOrg?.logoUrl;
+              else defaultLogo
+            "
+            [style.margin.px]="breakpoints['(max-width: 600px)'] ? 2 : 5"
+            [src]="selectedHoldingOrg?.logoUrl"
+            [alt]="selectedHoldingOrg?.name"
+          />
+
+          <ng-template #defaultLogo>
+            <img
+              [style.margin.px]="breakpoints['(max-width: 600px)'] ? 2 : 5"
+              src="assets/img/holding_org.png"
+              alt="Default Holding Org Logo"
+            />
+          </ng-template>
+        </div>
+      </mat-card>
+      <button
+        mat-icon-button
+        *ngIf="!breakpoints['(max-width: 600px)']"
+        [style.margin-top.px]="12"
+        (click)="onHamburger()"
+      >
+        <mat-icon class="text-white">menu</mat-icon>
+      </button>
+    </ng-template>
+  </span>
+  <span class="spacer"></span>
+
+  <!-- 08032021 - Gaurav - JIRA-CA-232: Show org name under user name on the app header -->
+  <span
+    class="d-flex flex-column justify-content-end align-items-end"
+    style="line-height: 18px"
+  >
+    <div class="user-name">{{ loginUserName }}</div>
+    <div *ngIf="isAdmin || canUseGlobalOrgSelector" class="org-name">
+      {{ selectedHoldingOrg?.name }}
+    </div>
+  </span>
+
+  <span class="menu-right">
+    <button
+      mat-icon-button
+      [matMenuTriggerFor]="subMenu"
+      *ngIf="isUserAuthenticated"
+    >
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #subMenu="matMenu">
+      <!-- 14122020 - Gaurav - The Holding Org submenu now only be visible if user is an admin and HoldingOrgsCount > 1 for logged-in user -->
+      <button
+        *ngIf="
+          (isAdmin || canUseGlobalOrgSelector) && getHoldingOrgsCount() > 1
+        "
+        mat-menu-item
+        [matMenuTriggerFor]="holdingOrgsMenu"
+        [disabled]="isDisabled"
+      >
+        Holding Orgs
+      </button>
+      <button
+        *ngIf="
+          (isAdmin || canUseGlobalOrgSelector) && getHoldingOrgsCount() === 1
+        "
+        mat-menu-item
+        [disabled]="true"
+      >
+        {{ selectedHoldingOrg.name }}
+      </button>
+      <button mat-menu-item (click)="onLogout()">Logout</button>
+    </mat-menu>
+    <mat-menu #holdingOrgsMenu="matMenu">
+      <!-- 10122020 - Gaurav - Added and show filter only when holding orgs count is greater than 10 -->
+      <mat-form-field
+        *ngIf="getHoldingOrgsCount() > 10"
+        style="margin: auto 10px; width: 90%"
+      >
+        <input
+          matInput
+          type="text"
+          placeholder="Search Filter"
+          (click)="$event.stopPropagation()"
+          #holdingOrgFilter
+        />
+        <button
+          *ngIf="holdingOrgFilter?.value?.length! > 0"
+          matSuffix
+          mat-icon-button
+          aria-label="Clear Filter"
+          (click)="
+            $event.stopPropagation(); holdingOrgFilter.value = ''; clearFilter()
+          "
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+      <!-- 10122020 - Gaurav - Added filter - Ends -->
+      <button
+        mat-menu-item
+        *ngFor="let org of filteredHoldingOrgs"
+        (click)="onSelectHoldingOrg(org)"
+      >
+        <mat-icon>{{
+          selectedHoldingOrg._id === org?._id ? "done" : ""
+        }}</mat-icon>
+        {{ org?.name! }}
+      </button>
+    </mat-menu>
+  </span>
+</mat-toolbar>
+<!-- 09022021 - Gaurav - Moved progress-bar from dashboard to header bottom -->
+<!-- 08022021 - Gaurav - Call the new progress bar, independant of dashboard component. This shall avoid any angular 'expression changed' errors as well.
+Also, moved it below header to be easily visible -->
+<app-loading></app-loading>

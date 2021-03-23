@@ -1,0 +1,463 @@
+<!-- 10032021 - Gaurav - JIRA-CA-218: System Config - UI for Customer Attribute configuration -->
+<!-- 22032021 - Gaurav - JIRA-CA-220: Org Config - UI for Data Attribute configuration -->
+<div class="main-container">
+  <div class="card-container">
+    <mat-card>
+      <mat-card-header>
+        <!-- Header -->
+        <mat-card-title *ngIf="currentParent === parentList.SYSTEM_ADMIN">
+          Customer Data Attributes ({{ currentParentName }})
+          <button
+            mat-mini-fab
+            type="button"
+            matTooltip="Add"
+            matTooltipPosition="above"
+            color="none"
+            [ngClass]="[
+              'mat-elevation-z0',
+              isViewOnly || !attributesInstance
+                ? 'disable-bgColor'
+                : 'action-buttons',
+              isViewOnly || !attributesInstance
+                ? 'disable-bgColor'
+                : 'add-button'
+            ]"
+            (click)="attributesInstance?.onAddElement()"
+            [disabled]="isDisableButton"
+          >
+            <mat-icon
+              matBadgeSize="small"
+              [matBadge]="attributesInstance?.dataAttributeControls?.length"
+              [ngClass]="['add-icon']"
+              >playlist_add</mat-icon
+            >
+          </button>
+        </mat-card-title>
+        <mat-card-subtitle *ngIf="attributesInstance">
+          <div class="d-flex flex-row">
+            <mat-form-field>
+              <mat-label>Group Code Filter</mat-label>
+              <mat-select
+                [(value)]="attributesInstance.selectedGroupCodeFilter"
+                disableRipple
+                [disabled]="
+                  (!attributesInstance?.form?.disabled &&
+                    !attributesInstance?.form?.valid) ||
+                  isLoading
+                "
+              >
+                <mat-option value="showAllGroupCodes">- Show All -</mat-option>
+                <mat-option
+                  *ngFor="let code of attributesInstance?.linkedGroupCodesList"
+                  [value]="code"
+                >
+                  {{ code }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content *ngIf="attributesInstance">
+        <form
+          [formGroup]="attributesInstance?.form!"
+          style="width: 100% !important; overflow: auto !important"
+        >
+          <table
+            class="table drag-table"
+            formArrayName="dataAttributes"
+            cdkDropList
+            (cdkDropListDropped)="attributesInstance?.drop($event)"
+          >
+            <thead>
+              <tr>
+                <th
+                  style="font-size: 12px"
+                  *ngFor="
+                    let displayValue of attributesInstance?.displayedColumns
+                  "
+                >
+                  {{ displayValue }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container
+                *ngFor="
+                  let group of attributesInstance?.dataAttributeControls;
+                  let i = index
+                "
+              >
+                <tr
+                  *ngIf="
+                    attributesInstance?.selectedGroupCodeFilter !==
+                    'showAllGroupCodes'
+                      ? attributesInstance?.selectedGroupCodeFilter ===
+                        group.value.groupCode
+                      : true
+                  "
+                  formGroupName="{{ i }}"
+                  cdkDrag
+                  [cdkDragDisabled]="attributesInstance?.isDisabledDrag(i)"
+                  cdkDragLockAxis="y"
+                  class="drag-row"
+                  [cdkDragData]="group"
+                >
+                  <td *ngIf="currentParent === parentList.SYSTEM_ADMIN">
+                    <mat-icon
+                      style="margin-top: 20px"
+                      cdkDragHandle
+                      [ngStyle]="{
+                        cursor: attributesInstance?.isDisabledDrag(i)
+                          ? 'not-allowed'
+                          : 'move'
+                      }"
+                      >drag_indicator</mat-icon
+                    >
+                  </td>
+                  <td>
+                    <mat-form-field>
+                      <mat-label>Attribute Code</mat-label>
+                      <input
+                        matInput
+                        formControlName="displayCode"
+                        (keypress)="
+                          fieldValidator.allowNoSpaceAndSpecialChars($event, {
+                            anyCaseNoSpecialChars: true
+                          })
+                        "
+                        (change)="attributesInstance?.onChangeDisplayCode(i)"
+                      />
+                      <mat-error>Attribute Code is a required field</mat-error>
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field>
+                      <mat-label>Attribute Name</mat-label>
+                      <input matInput formControlName="name" />
+                      <mat-error>Attribute Name is a required field</mat-error>
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field>
+                      <mat-label>Short Name</mat-label>
+                      <input
+                        matInput
+                        formControlName="shortName"
+                        (change)="
+                          currentParent === parentList.SYSTEM_ADMIN
+                            ? attributesInstance?.onChangeGroupName(i)
+                            : ''
+                        "
+                      />
+                      <mat-error>Short Name is a required field</mat-error>
+                      <mat-hint
+                        *ngIf="
+                          currentParent === parentList.SYSTEM_ADMIN &&
+                          group.value?.displayCode === null &&
+                          group.value?.shortName === null
+                        "
+                        >Hint: Enter Attribute Short Name to generate its
+                        Code</mat-hint
+                      >
+                    </mat-form-field>
+                  </td>
+
+                  <td *ngIf="group.get('loadAttributeName')">
+                    <mat-form-field>
+                      <mat-label>Load Attribute Name</mat-label>
+                      <input matInput formControlName="loadAttributeName" />
+                      <mat-error
+                        >Load Attribute Name is a required field</mat-error
+                      >
+                    </mat-form-field>
+                  </td>
+
+                  <td *ngIf="currentParent === parentList.SYSTEM_ADMIN">
+                    <mat-form-field>
+                      <mat-label>Group Code</mat-label>
+                      <mat-select
+                        formControlName="groupCode"
+                        (selectionChange)="
+                          attributesInstance?.recalculateDetailViewOrder()
+                        "
+                      >
+                        <mat-option></mat-option>
+                        <mat-option
+                          *ngFor="
+                            let code of attributesInstance?.linkedGroupCodesList
+                          "
+                          [value]="code"
+                        >
+                          {{ code }}
+                        </mat-option>
+                      </mat-select>
+                      <mat-error>Group Code is a required field</mat-error>
+                    </mat-form-field>
+                  </td>
+
+                  <td *ngIf="currentParent !== parentList.SYSTEM_ADMIN">
+                    <mat-form-field>
+                      <mat-label>Group Code</mat-label>
+                      <mat-select formControlName="displayGroupCode">
+                        <mat-option></mat-option>
+                        <mat-option
+                          *ngFor="
+                            let code of attributesInstance?.linkedGroupCodesList
+                          "
+                          [value]="code"
+                        >
+                          {{ code }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </td>
+
+                  <td *ngIf="group.get('tableViewOrder')">
+                    <mat-form-field>
+                      <mat-label>Table View Order</mat-label>
+                      <input
+                        class="text-right"
+                        type="number"
+                        matInput
+                        formControlName="tableViewOrder"
+                        (change)="attributesInstance?.onChangeTableViewOrder(i)"
+                      />
+                    </mat-form-field>
+                  </td>
+
+                  <td>
+                    <mat-form-field>
+                      <mat-label>Detail View Order</mat-label>
+                      <input
+                        class="text-right"
+                        matInput
+                        formControlName="displayOrder"
+                      />
+                    </mat-form-field>
+                  </td>
+
+                  <td *ngIf="currentParent === parentList.SYSTEM_ADMIN">
+                    <mat-form-field>
+                      <mat-label>Data Type</mat-label>
+                      <mat-select formControlName="type">
+                        <mat-option></mat-option>
+                        <mat-option
+                          *ngFor="
+                            let dataType of attributesInstance?.dataTypesList
+                          "
+                          [value]="dataType"
+                        >
+                          {{ dataType }}
+                        </mat-option>
+                      </mat-select>
+                      <mat-error>Data Type is a required field</mat-error>
+                    </mat-form-field>
+                  </td>
+
+                  <td *ngIf="currentParent !== parentList.SYSTEM_ADMIN">
+                    <mat-form-field>
+                      <mat-label>Data Type</mat-label>
+                      <mat-select formControlName="displayType">
+                        <mat-option></mat-option>
+                        <mat-option
+                          *ngFor="
+                            let dataType of attributesInstance?.dataTypesList
+                          "
+                          [value]="dataType"
+                        >
+                          {{ dataType }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field>
+                      <mat-label>Data Provider Type</mat-label>
+                      <mat-select
+                        formControlName="dataProviderType"
+                        (selectionChange)="
+                          attributesInstance?.onChangeDataProviderType(i)
+                        "
+                      >
+                        <mat-option></mat-option>
+                        <mat-option
+                          *ngFor="
+                            let dataType of attributesInstance?.dataProviderTypeList
+                          "
+                          [value]="dataType"
+                        >
+                          {{ dataType }}
+                        </mat-option>
+                      </mat-select>
+                      <mat-error
+                        >Data Provider Type is a required field</mat-error
+                      >
+                    </mat-form-field>
+                  </td>
+                  <td *ngIf="currentParent === parentList.SYSTEM_ADMIN">
+                    <ng-container
+                      *ngIf="
+                        group.value.dataProviderType ===
+                          attributesInstance?.dataProviderTypes?.enum;
+                        else nonEnumDataProviderTypes
+                      "
+                    >
+                      <!-- Had to manually add the ngStyle to simulate required field because dynamically setting the required validator to the form control after
+                  using the [compareWith] resulted in Angular expressionChanged error -->
+                      <mat-form-field>
+                        <mat-label
+                          [ngStyle]="{
+                            color:
+                              !group.value.data ||
+                              !(group.value.data.length > 0)
+                                ? '#f44335'
+                                : ''
+                          }"
+                          >Enum Data Type</mat-label
+                        >
+                        <mat-select
+                          formControlName="data"
+                          [compareWith]="
+                            attributesInstance?.compareArrayObject!
+                          "
+                        >
+                          <mat-option
+                            *ngFor="
+                              let enumType of attributesInstance?.enumTypesList
+                            "
+                            [value]="enumType?.data"
+                          >
+                            {{ enumType?.name }}
+                          </mat-option>
+                        </mat-select>
+                        <mat-hint
+                          style="color: #f44335"
+                          *ngIf="
+                            !group.value.data || !(group.value.data.length > 0)
+                          "
+                          >Enum Data Type is a required field</mat-hint
+                        >
+                      </mat-form-field>
+                    </ng-container>
+                    <ng-template #nonEnumDataProviderTypes>
+                      <div style="margin-top: 20px; text-align: center">
+                        - NA -
+                      </div>
+                    </ng-template>
+                  </td>
+
+                  <td *ngIf="group.get('useInCampaignFilter')">
+                    <p
+                      class="text-muted"
+                      style="margin-bottom: 0; font-size: 9px"
+                    >
+                      Filter
+                    </p>
+                    <mat-slide-toggle formControlName="useInCampaignFilter">
+                    </mat-slide-toggle>
+                  </td>
+
+                  <td *ngIf="group.get('useInTableView')">
+                    <p
+                      class="text-muted"
+                      style="margin-bottom: 0; font-size: 9px"
+                    >
+                      Table
+                    </p>
+                    <mat-slide-toggle
+                      formControlName="useInTableView"
+                      (change)="attributesInstance?.onChangeUseInTableView(i)"
+                    >
+                    </mat-slide-toggle>
+                  </td>
+
+                  <td *ngIf="group.get('useInDetailView')">
+                    <p
+                      class="text-muted"
+                      style="margin-bottom: 0; font-size: 9px"
+                    >
+                      Detail
+                    </p>
+                    <mat-slide-toggle formControlName="useInDetailView">
+                    </mat-slide-toggle>
+                  </td>
+
+                  <td *ngIf="currentParent === parentList.SYSTEM_ADMIN">
+                    <p
+                      class="text-muted"
+                      style="margin-bottom: 0; font-size: 9px"
+                    >
+                      Hide
+                    </p>
+                    <mat-slide-toggle
+                      formControlName="hideFromDisplay"
+                      (change)="attributesInstance?.onChangeHideFromDisplay(i)"
+                    ></mat-slide-toggle>
+                  </td>
+                  <td *ngIf="currentParent === parentList.SYSTEM_ADMIN">
+                    <div style="margin-top: 12px">
+                      <button
+                        mat-mini-fab
+                        matTooltip="Delete"
+                        matTooltipPosition="above"
+                        color="none"
+                        [ngClass]="[
+                          'mat-elevation-z0',
+                          isViewOnly ? 'disable-bgColor' : 'action-buttons',
+                          isViewOnly ? 'disable-bgColor' : 'delete-button'
+                        ]"
+                        (click)="attributesInstance?.onDeleteElement(i)"
+                        [disabled]="isLoading || isViewOnly"
+                      >
+                        <mat-icon [ngClass]="['delete-icon']">delete</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </form>
+      </mat-card-content>
+      <ng-container *ngIf="currentParent === parentList.SYSTEM_ADMIN">
+        <mat-divider></mat-divider>
+        <mat-card-actions>
+          <!-- Buttons -->
+          <button
+            matBadgeSize="small"
+            matBadgePosition="before"
+            [matBadge]="attributesInstance?.dataAttributeControls?.length"
+            (click)="attributesInstance?.onAddElement()"
+            mat-raised-button
+            [disabled]="isDisableButton"
+          >
+            Add
+          </button>
+
+          <button
+            (click)="onSubmit()"
+            mat-raised-button
+            class="btn-action"
+            matTooltip="Update"
+            matTooltipPosition="above"
+            [disabled]="!attributesInstance?.form?.valid || isDisableButton"
+          >
+            Update
+          </button>
+          <button
+            mat-raised-button
+            class="btn-cancel"
+            (click)="attributesInstance?.onReset()"
+            matTooltip="Reset to original state"
+            matTooltipPosition="above"
+            [disabled]="isDisableButton"
+          >
+            Reset
+          </button>
+        </mat-card-actions>
+      </ng-container>
+    </mat-card>
+  </div>
+</div>

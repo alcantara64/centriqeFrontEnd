@@ -1,0 +1,443 @@
+<!-- 10122020 - Gaurav - Fix to always show required asterik in red -->
+<!-- 10122020 - Gaurav - Fixed check-box edit issue by modifying my crap check-box handling logic. The (change) event was supposed to 'change' the check-box value!!
+  Checkbox had me checkmate! Alas, had to manually set the value on change. -->
+<!-- 10122020 - Gaurav - Fixed to remove unnecessary code for radio boxes -->
+<!-- 11122020 - Gaurav - Added logoUrl -->
+<!-- 09022021 - Gaurav - Added app-spinner -->
+<!-- 09012021 - Abhishek - Added group 'Theme' and added preview for holding org logo preview into theme group -->
+<!-- 10022021 - Abhishek - Removed [customSvgIcon] property from <mat-file-upload> to solver material icon error. -->
+<!-- 22032021 - Gaurav - JIRA-CA-220: Org Config - UI for Data Attribute configuration -->
+<app-spinner></app-spinner>
+<div class="main-container" *ngIf="!isLoading">
+  <div class="card-container">
+    <mat-card>
+      <mat-card-header>
+        <!-- Header -->
+        <mat-card-title>
+          {{ getTitle() }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ getSubTitle() ? getSubTitle() : "&nbsp;" }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <mat-tab-group
+          animationDuration="0ms"
+          [(selectedIndex)]="selectedIndex"
+        >
+          <mat-tab label="Org Profile {{ !orgProfileForm?.valid ? '*' : '' }}">
+            <form
+              [formGroup]="orgProfileForm"
+              class="grid-container"
+              *ngIf="orgProfileForm"
+            >
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Holding Organization Code<span class="field-required">
+                      *</span
+                    ></mat-label
+                  >
+                  <input matInput formControlName="code" type="text" />
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.code?.errors?.required"
+                    >Organization Code is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Name<span class="field-required"> *</span></mat-label
+                  >
+                  <input matInput formControlName="name" type="text" />
+                  <mat-hint align="end"
+                    >{{ orgProfileForm?.controls?.name?.value?.length || 0 }}/{{
+                      maxOrgNameLength
+                    }}</mat-hint
+                  >
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.name?.errors?.required"
+                    >Organization Name is required</mat-error
+                  >
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.name?.errors?.maxlength"
+                    >Organization Name can be upto
+                    {{ maxOrgNameLength }} characters only</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Business Vertical<span class="field-required">
+                      *</span
+                    ></mat-label
+                  >
+                  <mat-select formControlName="bussinessVertical">
+                    <mat-option>--</mat-option>
+                    <mat-option
+                      *ngFor="let item of businessVerticalStatics"
+                      [value]="item?.value"
+                      >{{ item?.text }}</mat-option
+                    >
+                  </mat-select>
+                  <mat-error
+                    *ngIf="
+                      orgProfileForm?.controls?.bussinessVertical?.errors
+                        ?.required
+                    "
+                    >Business Vertical is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>Address Line 1</mat-label>
+                  <input matInput formControlName="addressLine1" type="text" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>Address Line 2</mat-label>
+                  <input matInput formControlName="addressLine2" type="text" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Country<span class="field-required"> *</span></mat-label
+                  >
+                  <input matInput formControlName="country" type="text" />
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.country?.errors?.required"
+                    >Country is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>State</mat-label>
+                  <input matInput formControlName="state" type="text" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>City</mat-label>
+                  <input matInput formControlName="city" type="text" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>Zip Code</mat-label>
+                  <input matInput formControlName="zipCode" type="text" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>Phone Number</mat-label>
+                  <input matInput formControlName="phone" type="text" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>Fax Number</mat-label>
+                  <input matInput formControlName="fax" type="text" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>Toll Free Number</mat-label>
+                  <input
+                    matInput
+                    formControlName="tollFreeNumber"
+                    type="text"
+                  />
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>Email Address</mat-label>
+                  <input
+                    matInput
+                    formControlName="email"
+                    type="text"
+                    placeholder="Ex. john@doe.com"
+                  />
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.email?.errors?.email"
+                    >Please enter a valid email</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>Website</mat-label>
+                  <input
+                    matInput
+                    formControlName="websiteAddress"
+                    type="text"
+                    placeholder="Ex. www.example.com"
+                  />
+                </mat-form-field>
+              </div>
+            </form>
+          </mat-tab>
+          <mat-tab
+            label="Config {{ isPendingDataBindingRequired() ? '*' : '' }}"
+          >
+            <div class="config-tab">
+              <mat-card class="config-container">
+                <div class="section__1">
+                  <h3 [ngClass]="{ 'disable-color': !isCanDo() }">
+                    Data Binding
+                  </h3>
+                  <mat-divider></mat-divider>
+                  <table *ngIf="dataBindingSelection">
+                    <mat-divider></mat-divider>
+                    <thead>
+                      <tr>
+                        <th [ngClass]="{ 'disable-color': !isCanDo() }">
+                          Data
+                        </th>
+                        <div class="org-header">
+                          <th [ngClass]="{ 'disable-color': !isCanDo() }">
+                            Holding Org Level
+                          </th>
+                          <th [ngClass]="{ 'disable-color': !isCanDo() }">|</th>
+                          <th [ngClass]="{ 'disable-color': !isCanDo() }">
+                            Member Org Level
+                          </th>
+                        </div>
+                      </tr>
+                    </thead>
+                    <mat-divider></mat-divider>
+                    <tbody>
+                      <tr
+                        *ngFor="let row of dataBindingSelection; let i = index"
+                        [ngClass]="[
+                          !row.holdingOrgLevel && !row.memberOrgLevel
+                            ? 'row-invalid-bgcolor'
+                            : ''
+                        ]"
+                      >
+                        <td [ngClass]="{ 'disable-color': !isCanDo() }">
+                          {{ row.businessName
+                          }}<span
+                            class="field-required"
+                            *ngIf="!row.holdingOrgLevel && !row.memberOrgLevel"
+                          >
+                            *</span
+                          >
+                        </td>
+
+                        <mat-radio-group>
+                          <td class="holding-org-selection">
+                            <mat-radio-button
+                              *ngIf="row.mode === 'single'"
+                              [checked]="row.holdingOrgLevel"
+                              [value]="row.holdingOrgLevel ? '1' : '0'"
+                              (change)="setRadioOption(i, 1)"
+                              [disabled]="!isCanDo()"
+                              [ngClass]="[!isCanDo() ? 'disable-bgColor' : '']"
+                            ></mat-radio-button>
+                            <mat-checkbox
+                              *ngIf="row.mode === 'multi'"
+                              #checkBox1
+                              [checked]="row.holdingOrgLevel"
+                              [value]="row.holdingOrgLevel ? '1' : '0'"
+                              (change)="
+                                checkBox1.value === '1'
+                                  ? (checkBox1.value = '0')
+                                  : (checkBox1.value = '1');
+                                isCanDo() &&
+                                  setCheckOptions(
+                                    i,
+                                    true,
+                                    checkBox1.value === '1' ? true : false
+                                  )
+                              "
+                              [disabled]="!isCanDo()"
+                              [ngClass]="[!isCanDo() ? 'disable-bgColor' : '']"
+                            ></mat-checkbox>
+                          </td>
+
+                          <td class="member-org-selection">
+                            <mat-radio-button
+                              *ngIf="row.mode === 'single'"
+                              [checked]="row.memberOrgLevel"
+                              [value]="row.memberOrgLevel ? '2' : '0'"
+                              (change)="setRadioOption(i, 2)"
+                              [disabled]="!isCanDo()"
+                              [ngClass]="[!isCanDo() ? 'disable-bgColor' : '']"
+                            ></mat-radio-button>
+                            <mat-checkbox
+                              *ngIf="row.mode === 'multi'"
+                              #checkBox2
+                              [checked]="row.memberOrgLevel"
+                              [value]="row.memberOrgLevel ? '1' : '0'"
+                              (change)="
+                                checkBox2.value === '1'
+                                  ? (checkBox2.value = '0')
+                                  : (checkBox2.value = '1');
+                                isCanDo() &&
+                                  setCheckOptions(
+                                    i,
+                                    false,
+                                    checkBox2.value === '1' ? true : false
+                                  )
+                              "
+                              [disabled]="!isCanDo()"
+                              [ngClass]="[!isCanDo() ? 'disable-bgColor' : '']"
+                            ></mat-checkbox>
+                          </td>
+                        </mat-radio-group>
+                        <mat-divider class="td-mat-divider"></mat-divider>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="section__2">
+                  <!-- 2020-12-08 FK - Adding fields for sms and WhatsApp channels -->
+                  <h3 [ngClass]="{ 'disable-color': !isCanDo() }">Messaging</h3>
+                  <mat-divider></mat-divider>
+                  <form [formGroup]="orgConfigForm" *ngIf="orgConfigForm">
+                    <div class="form-group">
+                      <mat-form-field id="defaultEmailSender">
+                        <mat-label>Default Email Sender Address</mat-label>
+                        <input
+                          matInput
+                          formControlName="defaultEmailSender"
+                          type="text"
+                          placeholder="Ex. John Doe <john@doe.com>"
+                        />
+                      </mat-form-field>
+                      <mat-form-field id="defaultWhatsAppSender">
+                        <mat-label>Default WhatsApp Sender Number</mat-label>
+                        <input
+                          matInput
+                          formControlName="defaultWhatsAppSender"
+                          type="text"
+                          placeholder="Ex. +91 1264567"
+                        />
+                      </mat-form-field>
+                      <mat-form-field id="defaultSmsSender">
+                        <mat-label>Default SMS Sender Number</mat-label>
+                        <input
+                          matInput
+                          formControlName="defaultSmsSender"
+                          type="text"
+                          placeholder="Ex. +91 1264567"
+                        />
+                      </mat-form-field>
+                      <mat-divider></mat-divider>
+                    </div>
+                    <div class="section__3">
+                      <div>
+                        <h3 [ngClass]="{ 'disable-color': !isCanDo() }">
+                          Theme
+                        </h3>
+                        <mat-divider></mat-divider>
+                      </div>
+                      <div class="d-flex flex-column form-group pt-3">
+                        <div>
+                          <img class="logo" [src]="holdingOrgLogoUrl" />
+                        </div>
+                        <div class="d-flex">
+                          <!-- <span style="padding-top: 9px; font-size: 13px;">
+                          Upload logo :
+                        </span> -->
+                          <mat-file-upload
+                            [labelText]="'Upload logo :'"
+                            [selectButtonText]="'Select File'"
+                            [allowMultipleFiles]="true"
+                            [showUploadButton]="false"
+                            [acceptedTypes]="'.png, .jpg, .jpeg'"
+                            (selectedFilesChanged)="onFileSelect($event)"
+                          >
+                          </mat-file-upload>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </mat-card>
+            </div>
+          </mat-tab>
+          <mat-tab
+            label="Data Attributes {{ isDataAttributeFormInvalid ? '*' : '' }}"
+          >
+            <ng-template matTabContent>
+              <!-- style="background-color: #d4edda1a" -->
+              <mat-tab-group
+                mat-align-tabs="end"
+                [(selectedIndex)]="selectedDataAttribChildTab"
+              >
+                <mat-tab label="Applied Attributes">
+                  <app-data-attributes
+                    [orgDataAttributes]="dataAttributes"
+                    (dataAttribInstanceEmitter)="
+                      getOrgDataAttributeInstance($event)
+                    "
+                  ></app-data-attributes>
+                </mat-tab>
+                <mat-tab
+                  label="{{
+                    orgDataAttributeInstance &&
+                    orgDataAttributeInstance?.dataAttributesList?.length! > 0
+                      ? 'Reconcile'
+                      : 'Pick'
+                  }} System Attributes"
+                  animationDuration="0ms"
+                >
+                  <ng-template matTabContent>
+                    <app-reconcile-sys-data-attributes
+                      [dataAttributesInstance]="orgDataAttributeInstance"
+                      (whenSwitchCurrentTab)="
+                        onDataAttributesInstanceUpdated($event)
+                      "
+                    ></app-reconcile-sys-data-attributes>
+                  </ng-template>
+                </mat-tab>
+              </mat-tab-group>
+            </ng-template>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+      <mat-divider></mat-divider>
+      <mat-card-actions>
+        <!-- Buttons -->
+        <button
+          (click)="onSubmit()"
+          mat-raised-button
+          class="btn-action"
+          *ngIf="isCanDo()"
+          [disabled]="
+            !orgProfileForm?.valid ||
+            isPendingDataBindingRequired() ||
+            isDataAttributeFormInvalid
+          "
+        >
+          {{ getActionButtonText() }}
+        </button>
+        <button mat-raised-button class="btn-cancel" (click)="onCancel()">
+          Cancel
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

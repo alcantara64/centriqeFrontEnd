@@ -1,0 +1,78 @@
+//Login page styles start
+.login-grand-container {
+  background: $color-white;
+  width: $hundred-percent;
+  height: $hundred-percent;
+  position: relative;
+
+  &.login-page{
+    background: $login-bgcolor;
+  }
+  .login-container {
+    width: $hundred-percent;
+    margin: 0;
+    position: absolute;
+    top: $hundred-percent/2;
+    left: $hundred-percent/2;
+    -ms-transform: translate(-($hundred-percent/2), -($hundred-percent/2));
+    transform: translate(-($hundred-percent/2), -($hundred-percent/2));
+    display: flex;
+    flex-direction: column;
+    justify-content: $align-center;
+    align-items: $align-center;
+    &-box {
+      //width: 40%;
+      .logo {
+        text-align: $align-center;
+        img {
+          width: $hundred-percent/2 + 10%;
+          object-fit: contain;
+          padding: 21px 0;
+        }
+      }
+      .forgot-container {
+        width: $hundred-percent;
+        margin-top: 5px;
+        .forgot-header {
+          font-size: 12px;
+          color: $forgot-header-color;
+          &:hover{
+            color: $forgot-header-hover-color;
+          }
+        }
+        .flex-style {
+          flex-direction: row;
+        }
+      }
+
+      .forgot-form {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: $align-center;
+        .forgot-btn {
+          height: fit-content;
+          padding: 0;
+          margin: 0 11px;
+        }
+      }
+    }
+  }
+  mat-form-field {
+    width: $hundred-percent;
+    margin-bottom: 10px;
+    &:first-of-type {
+      margin-top: 10px;
+    }
+  }
+
+  .submit-btn {
+    display: flex;
+    justify-content: space-between;
+    button {
+      width: $hundred-percent;
+      margin-top: 10px;
+    }
+  }
+}
+//Login page styles end

@@ -1,0 +1,389 @@
+<!-- 05032021 - Abhishek - Init version -->
+<!-- 18022021 - Abhishek - JIRA-CA-167: Render dashboards on UI -> Added inline editable form for dashboard org. -->
+<!-- 18022021 - Abhishek - JIRA-CA-201: Extend dashboard config UI with default dashboard link -> End points are integrated.  -->
+<div class="main-container">
+  <div class="table-container mat-elevation-z8">
+    <form [formGroup] = "dashboardConfigForm">
+    <div class="table-top"> <!-- style="display: block;" -->
+      <div class="table-top_row1">
+        <h2 class="table-title">Dashboard Org Configuration</h2>
+        <div class="filter-header">
+          <div class="default-form">
+          <mat-form-field class="default-field">
+            <mat-label>Default Name</mat-label>
+            <input
+              matInput
+              formControlName="defaultName"
+              placeholder="Enter default name"
+              #input
+            />
+          </mat-form-field>
+        <mat-form-field class="default-field">
+          <mat-label>Default Link</mat-label>
+          <input
+            matInput
+            formControlName="defaultLink"
+            placeholder="Enter default link"
+            #input
+          />
+        </mat-form-field>
+      </div>
+        <div class="d-flex flex-row">
+        <ng-container *ngIf="!isDefaultEdit; else saveButton">
+          <button
+            mat-mini-fab
+            matTooltip="Edit"
+            matTooltipPosition="above"
+            color="none"
+            [ngClass]="[
+              'mat-elevation-z0',
+              'action-buttons',
+              'edit-button'
+            ]"
+            (click)="onDefaultEdit()"
+            >
+            <mat-icon [ngClass]="['edit-icon']">edit</mat-icon>
+          </button>
+          <button
+                  mat-mini-fab
+                  matTooltip="View link"
+                  matTooltipPosition="above"
+                  color="none"
+                  [ngClass]="[
+                  'mat-elevation-z0',
+                  'action-buttons',
+                  'web-view-button'
+                ]"
+                >
+                  <mat-icon [ngClass]="['web-view-icon']">preview</mat-icon>
+                </button>
+        </ng-container>
+          <ng-template #saveButton>
+          <button
+            mat-mini-fab
+            matTooltip="Save"
+            matTooltipPosition="above"
+            color="none"
+            [ngClass]="[
+              'mat-elevation-z0',
+              'action-buttons',
+              'save-button'
+            ]"
+            (click)="onSaveConfig()"
+            >
+            <mat-icon [ngClass]="['save-icon']">save</mat-icon>
+          </button>
+          <!-- <button
+          mat-mini-fab
+          matTooltip="Save"
+          matTooltipPosition="above"
+          color="none"
+          [ngClass]="[
+            'mat-elevation-z0',
+            'action-buttons',
+            'check-circle-icon-button'
+          ]"
+          (click)="onSaveConfig()"
+          >
+          <mat-icon [ngClass]="['check-circle-icon']">check_circle</mat-icon>
+          <mat-icon [ngClass]="['check-circle-icon']">offline_pin</mat-icon>
+        </button> -->
+          <button
+          mat-mini-fab
+          matTooltip="Cancel"
+          matTooltipPosition="above"
+          color="none"
+          [ngClass]="[
+            'mat-elevation-z0',
+            'action-buttons',
+            'cancel-button'
+          ]"
+          (click)="onCancelDefaultConfig()"
+          >
+          <!-- (click)="onCancelConfig(element?._id,i)" -->
+          <mat-icon [ngClass]="['cancel-icon']">cancel</mat-icon>
+        </button>
+        </ng-template>
+      </div>
+      </div>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="table-top" style="padding-top: 0px;">
+      <div class="table-top_row1">
+        <div class="filter-header">
+          <mat-form-field class="filter">
+            <mat-select
+              [(value)]="selectedHoldingOrg"
+              [disabled] = "!(holdingOrgData?.length)"
+              (selectionChange)="onHoldingOrgChange()"
+            >
+            <mat-option [value]="'all'"> -----ALL----- </mat-option>
+              <mat-option
+                [value]="holdingOrg"
+                *ngFor="let holdingOrg of holdingOrgData"
+                >{{ holdingOrg.name }}</mat-option
+              >
+            </mat-select>
+          </mat-form-field>
+        <mat-form-field class="filter">
+          <mat-select
+          [disabled] = "!(selectedHoldingOrg?._id && memberOrgData?.length > 0)"
+          [(value)]="selectedMemberOrg"
+          >
+          <mat-option [value]="'all'"> -----ALL----- </mat-option>
+            <mat-option
+            *ngFor="let memberOrg of memberOrgData"
+            [value]="memberOrg"
+            >
+              {{ memberOrg.name }}
+              </mat-option
+            >
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="filter">
+          <mat-select
+          [(value)]="selectedModule"
+          multiple
+          >
+          <mat-option
+          *ngFor="let module of dashboardModules"
+          [value]="module"
+          >
+            {{ module.name }}
+            </mat-option
+          >
+          </mat-select>
+        </mat-form-field>
+      </div>
+      </div>
+
+      <div class="table-top_row2" >
+        <button
+          mat-raised-button
+          class="table-add-btn"
+          (click)="searchConfig()"
+        >
+          Search
+        </button>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+
+    <div class="table-container-table">
+      <table mat-table [dataSource]="dataSource" matSort>
+        <ng-container matColumnDef="holdingOrg">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Holding Org</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element?.holdingOrgName }}
+          </td>
+
+        </ng-container>
+
+        <ng-container matColumnDef="memberOrg">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Member Org
+          </th>
+          <td mat-cell *matCellDef="let element">
+            {{ element?.memberOrgName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="module">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Module</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element?.module }}
+            <!-- <ng-container *ngIf="!element.isEdit; else moduleFormField">
+            {{ element?.module }}
+          </ng-container>
+          <ng-template #moduleFormField>
+            <mat-form-field>
+            <input
+            matInput
+            placeholder="Module"
+            [value]="element?.module ? element?.module : ''"
+            #input
+            [disabled] = "true"
+          />
+        </mat-form-field>
+          </ng-template> -->
+          </td>
+        </ng-container>
+        <!-- <form [formGroup] = "dashboardConfigForm"> -->
+        <ng-container matColumnDef="dashboardName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Dashboard Name</th>
+          <td
+            mat-cell
+            *matCellDef="let element"
+          >
+          <ng-container *ngIf="!element.isEdit; else dashboradNameFormField">
+            {{ element?.dashboardName }}
+          </ng-container>
+
+          <ng-template #dashboradNameFormField>
+          <mat-form-field>
+            <mat-label>Dashboard Name
+              <!-- <span class="field-required">*</span> -->
+            </mat-label>
+            <input
+            [ngStyle]="{
+             'background-color': isDashboardNameChange ? 'yellow' : 'transparent'
+            }"
+            matInput
+            placeholder="Enter Dashboard Name"
+            formControlName="dashboardName"
+            (keyup)="onDashboardNameChange($event,element?.dashboardName)"
+            #input
+          />
+        </mat-form-field>
+           </ng-template>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="dashboardLink">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Dashboard Link</th>
+          <td
+            mat-cell
+            *matCellDef="let element"
+          >
+          <ng-container *ngIf="!element.isEdit; else dashboradLinkFormField">
+            {{ element?.dashboardLink }}
+          </ng-container>
+          <ng-template #dashboradLinkFormField>
+          <mat-form-field>
+            <mat-label>Dashboard Link
+              <!-- <span class="field-required">*</span> -->
+            </mat-label>
+            <input
+            [ngStyle]="{
+              'background-color': isDashboardLinkChange ? 'yellow' : 'transparent'
+             }"
+            matInput
+            placeholder="Enter Dashboard Link"
+            (keyup)="onDashboardLinkChange($event,element?.dashboardLink)"
+            formControlName="dashboardLink"
+            #input
+          />
+            </mat-form-field>
+          </ng-template>
+        </td>
+      </ng-container>
+    <!-- </form> -->
+      <ng-container
+          class="action-buttons-container"
+          matColumnDef="action_buttons"
+          stickyEnd
+        >
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let element; let i=index">
+            <div class="action-buttons-row">
+              <ng-container *ngIf="!element.isEdit; else saveButton">
+              <button
+                mat-mini-fab
+                matTooltip="Edit"
+                matTooltipPosition="above"
+                color="none"
+                [ngClass]="[
+                  'mat-elevation-z0',
+                  'action-buttons',
+                  'edit-button'
+                ]"
+                (click)="onEditConfig(element,i)"
+                >
+                <mat-icon [ngClass]="['edit-icon']">edit</mat-icon>
+              </button>
+              <!-- <a
+                rel="noopener noreferrer"
+                href="{{element?.dashboardLink}}"
+                target="_blank"
+              > -->
+                <button
+                  mat-mini-fab
+                  matTooltip="View Link"
+                  matTooltipPosition="above"
+                  color="none"
+                  [ngClass]="[
+                    'mat-elevation-z0',
+                    'action-buttons',
+                    'web-view-button'
+                  ]"
+                  [disabled]="!element?.dashboardLink"
+                  (click)="openLink(element?.dashboardLink)"
+                >
+                  <mat-icon [ngClass]="['web-view-icon']">preview</mat-icon>
+                </button>
+              <!-- </a> -->
+              <!-- <a
+              style="border-radius: 50%;"
+              [ngClass]="[
+              'mat-elevation-z0',
+              'action-buttons',
+              'web-view-button'
+            ]"
+            mat-raised-button target="_blank" href="{{element?.dashboardLink}}"
+    class="theme-btn bg-grey white-text mx-2 mb-2">
+    <mat-icon [ngClass]="['web-view-icon']">preview</mat-icon>
+  </a> -->
+            </ng-container>
+              <ng-template #saveButton>
+              <button
+                mat-mini-fab
+                matTooltip="Save"
+                matTooltipPosition="above"
+                color="none"
+                [ngClass]="[
+                  'mat-elevation-z0',
+                  'action-buttons',
+                  'save-button'
+                ]"
+                (click)="onSaveConfig(element,i)"
+                >
+                <mat-icon [ngClass]="['save-icon']">save</mat-icon>
+              </button>
+
+              <button
+              mat-mini-fab
+              matTooltip="Cancel"
+              matTooltipPosition="above"
+              color="none"
+              [ngClass]="[
+                'mat-elevation-z0',
+                'action-buttons',
+                'cancel-button'
+              ]"
+              (click)="onCancelConfig(element?._id,i)"
+              >
+              <mat-icon [ngClass]="['cancel-icon']">cancel</mat-icon>
+            </button>
+            </ng-template>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Sticky header row -->
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayedColumns; sticky: true"
+        ></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        <!-- <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell"  [attr.colspan]="displayedColumns?.length">
+            No data matching
+          </td>
+        </tr> -->
+        <!-- Row shown when there is no matching data. -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell"  [attr.colspan]="displayedColumns?.length">
+            No data matching
+            <!-- the filter "{{ input.value }}" -->
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <mat-paginator
+      [pageSizeOptions]="[10, 20, 30]"
+      showFirstLastButtons
+    ></mat-paginator>
+  </form>
+  </div>
+</div>

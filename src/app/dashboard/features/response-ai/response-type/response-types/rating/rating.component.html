@@ -1,0 +1,424 @@
+<!-- 28122020 - Gaurav - Init version: This template is to be shared between creating new response/question type and by the survey component -->
+<!-- 01012021 - Gaurav - Added mandatory field responseIdentifierText and max 10 totalStars allowed -->
+<!-- 12012021 - Gaurav - Some validation changes -->
+<div class="col-12">
+  <form [formGroup]="form">
+    <!-- Base Fields - Starts -->
+    <div class="row">
+      <div class="col-sm-12">
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label
+            >Identifier Name <span class="field-required">*</span></mat-label
+          >
+          <input
+            matInput
+            formControlName="responseIdentifierText"
+            type="text"
+            placeholder="Ex. checkin_process_response, user_contact_preferences, user_rating, etc."
+            (keypress)="
+              templateFieldValidationService.allowNoSpaceAndSpecialChars(
+                $event,
+                { lowercaseOnly: true }
+              )
+            "
+            (change)="
+              this.question
+                ? (this.question.responseIdentifierText = form.get(
+                    'responseIdentifierText'
+                  )?.value)
+                : ''
+            "
+            [maxlength]="responseIdentifierTextMaxLength"
+          />
+          <mat-hint
+            >A unique identifier used to identify customer response for this
+            question.</mat-hint
+          >
+          <mat-error
+            *ngIf="form?.controls?.responseIdentifierText?.errors?.required"
+            >Name is a required field</mat-error
+          >
+        </mat-form-field>
+      </div>
+      <div class="col-sm-6" *ngIf="surveyMode">
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label>Display Question Number (Optional)</mat-label>
+          <input
+            matInput
+            formControlName="questionNumberOrderToDisplay"
+            type="number"
+            placeholder="Ex. 1"
+            onkeypress="return event.charCode >= 48"
+            min="1"
+            (change)="
+              this.question
+                ? (this.question.questionNumberOrderToDisplay = form.get(
+                    'questionNumberOrderToDisplay'
+                  )?.value)
+                : ''
+            "
+          />
+          <mat-hint>Question number to display</mat-hint>
+        </mat-form-field>
+      </div>
+      <div class="col-sm-6 my-xs-3 mt-sm-4">
+        <mat-slide-toggle
+          formControlName="questionRequired"
+          (change)="
+            this.question
+              ? (this.question.required = form.get('questionRequired')?.value)
+              : ''
+          "
+          >Required</mat-slide-toggle
+        >
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-sm-12">
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label>Question Text</mat-label>
+          <input
+            matInput
+            formControlName="questionText"
+            placeholder="Ex. Please rate your overall experience:"
+            [maxlength]="questionTextFieldMaxLength"
+            (change)="
+              this.question
+                ? (this.question.questionText = form.get('questionText')?.value)
+                : ''
+            "
+          />
+          <mat-hint align="end"
+            >{{ form.get("questionText")?.value?.length || 0 }}/{{
+              questionTextFieldMaxLength
+            }}</mat-hint
+          >
+        </mat-form-field>
+      </div>
+      <div class="col-sm-12">
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label>Sub-Question Text</mat-label>
+          <input
+            matInput
+            formControlName="subQuestionText"
+            placeholder="Ex. Field to add question in any other or local language"
+            [maxlength]="questionTextFieldMaxLength"
+            (change)="
+              this.question
+                ? (this.question.subQuestionText = form.get(
+                    'subQuestionText'
+                  )?.value)
+                : ''
+            "
+          />
+          <mat-hint align="end"
+            >{{ form.get("subQuestionText")?.value?.length || 0 }}/{{
+              questionTextFieldMaxLength
+            }}</mat-hint
+          >
+        </mat-form-field>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <!-- Base Fields - Ends -->
+    <div class="form-row">
+      <ng-container *ngIf="questionType === questionTypes.ratingStar">
+        <div class="col-sm-6">
+          <mat-form-field appearance="outline">
+            <mat-label
+              >Star Size (in pixels)
+              <span class="field-required">*</span></mat-label
+            >
+            <input
+              matInput
+              formControlName="starSizepx"
+              type="number"
+              placeholder="Ex. 40"
+              (keypress)="
+                templateFieldValidationService.allowNoSpaceAndSpecialChars(
+                  $event,
+                  { numberOnly: true }
+                )
+              "
+              [max]="defaultValidators.iconSize.max"
+              [min]="defaultValidators.iconSize.min"
+              (change)="
+                this.question
+                  ? (this.question.questionTypeStructure.starSizepx = form.get(
+                      'starSizepx'
+                    )?.value)
+                  : ''
+              "
+            />
+            <mat-error
+              *ngIf="
+                form?.controls?.starSizepx?.errors?.required ||
+                form?.controls?.starSizepx?.errors?.max ||
+                form?.controls?.starSizepx?.errors?.min
+              "
+              >Star size cannot be less than
+              {{ defaultValidators.iconSize.min }} or greater than
+              {{ defaultValidators.iconSize.max }} pixels</mat-error
+            >
+          </mat-form-field>
+        </div>
+        <div class="col-sm-6">
+          <mat-form-field appearance="outline">
+            <mat-label
+              >Total Stars <span class="field-required">*</span></mat-label
+            >
+            <input
+              matInput
+              formControlName="totalStars"
+              type="number"
+              placeholder="Ex. 5"
+              (keypress)="
+                templateFieldValidationService.allowNoSpaceAndSpecialChars(
+                  $event,
+                  { numberOnly: true }
+                )
+              "
+              [max]="defaultValidators.totalStars.max"
+              [min]="defaultValidators.totalStars.min"
+              (change)="
+                this.question
+                  ? (this.question.questionTypeStructure.totalStars = form.get(
+                      'totalStars'
+                    )?.value)
+                  : ''
+              "
+            />
+            <mat-error
+              *ngIf="
+                form?.controls?.totalStars?.errors?.required ||
+                form?.controls?.totalStars?.errors?.max ||
+                form?.controls?.totalStars?.errors?.min
+              "
+              >Total stars cannot be less than
+              {{ defaultValidators.totalStars.min }} or greater than
+              {{ defaultValidators.totalStars.max }}</mat-error
+            >
+          </mat-form-field>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="questionType === questionTypes.ratingEmoji">
+        <div class="col-sm-6">
+          <mat-form-field appearance="outline">
+            <mat-label
+              >Emoji Size (in pixels)
+              <span class="field-required">*</span></mat-label
+            >
+            <input
+              matInput
+              formControlName="emojiSizepx"
+              type="number"
+              placeholder="Ex. 40"
+              (keypress)="
+                templateFieldValidationService.allowNoSpaceAndSpecialChars(
+                  $event,
+                  { numberOnly: true }
+                )
+              "
+              [max]="defaultValidators.iconSize.max"
+              [min]="defaultValidators.iconSize.min"
+              (change)="
+                this.question
+                  ? (this.question.questionTypeStructure.emojiSizepx = form.get(
+                      'emojiSizepx'
+                    )?.value)
+                  : ''
+              "
+            />
+            <mat-error
+              *ngIf="
+                form?.controls?.emojiSizepx?.errors?.required ||
+                form?.controls?.emojiSizepx?.errors?.max ||
+                form?.controls?.emojiSizepx?.errors?.min
+              "
+              >Icon size cannot be less than
+              {{ defaultValidators.iconSize.min }} or greater than
+              {{ defaultValidators.iconSize.max }} pixels</mat-error
+            >
+          </mat-form-field>
+        </div>
+
+        <div class="col-sm-6">
+          <mat-form-field appearance="outline">
+            <mat-label
+              >Display Orientation
+              <span class="field-required">*</span></mat-label
+            >
+            <mat-select
+              formControlName="orientation"
+              (selectionChange)="
+                this.question
+                  ? (this.question.questionTypeStructure.orientation = form.get(
+                      'orientation'
+                    )?.value)
+                  : ''
+              "
+            >
+              <mat-option
+                *ngFor="let axis of orientationList"
+                [value]="axis.value"
+              >
+                {{ axis.viewValue }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div
+          class="col-sm-12"
+          cdkDropListGroup
+          [cdkDropListGroupDisabled]="viewOnly"
+        >
+          <div class="row">
+            <div class="col-sm-6">
+              <h4 class="text-secondary">Available Emoji</h4>
+
+              <div
+                cdkDropList
+                [cdkDropListData]="availableEmojiList"
+                class="emoji-list"
+                cdkDropListSortingDisabled
+                (cdkDropListDropped)="drop($event)"
+                [cdkDropListDisabled]="viewOnly"
+              >
+                <div
+                  class="emoji-box"
+                  *ngFor="let item of availableEmojiList"
+                  cdkDrag
+                >
+                  {{ item?.rating }} {{ item?.emoji }}
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-6">
+              <h4 class="text-secondary">
+                Selected Emoji <span class="field-required">*</span>
+              </h4>
+
+              <div
+                cdkDropList
+                [cdkDropListData]="selectedEmojiList"
+                class="emoji-list"
+                (cdkDropListDropped)="drop($event)"
+                [cdkDropListDisabled]="viewOnly"
+              >
+                <div
+                  class="emoji-box"
+                  *ngFor="let item of selectedEmojiList"
+                  cdkDrag
+                  [ngStyle]="{ 'text-secondary': viewOnly }"
+                >
+                  {{ item?.rating }} {{ item?.emoji }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <!-- Form row ends below -->
+    </div>
+
+    <div class="row">
+      <div class="col-sm-6 my-xs-3 my-sm-4">
+        <mat-slide-toggle
+          formControlName="addAdditionalTextField"
+          (change)="
+            onAdditionalInputToggle();
+            this.question
+              ? (this.question.questionTypeStructure.addAdditionalTextField = form.get(
+                  'addAdditionalTextField'
+                )?.value)
+              : ''
+          "
+          >Add Additional Text Input Field</mat-slide-toggle
+        >
+      </div>
+    </div>
+
+    <ng-container *ngIf="form.get('addAdditionalTextField')?.value">
+      <mat-divider class="mt-2"></mat-divider>
+      <div class="form-row mt-3">
+        <div class="col-sm-6">
+          <mat-form-field appearance="outline">
+            <mat-label
+              >Max Characters <span class="field-required">*</span></mat-label
+            >
+            <input
+              matInput
+              formControlName="additionalTextMaxLength"
+              type="number"
+              [placeholder]="'Ex. ' + additionalInputSettings.maxLength.min"
+              (keypress)="
+                templateFieldValidationService.allowNoSpaceAndSpecialChars(
+                  $event,
+                  { numberOnly: true }
+                )
+              "
+              [max]="additionalInputSettings.maxLength.max"
+              [min]="additionalInputSettings.maxLength.min"
+              (change)="
+                this.question
+                  ? (this.question.questionTypeStructure.additionalText.maxLength = form.get(
+                      'additionalTextMaxLength'
+                    )?.value)
+                  : ''
+              "
+            />
+            <mat-error
+              *ngIf="
+                form?.controls?.additionalTextMaxLength?.errors?.required ||
+                form?.controls?.additionalTextMaxLength?.errors?.max ||
+                form?.controls?.additionalTextMaxLength?.errors?.min
+              "
+              >Max Characters cannot be less than
+              {{ additionalInputSettings.maxLength.min }} or greater than
+              {{ additionalInputSettings.maxLength.max }}</mat-error
+            >
+          </mat-form-field>
+        </div>
+        <div class="col-sm-6">
+          <mat-form-field appearance="outline">
+            <mat-label>Rows <span class="field-required">*</span></mat-label>
+            <input
+              matInput
+              formControlName="additionalTextRows"
+              type="number"
+              [placeholder]="'Ex. ' + additionalInputSettings.rows.min"
+              (keypress)="
+                templateFieldValidationService.allowNoSpaceAndSpecialChars(
+                  $event,
+                  { numberOnly: true }
+                )
+              "
+              [max]="additionalInputSettings.rows.max"
+              [min]="additionalInputSettings.rows.min"
+              (change)="
+                this.question
+                  ? (this.question.questionTypeStructure.additionalText.rows = form.get(
+                      'additionalTextRows'
+                    )?.value)
+                  : ''
+              "
+            />
+            <mat-error
+              *ngIf="
+                form?.controls?.additionalTextRows?.errors?.required ||
+                form?.controls?.additionalTextRows?.errors?.max ||
+                form?.controls?.additionalTextRows?.errors?.min
+              "
+              >Rows cannot be less than
+              {{ additionalInputSettings.rows.min }} or greater than
+              {{ additionalInputSettings.rows.max }}</mat-error
+            >
+          </mat-form-field>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>

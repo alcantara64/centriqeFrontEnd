@@ -1,0 +1,8 @@
+<!-- 10022021 - Gaurav - Init version -->
+<!-- 03032021 - Gaurav - JIRA-CA-196: Show Likert tables in generated response PDF. Added reduceHeight to adjust large tables on single PDF page -->
+<div
+  [ngStyle]="{ height: reduceHeight ? reduceHeight : '400px' }"
+  #echart
+  echarts
+  [options]="chartOption"
+></div>

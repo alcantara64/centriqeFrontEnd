@@ -1,0 +1,63 @@
+<!-- 11122020 - Gaurav - global holding org logo change -->
+<!-- 25022021 - Gaurav - reverted infogram BI dashboard changes changes till the time the dashboard processing engine is ready -->
+<!-- 18022021 - Abhishek - JIRA-CA-167: Render dashboards on UI -> Set conditions for iframe and welcome text based on dashboard links. -->
+<div class="home-container">
+  <div *ngIf="!currentConfig?.dashboardLink" class="home-top">
+    <div class="home-logo">
+      <img
+        *ngIf="globalHoldingOrg?.logoUrl; else defaultLogo"
+        [src]="globalHoldingOrg?.logoUrl"
+        [alt]="globalHoldingOrg?.name"
+      />
+
+      <ng-template #defaultLogo>
+        <img src="assets/img/holding_org.png" alt="Default Holding Org Logo" />
+      </ng-template>
+    </div>
+
+    <div class="home-username">
+      <h1 style="color: #145993">Welcome {{ loginUserName }}</h1>
+    </div>
+
+    <div class="home-info">
+      <p>Simplify Customer Engagement and Amplify Productivity</p>
+      <br />
+      <p>
+        Use Centriqe AI and ML powered customer insights and business productivity
+        as service.
+      </p>
+      <p>Understand the trends... know your customers</p>
+      <br />
+      <p>
+        Take customer experience to the next level with AI-driven insights for
+        personalized service and experience.
+      </p>
+    </div>
+  </div>
+
+  <ng-container *ngIf="biDashboardValues && currentConfig && currentConfig.dashboardLink">
+    <iframe
+      [src]="currentConfig.dashboardLink | trustResourceUrl"
+      [title]="biDashboardValues.title"
+      [width]="biDashboardValues.width"
+      [height]="biDashboardValues.height"
+      scrolling="no"
+      frameborder="0"
+      style="border: none"
+    ></iframe>
+  </ng-container>
+
+  <div class="home-footer">
+    <hr />
+    <div class="footer-content">
+      <div class="footer-links">
+        <!-- 11122020 - Gaurav - Open Info Dialog for Support or Privacy Terms -->
+        <a (click)="openInfoDialog(infoDialogType.support)">Support</a>
+        <a (click)="openInfoDialog(infoDialogType.privacy_terms)"
+          >Privacy Terms</a
+        >
+      </div>
+      <div class="footer-copyright">© 2021 - Centriqe Inc.</div>
+    </div>
+  </div>
+</div>

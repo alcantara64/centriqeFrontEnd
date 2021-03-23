@@ -1,0 +1,30 @@
+<!-- 21012021 - Gaurav - Init version: Sharable DrDw to show org list based on data domain config -->
+<mat-form-field *ngIf="isShowMemberOrgDropDown">
+  <mat-label>{{
+    selectedHoldingOrgData?.memberOrgs?.length === 1
+      ? "Member Org"
+      : "Member Orgs"
+  }}</mat-label>
+  <mat-select
+    [(value)]="selectedOrgInDrDw"
+    (selectionChange)="onSelectionChange()"
+    [disabled]="listOfOrgs?.length === 1"
+  >
+    <mat-option [value]="memberOrg" *ngFor="let memberOrg of listOfOrgs">{{
+      memberOrg.name
+    }}</mat-option>
+  </mat-select>
+</mat-form-field>
+<mat-form-field *ngIf="isShowBothOrgDropDown">
+  <mat-label>Holding/Member Orgs</mat-label>
+  <mat-select
+    [(value)]="selectedOrgInDrDw"
+    (selectionChange)="onSelectionChange()"
+  >
+    <mat-optgroup *ngFor="let group of listOfOrgs" [label]="group.name">
+      <mat-option *ngFor="let subItem of group.value" [value]="subItem">
+        {{ subItem.name }}
+      </mat-option>
+    </mat-optgroup>
+  </mat-select>
+</mat-form-field>

@@ -1,0 +1,53 @@
+:host {
+  --btn-bgcolor: #145993;
+  --tab-invalid-textColor: #dc3545;
+  --field-required-color: #f44335;
+}
+
+.main-container {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.preview-container {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-container {
+  width: 100%;
+}
+
+mat-card-actions {
+  text-align: right;
+}
+
+.field-required {
+  color: var(--field-required-color);
+}
+
+.invalid {
+  color: var(--tab-invalid-textColor);
+}
+
+/* Careful changing these ::ng-deep settings */
+::ng-deep .mat-radio-button.mat-accent .mat-radio-inner-circle,
+::ng-deep
+  .mat-radio-button.mat-accent
+  .mat-radio-ripple
+  .mat-ripple-element:not(.mat-radio-persistent-ripple),
+::ng-deep
+  .mat-radio-button.mat-accent.mat-radio-checked
+  .mat-radio-persistent-ripple,
+::ng-deep .mat-radio-button.mat-accent:active .mat-radio-persistent-ripple {
+  background-color: var(--btn-bgcolor);
+}
+
+::ng-deep
+  .mat-radio-button.mat-accent.mat-radio-checked
+  .mat-radio-outer-circle {
+  border-color: var(--btn-bgcolor);
+}

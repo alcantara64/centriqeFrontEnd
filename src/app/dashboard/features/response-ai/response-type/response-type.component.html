@@ -1,0 +1,371 @@
+<!-- 21/12/2020 - Gaurav - Init version -->
+<!-- 23122020 - Gaurav - Added single-textarea -->
+<!-- 28122020 - Gaurav - Added Preview tab -->
+<!-- 05012021 - Gaurav - Added NPS or single-choice-radio-box -->
+<!-- 06012021 - Gaurav Added single-choice-radioH and multi-choice-checkboxH -->
+<!-- 06012021 - Gaurav Added matrixRadio and matrixCheck -->
+<!-- 08012021 - Gaurav - Added DropDown Selection -->
+<!-- 11012021 - Gaurav - Added Likerts -->
+<!-- 25012021 - Gaurav - Display subquestion text field -->
+<div class="main-container">
+  <div class="card-container">
+    <mat-card>
+      <mat-card-header>
+        <!-- Header -->
+        <mat-card-title>
+          {{ getTitle() }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ getSubTitle() ? getSubTitle() : "&nbsp;" }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <!-- On pre-add, ONLY before adding a new response type -->
+        <ng-container *ngIf="accessMode === accessModes.PreAdd">
+          <mat-radio-group
+            aria-label="Select an option"
+            [(ngModel)]="selectedResponseCategory"
+            (change)="selectedQuestionType = undefined"
+          >
+            <div class="d-flex flex-column m-2 mt-3">
+              <mat-radio-button
+                ngClass="enabled-bgColor"
+                [value]="componentCategory.section"
+                disabled
+                >Section of questions</mat-radio-button
+              >
+              <hr />
+              <mat-radio-button
+                class="enabled-bgColor"
+                [value]="componentCategory.question"
+                >Question</mat-radio-button
+              >
+              <mat-form-field appearance="outline">
+                <mat-label
+                  >Question Type
+                  <span class="field-required">*</span></mat-label
+                >
+                <mat-select
+                  [(ngModel)]="selectedQuestionType"
+                  [disabled]="
+                    isLoading ||
+                    selectedResponseCategory !== componentCategory.question
+                  "
+                  (selectionChange)="onChangeQuestionType()"
+                >
+                  <mat-option
+                    *ngFor="let qt of displayQuestionTypes"
+                    [value]="qt?.name"
+                  >
+                    {{ qt?.displayName }}
+                  </mat-option>
+                </mat-select>
+                <mat-error
+                  *ngIf="
+                    selectedResponseCategory === componentCategory.question &&
+                    !selectedQuestionType
+                  "
+                  >Please choose a question type</mat-error
+                >
+              </mat-form-field>
+            </div>
+          </mat-radio-group>
+        </ng-container>
+        <!-- On pre-add ends -->
+
+        <!-- User pressed 'Continue' on pre-add in add mode, or edit/copy/view mode -->
+        <ng-container *ngIf="accessMode !== accessModes.PreAdd">
+          <mat-tab-group
+            animationDuration="0ms"
+            [(selectedIndex)]="selectedIndex"
+          >
+            <!-- [label]="form.valid ? 'Config' : 'Config *'"
+              [ngClass]="{ invalid: !form.valid }" -->
+            <mat-tab label="Config">
+              <form [formGroup]="form">
+                <div class="row mt-3">
+                  <div class="col-sm-12">
+                    <mat-form-field appearance="outline" style="width: 100%">
+                      <mat-label>
+                        Question Code
+                        <span class="field-required">*</span></mat-label
+                      >
+                      <input
+                        matInput
+                        formControlName="code"
+                        placeholder="Ex. AB001"
+                        [maxlength]="questionFieldLengthConfig.code"
+                        (keypress)="
+                          templateFieldValidationService.allowNoSpaceAndSpecialChars(
+                            $event,
+                            { anyCASE: true }
+                          )
+                        "
+                      />
+                      <mat-hint align="end"
+                        >{{ form.get("code")?.value?.length || 0 }}/{{
+                          questionFieldLengthConfig.code
+                        }}</mat-hint
+                      >
+                      <mat-error *ngIf="form?.controls?.code?.errors?.required">
+                        Question Code is a required field</mat-error
+                      >
+                    </mat-form-field>
+                  </div>
+                  <div class="col-sm-12">
+                    <mat-form-field appearance="outline" style="width: 100%">
+                      <mat-label>
+                        Question Name
+                        <span class="field-required">*</span></mat-label
+                      >
+                      <input
+                        matInput
+                        formControlName="name"
+                        placeholder="Ex. Get customer comments"
+                        [maxlength]="questionFieldLengthConfig.name"
+                      />
+                      <mat-hint align="end"
+                        >{{ form.get("name")?.value?.length || 0 }}/{{
+                          questionFieldLengthConfig.name
+                        }}</mat-hint
+                      >
+                      <mat-error *ngIf="form?.controls?.name?.errors?.required">
+                        Question Name is a required field</mat-error
+                      >
+                    </mat-form-field>
+                  </div>
+                </div>
+                <mat-divider></mat-divider>
+
+                <!-- Add new or show saved section -->
+                <ng-container
+                  *ngIf="selectedResponseCategory === componentCategory.section"
+                >
+                  <!-- TODO -->
+                </ng-container>
+                <!-- Add new or show saved section - Ends -->
+
+                <!-- Add new or show saved question -->
+                <ng-container
+                  *ngIf="
+                    selectedResponseCategory === componentCategory.question
+                  "
+                >
+                  <ng-container [ngSwitch]="selectedQuestionType">
+                    <!-- ********* questionTypes.singleTextInput: Single input ********* -->
+                    <ng-container
+                      *ngSwitchCase="questionTypesEnum.singleTextInput"
+                    >
+                      <app-single-textarea-or-input
+                        [responseTypeData]="currentResponseTypeData"
+                        [questionType]="questionTypesEnum.singleTextInput"
+                        [form]="form"
+                        [accessMode]="accessMode"
+                        (formPayloadEmitter)="getFormPayload($event)"
+                      ></app-single-textarea-or-input>
+                    </ng-container>
+
+                    <!-- ********* questionTypes.singleTextArea: Single TextArea ********* -->
+                    <ng-container
+                      *ngSwitchCase="questionTypesEnum.singleTextArea"
+                    >
+                      <app-single-textarea-or-input
+                        [responseTypeData]="currentResponseTypeData"
+                        [questionType]="questionTypesEnum.singleTextArea"
+                        [form]="form"
+                        [accessMode]="accessMode"
+                        (formPayloadEmitter)="getFormPayload($event)"
+                      ></app-single-textarea-or-input>
+                    </ng-container>
+
+                    <!-- ********* questionTypes.ratingStar: Rating Star ********* -->
+                    <ng-container *ngSwitchCase="questionTypesEnum.ratingStar">
+                      <app-rating-input
+                        [responseTypeData]="currentResponseTypeData"
+                        [questionType]="questionTypesEnum.ratingStar"
+                        [form]="form"
+                        [accessMode]="accessMode"
+                        (formPayloadEmitter)="getFormPayload($event)"
+                      ></app-rating-input>
+                    </ng-container>
+
+                    <!-- ********* questionTypes.ratingEmoji: Rating Emoji ********* -->
+                    <ng-container *ngSwitchCase="questionTypesEnum.ratingEmoji">
+                      <app-rating-input
+                        [responseTypeData]="currentResponseTypeData"
+                        [questionType]="questionTypesEnum.ratingEmoji"
+                        [form]="form"
+                        [accessMode]="accessMode"
+                        (formPayloadEmitter)="getFormPayload($event)"
+                      ></app-rating-input>
+                    </ng-container>
+
+                    <!-- ********* questionTypes.singleChoiceRadioBox: Single choice Radio Box or Mat Toggle Button or NPS in a row ********* -->
+                    <ng-container
+                      *ngSwitchCase="questionTypesEnum.singleChoiceRadioBox"
+                    >
+                      <app-nps-single-choice-radio-box
+                        [responseTypeData]="currentResponseTypeData"
+                        [questionType]="questionTypesEnum.singleChoiceRadioBox"
+                        [form]="form"
+                        [accessMode]="accessMode"
+                        (formPayloadEmitter)="getFormPayload($event)"
+                      ></app-nps-single-choice-radio-box>
+                    </ng-container>
+
+                    <!-- ********* questionTypes.singleChoiceRadioH: Single choice Radio button in a row ********* -->
+                    <ng-container
+                      *ngSwitchCase="questionTypesEnum.singleChoiceRadioH"
+                    >
+                      <app-single-row-radio-or-checkbox
+                        [responseTypeData]="currentResponseTypeData"
+                        [questionType]="questionTypesEnum.singleChoiceRadioH"
+                        [form]="form"
+                        [accessMode]="accessMode"
+                        (formPayloadEmitter)="getFormPayload($event)"
+                      ></app-single-row-radio-or-checkbox>
+                    </ng-container>
+
+                    <!-- ********* questionTypes.multiChoiceCheckH: Multi choice check boxes in a row ********* -->
+                    <ng-container
+                      *ngSwitchCase="questionTypesEnum.multiChoiceCheckH"
+                    >
+                      <app-single-row-radio-or-checkbox
+                        [responseTypeData]="currentResponseTypeData"
+                        [questionType]="questionTypesEnum.multiChoiceCheckH"
+                        [form]="form"
+                        [accessMode]="accessMode"
+                        (formPayloadEmitter)="getFormPayload($event)"
+                      ></app-single-row-radio-or-checkbox>
+                    </ng-container>
+
+                    <!-- ********* questionTypes.matrixRadio: matrix of radio-buttons ********* -->
+                    <ng-container *ngSwitchCase="questionTypesEnum.matrixRadio">
+                      <app-matrix-radio-or-checkbox
+                        [responseTypeData]="currentResponseTypeData"
+                        [questionType]="questionTypesEnum.matrixRadio"
+                        [form]="form"
+                        [accessMode]="accessMode"
+                        (formPayloadEmitter)="getFormPayload($event)"
+                      ></app-matrix-radio-or-checkbox>
+                    </ng-container>
+
+                    <!-- ********* questionTypes.matrixCheck: matrix of check-boxes ********* -->
+                    <ng-container *ngSwitchCase="questionTypesEnum.matrixCheck">
+                      <app-matrix-radio-or-checkbox
+                        [responseTypeData]="currentResponseTypeData"
+                        [questionType]="questionTypesEnum.matrixCheck"
+                        [form]="form"
+                        [accessMode]="accessMode"
+                        (formPayloadEmitter)="getFormPayload($event)"
+                      ></app-matrix-radio-or-checkbox>
+                    </ng-container>
+
+                    <!-- ********* questionTypes.dropDownSelection ********* -->
+                    <ng-container
+                      *ngSwitchCase="questionTypesEnum.dropDownSelection"
+                    >
+                      <app-dropdown-selection
+                        [responseTypeData]="currentResponseTypeData"
+                        [questionType]="questionTypesEnum.dropDownSelection"
+                        [form]="form"
+                        [accessMode]="accessMode"
+                        (formPayloadEmitter)="getFormPayload($event)"
+                      ></app-dropdown-selection>
+                    </ng-container>
+
+                    <!-- ********* questionTypes.likertRadio ********* -->
+                    <ng-container *ngSwitchCase="questionTypesEnum.likertRadio">
+                      <app-likert-radio-or-checkbox
+                        [responseTypeData]="currentResponseTypeData"
+                        [questionType]="questionTypesEnum.likertRadio"
+                        [form]="form"
+                        [accessMode]="accessMode"
+                        (formPayloadEmitter)="getFormPayload($event)"
+                      ></app-likert-radio-or-checkbox>
+                    </ng-container>
+
+                    <!-- ********* questionTypes.likertCheck ********* -->
+                    <ng-container *ngSwitchCase="questionTypesEnum.likertCheck">
+                      <app-likert-radio-or-checkbox
+                        [responseTypeData]="currentResponseTypeData"
+                        [questionType]="questionTypesEnum.likertCheck"
+                        [form]="form"
+                        [accessMode]="accessMode"
+                        (formPayloadEmitter)="getFormPayload($event)"
+                      ></app-likert-radio-or-checkbox>
+                    </ng-container>
+
+                    <ng-container *ngSwitchDefault></ng-container>
+                  </ng-container>
+                </ng-container>
+                <!-- Add new or show saved question - Ends -->
+              </form>
+            </mat-tab>
+            <!-- Preview the survey question/response-type -->
+            <ng-container *ngIf="isFormValid$ | async">
+              <mat-tab label="Preview">
+                <div class="preview-container">
+                  <ng-container
+                    *ngIf="
+                      selectedResponseCategory === componentCategory.question
+                    "
+                  >
+                    <ng-container *ngIf="form.get('questionText')?.value">
+                      <h3>
+                        Q. {{ form.get("questionText")?.value }}
+                        {{ form.get("questionRequired")?.value ? "*" : "" }}
+                      </h3>
+                    </ng-container>
+                    <ng-container *ngIf="form.get('subQuestionText')?.value">
+                      <h3>
+                        {{ form.get("subQuestionText")?.value }}
+                        {{ form.get("questionRequired")?.value ? "*" : "" }}
+                      </h3>
+                    </ng-container>
+                    <app-preview-response-type
+                      [selectedQuestionType]="selectedQuestionType!"
+                      [form]="form"
+                      [accessMode]="accessMode"
+                    ></app-preview-response-type>
+                  </ng-container>
+                </div>
+              </mat-tab>
+            </ng-container>
+
+            <!-- Preview the survey question/response-type - Ends-->
+          </mat-tab-group>
+        </ng-container>
+        <!-- Post pre-add ends -->
+      </mat-card-content>
+      <mat-divider></mat-divider>
+      <mat-card-actions>
+        <!-- Buttons -->
+        <button
+          (click)="onSubmit()"
+          mat-raised-button
+          class="btn-action"
+          *ngIf="isCanDo()"
+          [disabled]="isDisableButton()"
+        >
+          {{ getActionButtonText() }}
+        </button>
+        <ng-container *ngIf="accessMode === accessModes.Edit">
+          <button
+            (click)="onSubmit(true)"
+            mat-raised-button
+            class="btn-action"
+            *ngIf="isCanDo()"
+            [disabled]="isDisableButton()"
+          >
+            Update & Close
+          </button>
+        </ng-container>
+        <button mat-raised-button class="btn-cancel" (click)="onCancel()">
+          Cancel
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

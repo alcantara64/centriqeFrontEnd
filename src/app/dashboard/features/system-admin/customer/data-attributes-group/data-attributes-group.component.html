@@ -1,0 +1,180 @@
+<!-- 08032021 - Gaurav - JIRA-CA-217: Init version -->
+<div class="main-container">
+  <div class="card-container">
+    <mat-card>
+      <mat-card-header>
+        <!-- Header -->
+        <mat-card-title>
+          Customer Data Attribute Groups
+          <button
+            mat-mini-fab
+            type="button"
+            matTooltip="Add"
+            matTooltipPosition="above"
+            color="none"
+            [ngClass]="['mat-elevation-z0', 'action-buttons', 'add-button']"
+            (click)="onAddElement()"
+            [disabled]="isLoading"
+          >
+            <mat-icon
+              matBadgeSize="small"
+              [matBadge]="dataAttributeGroupControls?.length"
+              [ngClass]="['add-icon']"
+              >playlist_add</mat-icon
+            >
+          </button>
+        </mat-card-title>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <form
+          [formGroup]="form"
+          style="width: 100% !important; overflow: auto !important"
+        >
+          <table
+            class="table drag-table"
+            formArrayName="dataAttributeGroups"
+            cdkDropList
+            (cdkDropListDropped)="drop($event)"
+          >
+            <thead>
+              <tr>
+                <th *ngFor="let displayValue of displayedColumns">
+                  {{ displayValue }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                formGroupName="{{ i }}"
+                *ngFor="let group of dataAttributeGroupControls; let i = index"
+                cdkDrag
+                [cdkDragDisabled]="isDisabledDrag(i)"
+                cdkDragLockAxis="y"
+                class="drag-row"
+                [cdkDragData]="group"
+              >
+                <td>
+                  <mat-icon
+                    style="margin-top: 20px"
+                    cdkDragHandle
+                    [ngStyle]="{
+                      cursor: isDisabledDrag(i) ? 'not-allowed' : 'move'
+                    }"
+                    >drag_indicator</mat-icon
+                  >
+                </td>
+                <td>
+                  <mat-form-field>
+                    <mat-label>Group Code</mat-label>
+                    <input
+                      matInput
+                      formControlName="displayCode"
+                      (keypress)="
+                        fieldValidator.allowNoSpaceAndSpecialChars($event, {
+                          anyCaseNoSpecialChars: true
+                        })
+                      "
+                      (change)="onChangeDisplayCode(i)"
+                    />
+                    <mat-error>Group Code is a required field</mat-error>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <mat-label>Group Name</mat-label>
+                    <input
+                      matInput
+                      formControlName="name"
+                      (change)="onChangeGroupName(i)"
+                    />
+                    <mat-error>Group Name is a required field</mat-error>
+                    <mat-hint
+                      *ngIf="
+                        group.value?.displayCode === null &&
+                        group.value?.name === null
+                      "
+                      >Hint: Enter Group Name to generate Group Code</mat-hint
+                    >
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <mat-label>Detail View Order</mat-label>
+                    <input
+                      class="text-right"
+                      matInput
+                      formControlName="displayOrder"
+                    />
+                  </mat-form-field>
+                </td>
+                <td>
+                  <p
+                    class="text-muted"
+                    style="margin-bottom: 0; font-size: 8px"
+                  >
+                    Hide
+                  </p>
+                  <mat-slide-toggle
+                    formControlName="hideFromDisplay"
+                    (change)="onChangeHideFromDisplay(i)"
+                  ></mat-slide-toggle>
+                </td>
+                <td>
+                  <div style="margin-top: 12px">
+                    <button
+                      mat-mini-fab
+                      matTooltip="Delete"
+                      matTooltipPosition="above"
+                      color="none"
+                      [ngClass]="[
+                        'mat-elevation-z0',
+                        'action-buttons',
+                        'delete-button'
+                      ]"
+                      (click)="onDeleteElement(i)"
+                      [disabled]="isLoading"
+                    >
+                      <mat-icon [ngClass]="['delete-icon']">delete</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <hr />
+        </form>
+      </mat-card-content>
+      <mat-divider></mat-divider>
+      <mat-card-actions>
+        <!-- Buttons -->
+        <button
+          matBadgeSize="small"
+          matBadgePosition="before"
+          [matBadge]="dataAttributeGroupControls?.length"
+          (click)="onAddElement()"
+          mat-raised-button
+          [disabled]="isLoading"
+        >
+          Add
+        </button>
+        <button
+          (click)="onSubmit()"
+          mat-raised-button
+          class="btn-action"
+          [disabled]="!form?.valid || isLoading"
+        >
+          Update
+        </button>
+        <button
+          mat-raised-button
+          class="btn-cancel"
+          (click)="onReset()"
+          [disabled]="isLoading"
+        >
+          Reset
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

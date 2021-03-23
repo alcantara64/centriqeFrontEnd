@@ -1,0 +1,206 @@
+<!-- 16122020 - Gaurav - Init version -->
+<!-- 17122020 - Gaurav - Moved page, sections and questions to their own respective componentts -->
+<!-- 29122020 - Gaurav - Removed Demo code and worked on actual code changes albiet with the temp API -->
+<!-- 30122020 - Gaurav - Added introTextHTML and kept to 'Add Page' button style different than the Add/Update button to avoid any confusion -->
+<!-- 06012021 - Gaurav - renamed field introText to match with backend change -->
+<!-- 13012021 - Gaurav - Show total number of pages and added vertical stepper for Pages -->
+<!-- 15012021 - Gaurav - Added Update & Close button in EDIT mode, not in ADD mode for now because that needs some impact analysis -->
+<!-- 22012021 - Gaurav - Pass saved section records, question records and question types to sections -->
+<!-- 08022021 - Gaurav - Aesthetic bug fix: Load controls only when loading is off and survey object is valid -->
+<div class="main-container">
+  <div class="card-container">
+    <mat-card>
+      <mat-card-header>
+        <!-- Header -->
+        <mat-card-title>
+          {{ getTitle() }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ getSubTitle() ? getSubTitle() : "&nbsp;" }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content *ngIf="!isLoading && this.survey">
+        <form [formGroup]="form" *ngIf="form">
+          <div class="page-add-container">
+            <mat-form-field appearance="outline" style="width: 100%">
+              <mat-label
+                >Survey Code <span class="field-required">*</span></mat-label
+              >
+              <input
+                matInput
+                formControlName="code"
+                placeholder="Ex. AB001"
+                [maxlength]="surveyFieldLengthConfig.code"
+                (keypress)="
+                  templateFieldValidationService.allowNoSpaceAndSpecialChars(
+                    $event,
+                    { anyCASE: true }
+                  )
+                "
+              />
+              <mat-hint align="end"
+                >{{ form?.get("code")?.value?.length || 0 }}/{{
+                  surveyFieldLengthConfig.code
+                }}</mat-hint
+              >
+              <mat-error *ngIf="form?.controls?.code?.errors?.required"
+                >Survey Code is a required field</mat-error
+              >
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" style="width: 100%">
+              <mat-label
+                >Survey Name <span class="field-required">*</span></mat-label
+              >
+              <input
+                matInput
+                formControlName="name"
+                placeholder="Ex. Customer Feedback Survey"
+                [maxlength]="surveyFieldLengthConfig.name"
+              />
+              <mat-hint align="end"
+                >{{ form?.get("name")?.value?.length || 0 }}/{{
+                  surveyFieldLengthConfig.name
+                }}</mat-hint
+              >
+              <mat-error *ngIf="form?.controls?.name?.errors?.required"
+                >Survey Name is a required field</mat-error
+              >
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" style="width: 100%">
+              <mat-label>Survey Title</mat-label>
+              <input
+                matInput
+                formControlName="title"
+                placeholder="Ex. ABC Corp"
+                [maxlength]="surveyFieldLengthConfig.title"
+              />
+              <mat-hint align="end"
+                >{{ form?.get("title")?.value?.length || 0 }}/{{
+                  surveyFieldLengthConfig.title
+                }}</mat-hint
+              >
+            </mat-form-field>
+
+            <div class="col-sm-12 my-xs-3">
+              <mat-slide-toggle formControlName="showLogo"
+                >Show Organization Logo</mat-slide-toggle
+              >
+            </div>
+
+            <mat-form-field appearance="outline" style="width: 100%">
+              <mat-label>Survey Introductory HTML</mat-label>
+              <textarea
+                matInput
+                rows="9"
+                formControlName="introText"
+                maxLength="1000"
+                placeholder="Ex. <p>Introductory Text ...</p>"
+              ></textarea>
+            </mat-form-field>
+          </div>
+
+          <div
+            class="d-flex flex-column flex-sm-row justify-content-between align-items-center"
+          >
+            <h2 class="h2 font-weight-light my-2 mt-xs-4 ml-sm-2">
+              <em></em>Total Pages: {{ survey?.surveyPages?.length }}
+            </h2>
+            <button
+              class="align-self-sm-end align-self-stretch badge-blue"
+              mat-raised-button
+              matBadgePosition="after"
+              type="button"
+              (click)="survey?.onAddPage()"
+              *ngIf="!viewOnly"
+              [matBadge]="survey?.surveyPages?.length"
+            >
+              Add Page
+            </button>
+          </div>
+          <!-- 14012021 - Gaurav - Add stepper for pages only when page count is more than 1 -->
+          <ng-container
+            *ngIf="survey?.surveyPages && survey?.surveyPages?.length! === 1"
+          >
+            <ng-container
+              *ngFor="
+                let page of survey?.surveyPages;
+                let currentPageIndex = index
+              "
+            >
+              <app-survey-page
+                [currentPageIndex]="currentPageIndex"
+                [survey]="survey"
+                [page]="page"
+                [viewOnly]="viewOnly"
+                [currentFeature]="currentFeature"
+                [savedSectionStructs]="savedSectionStructs"
+                [savedQuestionsStructs]="savedQuestionsStructs"
+                [questionTypes]="questionTypes"
+              ></app-survey-page>
+            </ng-container>
+          </ng-container>
+
+          <ng-container
+            *ngIf="survey?.surveyPages && survey?.surveyPages?.length! > 1"
+          >
+            <mat-vertical-stepper #pageStepper>
+              <mat-step
+                [aria-labelledby]="'page-stepper'"
+                *ngFor="
+                  let page of survey?.surveyPages;
+                  let currentPageIndex = index
+                "
+              >
+                <ng-template matStepLabel
+                  >Page# {{ currentPageIndex + 1 }} (Total Sections:
+                  {{ page?.pageSections?.length }}, Questions:
+                  {{ getTotalQuestions(page) }})</ng-template
+                >
+                <app-survey-page
+                  [currentPageIndex]="currentPageIndex"
+                  [survey]="survey"
+                  [page]="page"
+                  [viewOnly]="viewOnly"
+                  [currentFeature]="currentFeature"
+                  [savedSectionStructs]="savedSectionStructs"
+                  [savedQuestionsStructs]="savedQuestionsStructs"
+                  [questionTypes]="questionTypes"
+                ></app-survey-page>
+              </mat-step>
+            </mat-vertical-stepper>
+          </ng-container>
+        </form>
+      </mat-card-content>
+      <mat-divider></mat-divider>
+      <mat-card-actions>
+        <!-- Buttons -->
+        <button
+          (click)="onSubmit()"
+          mat-raised-button
+          class="btn-action"
+          *ngIf="isCanDo()"
+          [disabled]="isDisableButton()"
+        >
+          {{ getActionButtonText() }}
+        </button>
+        <ng-container *ngIf="accessMode === accessModes.Edit">
+          <button
+            (click)="onSubmit(true)"
+            mat-raised-button
+            class="btn-action"
+            *ngIf="isCanDo()"
+            [disabled]="isDisableButton()"
+          >
+            Update & Close
+          </button>
+        </ng-container>
+        <button mat-raised-button class="btn-cancel" (click)="onCancel()">
+          Close
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

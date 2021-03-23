@@ -1,0 +1,234 @@
+<!-- 17032021 - Gaurav - CA-234: Init version -->
+<div class="main-container">
+  <div class="card-container">
+    <mat-card>
+      <mat-card-header>
+        <!-- Header -->
+        <mat-card-title>
+          Customer Data Attribute Enums
+          <button
+            mat-mini-fab
+            type="button"
+            matTooltip="Add"
+            matTooltipPosition="above"
+            color="none"
+            [ngClass]="['mat-elevation-z0', 'action-buttons', 'add-button']"
+            (click)="onAddElement()"
+            [disabled]="isLoading"
+          >
+            <mat-icon
+              matBadgeSize="small"
+              [matBadge]="dataAttributeEnumControls?.length"
+              [ngClass]="['add-icon']"
+              >playlist_add</mat-icon
+            >
+          </button>
+        </mat-card-title>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <form
+          [formGroup]="form"
+          style="width: 100% !important; overflow: auto !important"
+        >
+          <div class="mt-4">
+            <div class="accordion-action-buttons">
+              <button mat-stroked-button (click)="accordion.openAll()">
+                Expand All
+              </button>
+              <button
+                class="ml-2"
+                mat-stroked-button
+                (click)="accordion.closeAll()"
+              >
+                Collapse All
+              </button>
+            </div>
+
+            <mat-accordion
+              class="enum-headers-align"
+              multi
+              displayMode="flat"
+              formArrayName="dataAttributeEnums"
+            >
+              <mat-expansion-panel
+                *ngFor="
+                  let enumType of dataAttributeEnumControls;
+                  let i = index
+                "
+                formGroupName="{{ i }}"
+              >
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{ enumType.value?.name }}
+                    {{ enumType.value?.code ? "(" : ""
+                    }}{{ enumType.value?.code
+                    }}{{ enumType.value?.code ? ")" : "" }}
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    {{ enumType.value?.data ? "" : "Define" }} Enum Structure
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+
+                <div class="container">
+                  <div class="row">
+                    <div class="col-4">
+                      <mat-form-field>
+                        <mat-label>Enum Code</mat-label>
+                        <input
+                          matInput
+                          formControlName="code"
+                          (keypress)="
+                            fieldValidator.allowNoSpaceAndSpecialChars($event, {
+                              anyCaseNoSpecialChars: true
+                            })
+                          "
+                        />
+                        <mat-error>Enum Code is a required field</mat-error>
+                      </mat-form-field>
+                    </div>
+                    <div class="col-8">
+                      <mat-form-field>
+                        <mat-label>Enum Name</mat-label>
+                        <input
+                          matInput
+                          formControlName="name"
+                          (change)="onChangeName(i)"
+                        />
+                        <mat-error>Enum Name is a required field</mat-error>
+                        <mat-hint
+                          *ngIf="
+                            enumType.value?.code === null &&
+                            enumType.value?.name === null
+                          "
+                          >Hint: Enter Enum Name to generate Enum Code</mat-hint
+                        >
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="row mt-1">
+                    <h3 class="col text-secondary">
+                      Enums Structure Items
+                      <button
+                        mat-mini-fab
+                        type="button"
+                        matTooltip="Add"
+                        matTooltipPosition="above"
+                        color="none"
+                        [ngClass]="[
+                          'mat-elevation-z0',
+                          'action-buttons',
+                          'add-button'
+                        ]"
+                        (click)="onAddEnumStructureElement(i)"
+                        [disabled]="isLoading"
+                      >
+                        <mat-icon
+                          matBadgeSize="small"
+                          [matBadge]="
+                            getEnumStructureControls(enumType)?.length
+                          "
+                          [ngClass]="['add-icon']"
+                          >playlist_add</mat-icon
+                        >
+                      </button>
+                    </h3>
+                  </div>
+                  <div class="row mb-2" formArrayName="data">
+                    <ng-container
+                      *ngFor="
+                        let data of getEnumStructureControls(enumType);
+                        let j = index
+                      "
+                      formGroupName="{{ j }}"
+                    >
+                      <div class="col-4">
+                        <mat-form-field>
+                          <mat-label>ID</mat-label>
+                          <input
+                            matInput
+                            formControlName="id"
+                            type="number"
+                            style="text-align: right"
+                          />
+                          <mat-error>ID is a required field</mat-error>
+                        </mat-form-field>
+                      </div>
+                      <div class="col-4">
+                        <mat-form-field>
+                          <mat-label>Value</mat-label>
+                          <input matInput formControlName="value" />
+                          <mat-error>Value is a required field</mat-error>
+                        </mat-form-field>
+                      </div>
+                      <div class="col-4" style="margin-top: 12px">
+                        <button
+                          mat-mini-fab
+                          matTooltip="Delete"
+                          matTooltipPosition="above"
+                          color="none"
+                          [ngClass]="[
+                            'mat-elevation-z0',
+                            'action-buttons',
+                            'delete-button'
+                          ]"
+                          (click)="onDeleteEnumStructureElement(i, j)"
+                          [disabled]="isLoading"
+                        >
+                          <mat-icon [ngClass]="['delete-icon']"
+                            >delete</mat-icon
+                          >
+                        </button>
+                      </div>
+                    </ng-container>
+                    <div class="col"></div>
+                  </div>
+                </div>
+
+                <mat-action-row>
+                  <button
+                    mat-stroked-button
+                    color="warn"
+                    (click)="onDeleteElement(i)"
+                  >
+                    Delete
+                  </button>
+                </mat-action-row>
+              </mat-expansion-panel>
+            </mat-accordion>
+          </div>
+        </form>
+      </mat-card-content>
+      <mat-divider></mat-divider>
+      <mat-card-actions>
+        <!-- Buttons -->
+        <button
+          matBadgeSize="small"
+          matBadgePosition="before"
+          [matBadge]="dataAttributeEnumControls?.length"
+          (click)="onAddElement()"
+          mat-raised-button
+          [disabled]="isLoading"
+        >
+          Add
+        </button>
+        <button
+          (click)="onSubmit()"
+          mat-raised-button
+          class="btn-action"
+          [disabled]="!form?.valid || isLoading"
+        >
+          Update
+        </button>
+        <button
+          mat-raised-button
+          class="btn-cancel"
+          (click)="onReset()"
+          [disabled]="isLoading"
+        >
+          Reset
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

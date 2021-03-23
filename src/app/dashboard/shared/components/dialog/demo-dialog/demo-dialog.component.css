@@ -1,0 +1,51 @@
+:host {
+  --button-bgcolor: #145993;
+  --button-textColor: #ffffff;
+  --btn-bgcolor-cancel: #dc3545;
+}
+
+.demo-dialog .mat-dialog-container {
+  overflow-y: hidden !important;
+}
+
+::ng-deep .mat-dialog-content {
+  overflow-y: hidden !important;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: auto 15px;
+}
+
+.grid-container {
+  display: grid;
+  grid-column-gap: 15px;
+  grid-template-columns: auto auto;
+  padding: 10px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.send-btn {
+  background-color: var(--button-bgcolor);
+  color: var(--button-textColor);
+}
+
+.cancel-btn {
+  background-color: var(--btn-bgcolor-cancel);
+  color: var(--button-textColor);
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}

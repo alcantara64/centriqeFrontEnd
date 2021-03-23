@@ -1,0 +1,226 @@
+<!-- 28112020 - Gaurav - Init version -->
+<!-- 10122020 - Gaurav - Defect fix for repeated Country header, fixed to display 'Cell No' -->
+<!-- 11122020 - Gaurav - Added Email Templates DrDw, Message btn and Selected customers label -->
+<!-- 2021-01-18 - Frank - added support for survey interactive sending -->
+<!-- 29012021 - Abhishek - Added dynamic table as per globle holding org change -->
+<!-- 01022021 - Abhishek - Added click event for view button -->
+<!-- 05022021 - Abhishek - Added sortData method date pipe to set date format 'yyyy-MM-dd' -->
+<!-- 05022021 - Abhishek - Added pagination properties -->
+<div class="main-container">
+  <div class="table-container mat-elevation-z8">
+    <div class="table-top">
+      <div class="table-top_row1">
+        <h2 class="table-title">Customer List</h2>
+        <mat-form-field>
+          <mat-label>Search</mat-label>
+          <input
+            matInput
+            type="text"
+            placeholder="Ex. org"
+            [value]="searchText"
+            #input
+            />
+        </mat-form-field>
+        <!-- 11122020 - Gaurav - Selected customers label -->
+        <mat-label
+          >Selected customers: {{ getSelectedCustomersCount() }}</mat-label
+        >
+      </div>
+
+      <div class="table-top_row2">
+        <mat-form-field *ngIf="isShowMemberOrgDropDown()">
+          <mat-label>{{
+            selectedHoldingOrgData?.memberOrgs?.length === 1
+              ? "Member Org"
+              : "Member Orgs"
+          }}</mat-label>
+          <!-- 11022021 - Abhishek - Added event to set customer list dropdown filter -->
+          <mat-select
+            [(value)]="selectedMemberOrg"
+            (selectionChange)="filterCustomerList($event)"
+            [disabled]="
+              isLoading || selectedHoldingOrgData?.memberOrgs?.length === 1
+            "
+          >
+            <mat-option
+              [value]="memberOrg"
+              *ngFor="let memberOrg of selectedHoldingOrgData?.memberOrgs"
+              >{{ memberOrg.name }}</mat-option
+            >
+          </mat-select>
+        </mat-form-field>
+
+        <!-- 11122020 - Gaurav - Email Templates DrDw and Message button -->
+        <!-- 2021-01-18 - Frank - Extension for Surveys -->
+        <ng-container
+          *ngIf="
+            (this.currentParentFeature === dashBoardEnumVal.COMM_AI
+              || this.currentParentFeature === dashBoardEnumVal.NPS
+              || this.currentParentFeature === dashBoardEnumVal.RESP_AI) &&
+            hasRequiredPrivileges()
+          "
+        >
+          <mat-form-field
+           *ngIf="this.currentParentFeature === dashBoardEnumVal.COMM_AI">
+            <mat-label>Email Templates</mat-label>
+            <mat-select
+              [(value)]="selectedTemplateId"
+              [disabled]="
+                isLoading ||
+                !emailTemplateList ||
+                emailTemplateList.length === 0
+              "
+            >
+              <mat-option></mat-option>
+              <mat-option
+                [value]="template._id"
+                *ngFor="let template of emailTemplateList"
+                >{{ template.name }} ({{ template.code }})</mat-option
+              >
+            </mat-select>
+          </mat-form-field>
+
+
+          <mat-form-field
+          *ngIf=" this.currentParentFeature === dashBoardEnumVal.NPS
+              || this.currentParentFeature === dashBoardEnumVal.RESP_AI">
+           <mat-label>Surveys</mat-label>
+           <mat-select
+             [(value)]="selectedTemplateId"
+             [disabled]="
+               isLoading ||
+               !emailTemplateList ||
+               emailTemplateList.length === 0
+             "
+           >
+             <mat-option></mat-option>
+             <mat-option
+               [value]="template._id"
+               *ngFor="let template of emailTemplateList"
+               >{{ template.name }} ({{ template.code }})</mat-option
+             >
+           </mat-select>
+         </mat-form-field>
+         <!-- 17022021 - Abhishek - Set condition and added tooltip for disable send demo message button -->
+         <div>
+          <button
+            mat-raised-button
+            class="table-add-btn w-100"
+            [disabled]="isDisableMessageButton()"
+            [ngClass]="{
+              disabled: isDisableMessageButton()
+            }"
+            (click)="onSendMessage()"
+          >
+            Send Message
+          </button>
+        </div>
+        <div
+          [matTooltip]="'Please select only one customer.'"
+          [matTooltipDisabled]="!(getSelectedCustomersCount() > 1 && this.selectedTemplateId)"
+          matTooltipPosition="left">
+          <button
+            class="table-add-btn mt-2 w-100"
+            mat-raised-button
+            [disabled]="isDisableMessageButton() || getSelectedCustomersCount() > 1"
+            [ngClass]="{
+              disabled: isDisableMessageButton() || getSelectedCustomersCount() > 1
+            }"
+            (click)="onSendDemoMessage()">
+              Send Demo Message
+          </button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+
+    <div class="table-container-table">
+      <table mat-table (matSortChange)="sortData($event)" [dataSource]="dataSource" matSort *ngIf="dataSource && displayedColumns">
+        <ng-container *ngFor="let item of customerData">
+          <ng-container *ngIf=" item.code === 'select' ">
+            <ng-container [matColumnDef]="item.code">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-checkbox
+                  (change)="$event ? masterToggle() : null"
+                  [checked]="selection.hasValue() && isAllSelected()"
+                  [indeterminate]="selection.hasValue() && !isAllSelected()"
+                  [aria-label]="checkboxLabel()"
+                >
+                </mat-checkbox>
+              </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox
+                  (click)="$event.stopPropagation()"
+                  (change)="$event ? selection.toggle(row) : null"
+                  [checked]="selection.isSelected(row)"
+                  [aria-label]="checkboxLabel(row)"
+                >
+                </mat-checkbox>
+              </td>
+            </ng-container>
+          </ng-container>
+          <ng-container *ngIf=" item.code !== 'select' && item.code !== 'action_buttons' ">
+        <ng-container [matColumnDef]="item.code">
+          <th mat-header-cell *matHeaderCellDef [mat-sort-header]="item.code">{{item.shortName}}</th>
+          <td mat-cell *matCellDef="let element">
+            <!-- 02052021 - Abhishek - Set interpolation based on type -->
+            <ng-container *ngIf="item.type === 'date' ">
+              {{ element[item.code] | date: 'yyyy-MM-dd' }}
+            </ng-container>
+            <ng-container *ngIf="item.type !== 'date' " >
+            {{ element[item.code] }}
+          </ng-container>
+          </td>
+        </ng-container>
+      </ng-container>
+      {{item.code}}
+      <ng-container *ngIf=" item.code === 'action_buttons' ">
+        <ng-container
+            class="action-buttons-container"
+            [matColumnDef]="item.code"
+
+          >
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row">
+              <div class="action-buttons-row">
+                <button
+                  mat-mini-fab
+                  matTooltip="View"
+                  matTooltipPosition="above"
+                  color="none"
+                  (click)="onViewCustomerData(row)"
+                  [ngClass]="[
+                    'mat-elevation-z0',
+                    'action-buttons',
+                    'view-button'
+                  ]"
+                  >
+                  <mat-icon [ngClass]="['view-icon']">visibility</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+        <!-- Row shown when there is no matching data. -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="displayedColumns?.length">
+            {{ input.value.length > 0 ? 'No data matching the filter"' : "" }}
+            {{ input.value }} {{ input.value.length > 0 ? '"' : "" }}
+          </td>
+        </tr>
+      </table>
+    </div>
+    <mat-paginator
+      [length]="totalRecords"
+      [pageSize]="10"
+      [pageSizeOptions]="[10, 25, 50, 100]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+    ></mat-paginator>
+  </div>
+</div>

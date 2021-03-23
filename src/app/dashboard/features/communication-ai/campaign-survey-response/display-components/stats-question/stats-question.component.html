@@ -1,0 +1,679 @@
+<!-- 26022021 - Gaurav - JIRA-CA-187: move huge html to reusable components for this module -->
+<!-- 01032021 - Gaurav - JIRA-CA-189: Revert CA-175 changes. Showed only hits for additional_text since received no confirmation on percentage for it. -->
+<!-- 02032021 - Gaurav - JIRA-CA-195: Show totalHitsByResponseId per Likert row -->
+<!-- 04032021 - Gaurav - JIRA-CA-199: reduce survey report PDF size -->
+<div
+  [ngClass]="
+    data?.questionType !== questionTypes.likertRadio &&
+    data?.questionType !== questionTypes.likertCheck
+      ? 'my-2'
+      : 'my-1'
+  "
+>
+  <ng-container [ngSwitch]="data?.questionType">
+    <!-- ********* questionTypes.singleTextInput: Single input ********* -->
+    <ng-container *ngSwitchCase="questionTypes.singleTextInput">
+      <div class="form-group">
+        <label
+          *ngIf="data?.questionTypeStructure?.label"
+          [for]="data?.questionTypeStructure?.id"
+          >{{ data?.questionTypeStructure?.label }}</label
+        >
+        <input
+          type="text"
+          style="font-size: 0.75rem"
+          class="form-control"
+          placeholder="{{ data?.totalHits }} people responded to this question."
+          [disabled]="true"
+        />
+      </div>
+    </ng-container>
+
+    <!-- ********* questionTypes.singleTextArea: Textarea multi-line input ********* -->
+    <ng-container *ngSwitchCase="questionTypes.singleTextArea">
+      <div class="form-group">
+        <label
+          *ngIf="data?.questionTypeStructure?.label"
+          [for]="data?.questionTypeStructure?.id"
+          >{{ data?.questionTypeStructure?.label }}</label
+        >
+        <ng-container *ngIf="pdfMode; else displayMode">
+          <input
+            style="font-size: 0.75rem"
+            class="form-control shadow-none"
+            placeholder="{{
+              data?.totalHits
+            }} people responded to this question."
+            [disabled]="true"
+          />
+        </ng-container>
+        <ng-template #displayMode>
+          <textarea
+            style="font-size: 0.75rem"
+            class="form-control"
+            [rows]="data?.questionTypeStructure?.rows"
+            placeholder="{{
+              data?.totalHits
+            }} people responded to this question."
+            [disabled]="true"
+          ></textarea>
+        </ng-template>
+      </div>
+    </ng-container>
+
+    <!-- ********* questionTypes.singleChoiceRadioBox: Single choice Radio Box or Mat Toggle Button or NPS in a row ********* -->
+    <ng-container *ngSwitchCase="questionTypes.singleChoiceRadioBox">
+      <section style="width: 100%">
+        <div class="row no-gutters">
+          <div class="col-md-12">
+            <mat-button-toggle-group
+              class="btn-mat-toggle-group"
+              [name]="data?.questionTypeStructure?.groupName"
+              [disabled]="true"
+            >
+              <ng-container
+                *ngFor="let r of data?.questionTypeStructure?.response"
+              >
+                <mat-button-toggle
+                  class="btn-mat-toggle"
+                  [value]="r.displayValue"
+                >
+                  <div>{{ r.displayValue }}</div>
+                  <div>
+                    {{ r.displayPercent }}
+                  </div>
+                  <div>({{ r.hits }})</div>
+                </mat-button-toggle>
+              </ng-container>
+            </mat-button-toggle-group>
+          </div>
+        </div>
+        <div class="row no-gutters">
+          <div class="col-md-12">
+            <ng-container
+              *ngIf="
+                data?.questionTypeStructure?.leftHintText &&
+                data?.questionTypeStructure?.rightHintText
+              "
+            >
+              <br />
+              <div class="d-flex justify-content-between">
+                <div
+                  class="p-2"
+                  *ngIf="data?.questionTypeStructure?.leftHintText"
+                >
+                  {{ data?.questionTypeStructure?.leftHintText }}
+                </div>
+                <div
+                  class="p-2"
+                  *ngIf="data?.questionTypeStructure?.rightHintText"
+                >
+                  {{ data?.questionTypeStructure?.rightHintText }}
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </section>
+      <ng-container
+        *ngIf="
+          data?.questionTypeStructure?.addAdditionalTextField &&
+          data?.questionTypeStructure?.additionalText
+        "
+      >
+        <ng-container *ngIf="pdfMode; else displayMode">
+          <input
+            style="font-size: 0.75rem"
+            class="form-control shadow-none"
+            placeholder="{{ data?.totalTextHitsDisplayPercent }} ({{
+              data?.totalTextHits
+            }}) Descriptive Remarks & Comments."
+            [disabled]="true"
+          />
+        </ng-container>
+        <ng-template #displayMode>
+          <textarea
+            style="font-size: 0.75rem"
+            class="form-control mt-4"
+            [rows]="data?.questionTypeStructure?.additionalText?.rows"
+            placeholder="{{ data?.totalTextHitsDisplayPercent }} ({{
+              data?.totalTextHits
+            }}) Descriptive Remarks & Comments."
+            [disabled]="true"
+          ></textarea>
+        </ng-template>
+      </ng-container>
+    </ng-container>
+
+    <!-- ********* questionTypes.ratingStar: Stars in a row ********* -->
+    <ng-container *ngSwitchCase="questionTypes.ratingStar">
+      <div
+        class="w-100 overflow-none d-inline-flex align-items-center justify-content-around"
+      >
+        <ng-container *ngFor="let r of data?.questionTypeStructure?.response">
+          <div
+            class="d-flex flex-column justify-content-center align-items-center"
+          >
+            <button mat-icon-button class="rating-icon-button">
+              <mat-icon class="rating-icon">{{
+                r?.percent! > 0 ? "star" : "star_outline"
+              }}</mat-icon>
+            </button>
+            <div>
+              {{ r?.displayPercent }}
+            </div>
+            <div>({{ r.hits }})</div>
+          </div>
+        </ng-container>
+      </div>
+      <div class="row no-gutters">
+        <div class="col-md-12">
+          <br />
+          <div class="d-flex justify-content-between">
+            <div class="p-2">Not at all Likely</div>
+            <div class="p-2">Extremely Likely</div>
+          </div>
+        </div>
+      </div>
+
+      <ng-container
+        *ngIf="
+          data?.questionTypeStructure?.addAdditionalTextField &&
+          data?.questionTypeStructure?.additionalText
+        "
+      >
+        <ng-container *ngIf="pdfMode; else displayMode">
+          <input
+            style="font-size: 0.75rem"
+            class="form-control shadow-none"
+            placeholder="{{ data?.totalTextHitsDisplayPercent }} ({{
+              data?.totalTextHits
+            }}) Descriptive Remarks & Comments."
+            [disabled]="true"
+          />
+        </ng-container>
+        <ng-template #displayMode>
+          <textarea
+            style="font-size: 0.75rem"
+            class="form-control mt-4"
+            [rows]="data?.questionTypeStructure?.additionalText?.rows"
+            placeholder="{{ data?.totalTextHitsDisplayPercent }} ({{
+              data?.totalTextHits
+            }}) Descriptive Remarks & Comments."
+            [disabled]="true"
+          ></textarea>
+        </ng-template>
+      </ng-container>
+    </ng-container>
+
+    <!-- ********* questionTypes.ratingEmoji: Emojis in a row ********* -->
+    <ng-container *ngSwitchCase="questionTypes.ratingEmoji">
+      <ng-container
+        *ngFor="let r of data?.questionTypeStructure?.response; let i = index"
+      >
+        <button
+          mat-icon-button
+          color="accent"
+          style="outline: none; margin-bottom: 10x; margin: 5px"
+          [style.display]="
+            data?.questionTypeStructure?.orientation === 'x'
+              ? 'inline-block'
+              : 'block'
+          "
+          [disabled]="true"
+        >
+          <span
+            [style.fontSize.px]="data?.questionTypeStructure?.emojiSizepx"
+            [ngStyle]="{
+              color: r?.percent! > 0 ? 'orange' : 'rgba(0,0,0,.3)'
+            }"
+            >{{ r.displayValue }}
+            <span
+              [style.fontSize.px]="
+                data?.questionTypeStructure?.emojiSizepx >= 40
+                  ? data?.questionTypeStructure?.emojiSizepx - 20
+                  : data?.questionTypeStructure?.emojiSizepx - 5
+              "
+              style="vertical-align: middle"
+              >{{
+                data?.questionTypeStructure?.orientation === "y"
+                  ? r.selectedValue
+                  : ""
+              }}
+              <span
+                *ngIf="data?.questionTypeStructure?.orientation === 'y'"
+                style="color: #000000"
+                >{{ r.displayPercent }} ({{ r.hits }})</span
+              >
+            </span>
+          </span>
+        </button>
+        <div
+          *ngIf="data?.questionTypeStructure?.orientation === 'x'"
+          style="color: #000000"
+        >
+          {{ r.displayPercent }}
+        </div>
+      </ng-container>
+      <ng-container
+        *ngIf="
+          data?.questionTypeStructure?.addAdditionalTextField &&
+          data?.questionTypeStructure?.additionalText
+        "
+      >
+        <ng-container *ngIf="pdfMode; else displayMode">
+          <input
+            style="font-size: 0.75rem"
+            class="form-control shadow-none"
+            placeholder="{{ data?.totalTextHitsDisplayPercent }} ({{
+              data?.totalTextHits
+            }}) Descriptive Remarks & Comments."
+            [disabled]="true"
+          />
+        </ng-container>
+        <ng-template #displayMode>
+          <textarea
+            style="font-size: 0.75rem"
+            class="form-control mt-4"
+            [rows]="data?.questionTypeStructure?.additionalText?.rows"
+            placeholder="{{ data?.totalTextHitsDisplayPercent }} ({{
+              data?.totalTextHits
+            }}) Descriptive Remarks & Comments."
+            [disabled]="true"
+          ></textarea>
+        </ng-template>
+      </ng-container>
+    </ng-container>
+
+    <!-- ********* questionTypes.singleChoiceRadioH: Single choice Radio button in a row ********* -->
+    <!-- ********* questionTypes.multiChoiceCheckH: Multi choice check boxes in a row ********* -->
+    <ng-container
+      *ngSwitchCase="
+        [
+          questionTypes.singleChoiceRadioH,
+          questionTypes.multiChoiceCheckH
+        ].includes(data.questionType)
+          ? data.questionType
+          : ''
+      "
+    >
+      <div
+        class="w-100 overflow-none d-inline-flex align-items-center justify-content-around"
+      >
+        <ng-container
+          *ngFor="let item of data?.questionTypeStructure?.response"
+        >
+          <div
+            class="d-flex flex-column justify-content-center align-items-center"
+          >
+            <div>{{ item.displayValue }}</div>
+            <input
+              [type]="
+                data?.questionType === questionTypes.singleChoiceRadioH
+                  ? 'radio'
+                  : 'checkbox'
+              "
+              [checked]="item?.percent > 0"
+              [disabled]="true"
+            />
+            <div>
+              {{ item?.displayPercent }}
+            </div>
+            <div>({{ item?.hits }})</div>
+          </div>
+        </ng-container>
+      </div>
+      <ng-container
+        *ngIf="
+          data?.questionTypeStructure?.addAdditionalTextField &&
+          data?.questionTypeStructure?.additionalText
+        "
+      >
+        <ng-container *ngIf="pdfMode; else displayMode">
+          <input
+            style="font-size: 0.75rem"
+            class="form-control shadow-none mt-4"
+            placeholder="{{ data?.totalTextHitsDisplayPercent }} ({{
+              data?.totalTextHits
+            }}) Descriptive Remarks & Comments."
+            [disabled]="true"
+          />
+        </ng-container>
+        <ng-template #displayMode>
+          <textarea
+            style="font-size: 0.75rem"
+            class="form-control mt-4"
+            [rows]="data?.questionTypeStructure?.additionalText?.rows"
+            placeholder="{{ data?.totalTextHitsDisplayPercent }} ({{
+              data?.totalTextHits
+            }}) Descriptive Remarks & Comments."
+            [disabled]="true"
+          ></textarea>
+        </ng-template>
+      </ng-container>
+    </ng-container>
+
+    <!-- ********* questionTypes.matrixRadio: matrix of radio-buttons ********* -->
+    <ng-container *ngSwitchCase="questionTypes.matrixRadio">
+      <div class="row">
+        <ng-container
+          *ngFor="let matrixValue of data?.questionTypeStructure?.response"
+        >
+          <div
+            class="col-md-{{ 12 / data?.questionTypeStructure?.matrixColumns }}"
+          >
+            <label>
+              <input
+                type="radio"
+                [disabled]="true"
+                [checked]="matrixValue.percent > 0"
+              />
+              {{ matrixValue.displayValue }}
+              <strong class="ml-2"
+                >{{ matrixValue.displayPercent }} ({{
+                  matrixValue.hits
+                }})</strong
+              >
+            </label>
+          </div>
+        </ng-container>
+      </div>
+      <ng-container
+        *ngIf="
+          data?.questionTypeStructure?.addAdditionalTextField &&
+          data?.questionTypeStructure?.additionalText
+        "
+      >
+        <input
+          style="font-size: 0.75rem"
+          class="form-control mt-4"
+          [type]="data?.questionTypeStructure?.additionalText?.type"
+          placeholder="{{ data?.totalTextHitsDisplayPercent }} ({{
+            data?.totalTextHits
+          }}) Descriptive Remarks & Comments."
+          [disabled]="true"
+        />
+      </ng-container>
+    </ng-container>
+
+    <!-- ********* questionTypes.matrixCheck: matrix of check-boxes ********* -->
+    <ng-container *ngSwitchCase="questionTypes.matrixCheck">
+      <div class="row">
+        <ng-container
+          *ngFor="let matrixValue of data?.questionTypeStructure?.response"
+        >
+          <div
+            class="col-md-{{ 12 / data?.questionTypeStructure?.matrixColumns }}"
+          >
+            <label>
+              <input
+                type="checkbox"
+                [checked]="matrixValue.percent > 0"
+                [disabled]="true"
+              />
+
+              {{ matrixValue.displayValue }}
+              <strong class="ml-2"
+                >{{ matrixValue.displayPercent }} ({{
+                  matrixValue.hits
+                }})</strong
+              >
+            </label>
+          </div>
+        </ng-container>
+      </div>
+      <ng-container
+        *ngIf="
+          data?.questionTypeStructure?.addAdditionalTextField &&
+          data?.questionTypeStructure?.additionalText
+        "
+      >
+        <input
+          style="font-size: 0.75rem"
+          class="form-control mt-4"
+          [type]="data?.questionTypeStructure?.additionalText?.type"
+          placeholder="{{ data?.totalTextHitsDisplayPercent }} ({{
+            data?.totalTextHits
+          }}) Descriptive Remarks & Comments."
+          [disabled]="true"
+        />
+      </ng-container>
+    </ng-container>
+
+    <!-- ********* questionTypes.dropDownSelection: Drop-down select list ********* -->
+    <ng-container *ngSwitchCase="questionTypes.dropDownSelection">
+      <h4 class="mb-2">{{ data?.questionTypeStructure?.dropDownLabel }}:</h4>
+
+      <div
+        class="mb-2 ml-2"
+        *ngFor="let item of data?.questionTypeStructure?.response"
+      >
+        {{ item.displayValue }}
+        <strong class="ml-2"
+          >{{ item.displayPercent }} ({{ item.hits }})</strong
+        >
+      </div>
+
+      <ng-container
+        *ngIf="
+          data?.questionTypeStructure?.addAdditionalTextField &&
+          data?.questionTypeStructure?.additionalText
+        "
+      >
+        <ng-container *ngIf="pdfMode; else displayMode">
+          <input
+            style="font-size: 0.75rem"
+            class="form-control shadow-none"
+            placeholder="{{ data?.totalTextHitsDisplayPercent }} ({{
+              data?.totalTextHits
+            }}) Descriptive Remarks & Comments."
+            [disabled]="true"
+          />
+        </ng-container>
+        <ng-template #displayMode>
+          <textarea
+            style="font-size: 0.75rem"
+            class="form-control mt-4"
+            [rows]="data?.questionTypeStructure?.additionalText?.rows"
+            placeholder="{{ data?.totalTextHitsDisplayPercent }} ({{
+              data?.totalTextHits
+            }}) Descriptive Remarks & Comments."
+            [disabled]="true"
+          ></textarea>
+        </ng-template>
+      </ng-container>
+    </ng-container>
+
+    <!-- ********* questionTypes.likertRadio || likertCheck: multiple rows and its groups ********* -->
+    <ng-container
+      *ngSwitchCase="
+        [questionTypes.likertCheck, questionTypes.likertRadio].includes(
+          data.questionType
+        )
+          ? data.questionType
+          : ''
+      "
+    >
+      <h4 *ngIf="!pdfMode">
+        {{ data?.questionTypeStructure?.tableHeading }}
+      </h4>
+      <div
+        class="table-responsive"
+        [ngClass]="{ 'likert-table': !pdfMode }"
+        *ngIf="data?.questionTypeStructure?.tableRows"
+      >
+        <table
+          class="table table-striped table-sm"
+          [ngStyle]="{
+            'font-size':
+              pdfMode &&
+              data?.tableDataSource &&
+              data?.tableDataSource?.length > 25
+                ? '12px'
+                : 'inherit'
+          }"
+        >
+          <thead>
+            <tr>
+              <th></th>
+              <th
+                *ngFor="
+                  let headerText of data?.questionTypeStructure?.tableCols
+                "
+                style="text-align: center; vertical-align: middle"
+              >
+                <span>{{
+                  headerText?.tableColHeading
+                    ? headerText?.tableColHeading
+                    : " "
+                }}</span>
+                <br />
+                <span>{{
+                  headerText?.tableColSubHeading
+                    ? headerText?.tableColSubHeading
+                    : " "
+                }}</span>
+              </th>
+              <ng-container
+                *ngIf="data?.questionTypeStructure?.addAdditionalTextForEachRow"
+              >
+                <th style="text-align: center; vertical-align: middle">
+                  Remarks
+                </th>
+              </ng-container>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container>
+              <tr
+                *ngFor="
+                  let row of data?.questionTypeStructure?.response;
+                  let i = index
+                "
+              >
+                <td style="text-align: left; vertical-align: middle">
+                  <span>{{ row?.responseIdDisplayValue }}</span
+                  ><br /><span>{{ row?.responseIdDisplayValue2 }}</span>
+                  <br /><span
+                    >Total Responses: {{ row?.totalHitsByResponseId }}</span
+                  >
+                </td>
+
+                <td
+                  style="text-align: center; vertical-align: middle"
+                  *ngFor="let item of row?.responseIdData"
+                >
+                  <input
+                    [type]="
+                      data?.questionType === questionTypes.likertRadio
+                        ? 'radio'
+                        : 'checkbox'
+                    "
+                    [checked]="item?.percent > 0"
+                    [disabled]="true"
+                  />
+                  <div>
+                    {{ item?.displayPercent }}
+                  </div>
+                  <div>({{ item?.hits }})</div>
+                </td>
+                <td
+                  style="text-align: center; vertical-align: middle"
+                  *ngIf="
+                    data?.questionTypeStructure?.addAdditionalTextForEachRow
+                  "
+                >
+                  <input
+                    style="font-size: 0.75rem"
+                    class="form-control shadow-none"
+                    placeholder="{{
+                      row?.totalTextHits
+                    }} Descriptive Remarks & Comments."
+                    [disabled]="true"
+                  />
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Accordion to be shown on media-query for smaller screens. The table above shall be hidden -->
+      <mat-accordion
+        class="likert-accordion"
+        *ngIf="data?.questionTypeStructure?.response && !pdfMode"
+      >
+        <ng-container
+          *ngFor="
+            let row of data?.questionTypeStructure?.response;
+            let tbRowIndex = index
+          "
+        >
+          <mat-expansion-panel
+            [expanded]="step === tbRowIndex"
+            (opened)="setStep(tbRowIndex)"
+          >
+            <mat-expansion-panel-header class="likert-panel-header mb-2">
+              <span>{{ row.responseIdDisplayValue }}</span
+              ><br /><span>{{ row.responseIdDisplayValue2 }}</span>
+            </mat-expansion-panel-header>
+
+            <ng-container *ngFor="let item of row?.responseIdData">
+              <div
+                class="d-flex align-items-center p-2"
+                style="
+                  background-color: rgba(87, 45, 151, 0.15);
+                  box-sizing: border-box;
+                "
+              >
+                <div class="px-2">
+                  <input
+                    style="width: 18px; height: 18px"
+                    [type]="
+                      data?.questionType === questionTypes.likertRadio
+                        ? 'radio'
+                        : 'checkbox'
+                    "
+                    [checked]="item?.percent > 0"
+                    [disabled]="true"
+                  />
+                  <div>
+                    {{ item?.displayPercent }}
+                  </div>
+                  <div>({{ item?.hits }})</div>
+                </div>
+
+                <div class="px-2">
+                  <mat-label>
+                    <span>{{ item?.displayValue }}</span>
+                    <br />
+                    <span>{{
+                      item?.displayValue2 ? item?.displayValue2 : " "
+                    }}</span>
+                  </mat-label>
+                </div>
+              </div>
+
+              <br />
+            </ng-container>
+            <ng-container
+              *ngIf="data?.questionTypeStructure?.addAdditionalTextForEachRow"
+            >
+              <input
+                style="font-size: 0.75rem"
+                class="form-control shadow-none"
+                placeholder="{{
+                  row?.totalTextHits
+                }} Descriptive Remarks & Comments."
+                [disabled]="true"
+              />
+            </ng-container>
+          </mat-expansion-panel>
+        </ng-container>
+      </mat-accordion>
+      <!-- mat-accordion ends -->
+    </ng-container>
+
+    <!-- Switch closing container -->
+  </ng-container>
+</div>

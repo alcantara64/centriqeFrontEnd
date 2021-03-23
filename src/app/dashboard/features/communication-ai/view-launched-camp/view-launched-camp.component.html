@@ -1,0 +1,19 @@
+<div class="main-container">
+  <div class="table-container mat-elevation-z8">
+    <div class="table-top">
+      <div class="table-top_row1">
+      <h2 class="table-title">{{launcheCampViewMode ? '' : 'List of'}} View Launched {{pageTitle}}</h2>
+    </div>
+    <div class="table-top_row2" [hidden]="launcheCampViewMode">
+      <app-org-dropdownlist
+      [currentFeatureDataDomain]="currentFeature"
+      [parentSelectedHoldingOrgData]="selectedHoldingOrgDatas"
+      [parentOrgAccessInformation]="orgAccessInformation"
+      (fromOrgDrDw)="listenToDrDw($event)"
+      ></app-org-dropdownlist>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <camp-message-event></camp-message-event>
+  </div>
+</div>

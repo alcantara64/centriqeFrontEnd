@@ -1,0 +1,42 @@
+//Header styles start
+.header{
+  .menu-title {
+    .mat-icon {
+      color: $color-white;
+    }
+  }
+  .menu-right {
+    &:hover,
+    &.active {
+      .mat-icon {
+        color: $color-white;
+      }
+    }
+    .mat-icon {
+      color: $color-white;
+    }
+  }
+
+  .user-name {
+    color: $color-white;
+    font-weight: 100;
+    font-size: 1rem;
+  }
+
+  .org-name {
+    color: $accent-color;
+    font-weight: 100;
+    font-size: 0.75rem;
+  }
+
+  .mat-icon-button {
+    width: 30px;
+    height: 30px;
+    line-height: -1px;
+    mat-icon {
+      font-size: 1.2rem;
+      line-height: 15px;
+    }
+  }
+}
+//Header styles end

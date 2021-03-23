@@ -1,0 +1,166 @@
+<!-- 17122020 - Gaurav - Init version -->
+<!-- 24122020 - Gaurav - added logic to disable 'add saved section' and move page buttons -->
+<!-- 29122020 - Gaurav - Added viewOnly -->
+<!-- 13012021 - Gaurav - Show current page number -->
+<!-- 22012021 - Gaurav - Pass saved question records and question types to sections -->
+<div class="col-xs-12 shadow-sm mt-2 mb-4 rounded bg-light">
+  <div
+    class="d-flex flex-column flex-sm-row justify-content-between align-items-center"
+  >
+    <h4 class="h4 font-weight-bolder my-2 mt-xs-4 ml-sm-2">
+      - Page {{ currentPageIndex + 1 }} -
+      <ng-container *ngIf="survey?.surveyPages?.length === 1"
+        >(Sections {{ page?.pageSections?.length }}, Questions
+        {{ totalQuestions }})</ng-container
+      >
+    </h4>
+
+    <div class="d-flex flex-row-reverse">
+      <button
+        style="outline: none"
+        mat-icon-button
+        matTooltip="Move page a level-up"
+        matTooltipPosition="above"
+        [disabled]="isDisabledMovePageUp"
+        (click)="survey.onPageMoveUp(currentPageIndex)"
+      >
+        <mat-icon>arrow_upward</mat-icon>
+      </button>
+      <button
+        style="outline: none"
+        mat-icon-button
+        matTooltip="Move page a level-down"
+        matTooltipPosition="above"
+        [disabled]="isDisabledMovePageDown"
+        (click)="survey.onPageMoveDown(currentPageIndex)"
+      >
+        <mat-icon>arrow_downward</mat-icon>
+      </button>
+      <button
+        style="outline: none"
+        mat-icon-button
+        matTooltip="Delete current page"
+        matTooltipPosition="above"
+        [disabled]="viewOnly"
+        (click)="survey.onDeletePage(currentPageIndex)"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button
+        style="outline: none"
+        mat-icon-button
+        matTooltip="Duplicate this page"
+        matTooltipPosition="above"
+        [disabled]="viewOnly"
+        (click)="survey.onDuplicatePage(currentPageIndex)"
+      >
+        <mat-icon>content_copy</mat-icon>
+      </button>
+
+      <!-- Load Saved Questions -->
+      <button
+        style="outline: none"
+        mat-icon-button
+        matTooltip="Add saved section"
+        matTooltipPosition="above"
+        [matMenuTriggerFor]="savedSectionSubMenu"
+        [disabled]="isDisabledAddSavedSection"
+      >
+        <mat-icon>note_add</mat-icon>
+      </button>
+      <mat-menu #savedSectionSubMenu="matMenu">
+        <ng-container
+          *ngFor="
+            let savedSection of savedSectionStructs;
+            let savedSectionTypeIndex = index
+          "
+        >
+          <button
+            mat-menu-item
+            style="outline: none"
+            (click)="page.onAddSavedSection(savedSection)"
+          >
+            {{ savedSection.name }}
+          </button>
+        </ng-container>
+      </mat-menu>
+
+      <button
+        style="outline: none"
+        mat-icon-button
+        matTooltip="Add page section"
+        matTooltipPosition="above"
+        [disabled]="viewOnly"
+        (click)="page.onAddSection()"
+      >
+        <mat-icon>post_add</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="col-xs-12">
+    <mat-form-field appearance="outline" style="width: 100%">
+      <mat-label>Page#{{ currentPageIndex + 1 }} Heading (Optional)</mat-label>
+      <input
+        matInput
+        name="pageHeading"
+        [(ngModel)]="page.pageHeading"
+        placeholder="Ex. Please let us know about your experience at our organization."
+        maxlength="100"
+        [disabled]="viewOnly"
+      />
+      <mat-hint align="end">{{ page?.pageHeading?.length || 0 }}/100</mat-hint>
+    </mat-form-field>
+  </div>
+  <!-- <mat-divider></mat-divider> -->
+  <!-- Section -->
+  <div class="col-xs-12">
+    <!-- 14012021 - Gaurav - Add stepper for sections only when section count is more than 1 -->
+    <ng-container *ngIf="page.pageSections && page.pageSections.length === 1">
+      <ng-container
+        *ngFor="
+          let section of page.pageSections;
+          let currentSectionIndex = index
+        "
+      >
+        <app-survey-section
+          [page]="page"
+          [section]="section"
+          [currentSectionIndex]="currentSectionIndex"
+          [viewOnly]="viewOnly"
+          [currentFeature]="currentFeature"
+          [savedQuestionsStructs]="savedQuestionsStructs"
+          [questionTypes]="questionTypes"
+        ></app-survey-section>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="page.pageSections && page.pageSections.length > 1">
+      <mat-vertical-stepper>
+        <mat-step
+          color="primary"
+          *ngFor="
+            let section of page.pageSections;
+            let currentSectionIndex = index
+          "
+        >
+          <ng-template matStepLabel
+            >Section# {{ currentSectionIndex + 1 }} (Total Questions:
+            {{ section?.sectionQuestions?.length }})</ng-template
+          >
+          <app-survey-section
+            [page]="page"
+            [section]="section"
+            [currentSectionIndex]="currentSectionIndex"
+            [viewOnly]="viewOnly"
+            [currentFeature]="currentFeature"
+            [savedQuestionsStructs]="savedQuestionsStructs"
+            [questionTypes]="questionTypes"
+          ></app-survey-section>
+        </mat-step>
+      </mat-vertical-stepper>
+    </ng-container>
+  </div>
+  <!-- Section Ends -->
+</div>
+<!-- shadow card  -->

@@ -1,0 +1,53 @@
+:host {
+  --tab-invalid-textColor: #dc3545;
+}
+
+.invalid {
+  color: var(--tab-invalid-textColor);
+}
+
+/* For questionTypes.singleChoiceRadioH OR questionTypes.multiChoiceCheckH - starts */
+.radio-label-vertical-wrapper,
+.checkbox-label-vertical-wrapper {
+  padding-bottom: 13px;
+  position: relative;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.radio-label-vertical-wrapper:before,
+.checkbox-label-vertical-wrapper:before {
+  content: " ";
+  display: block;
+  width: 100%;
+  height: 30px;
+  background: #efefef;
+  position: absolute;
+  bottom: 0;
+}
+
+.radio-label-vertical-wrapper label:not(.radio-label-vertical),
+.checkbox-label-vertical-wrapper label:not(.checkbox-label-vertical) {
+  display: block;
+  width: 100%;
+}
+
+.radio-label-vertical,
+.checkbox-label-vertical {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.radio-label-vertical input,
+.checkbox-label-vertical input {
+  position: absolute;
+  top: 35px;
+  left: 50%;
+  margin-left: -6px;
+  display: block;
+  cursor: pointer;
+}
+/* For questionTypes.singleChoiceRadioH OR questionTypes.multiChoiceCheckH - ends */

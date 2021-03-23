@@ -1,0 +1,35 @@
+
+
+UI:
+23/11/2020
+1. Top level menu item out of 3-level menu does not collapse when the Home menu item is clicked. - FIXED 23.11.2020
+2. The vertical scroll-bar display for mat-nav-list components (Not sure if this an issue cause it currently show for the old app as well for its menu list components)
+
+UI:
+28/11/2020
+1. NOW FIXED :) 
+The Data Binding selection inputs - radio buttons and check boxes - colour should be greyish in View only mode. Right now, the colour setting is deeply integrated into the set of components used in the making of mat-radio-button and mat-checkboxes. I did change the default colour (pink) to the app required colour in the CSS file using ::ng-deep, however, need to find a way to change those to grey when in VIEW mode. Right now it can't be achived through ngStyle or ngClass cause there are multiple components and levels involved 
+
+
+04/12/2020:
+1. FIXED - resolved by Yogesh: There is currently a non-stopping ExpressionChangedAfterItHasBeenCheckedError error on the User Management => User => Client Data Access tab.
+
+It most probably occurred due to angular not liking the [disabled] attribute used inside the reactive form fields (where we disable either of the HOL or MOL for a single-selection data domain row), where it console.logs the following - 
+It looks like you're using the disabled attribute with a reactive form directive. If you set disabled to true
+      when you set up this control in your component class, the disabled attribute will actually be set in the DOM for
+      you. We recommend using this approach to avoid 'changed after checked' errors.
+
+      Example:
+      form = new FormGroup({
+        first: new FormControl({value: 'Nancy', disabled: true}, Validators.required),
+        last: new FormControl('Drew', Validators.required)
+      });
+To resolve: programmatically, in ts and not in template, disable/enable the form fields and make angular happy again
+
+Backend:
+28/11/2020
+1. COMPLETED: defaultEmailSender field is not updated at the backend server, because this field is not returned on fetching that member org.
+2. Idle connections seems to give an unknown error from the backend, needs to investigate more!
+
+
+

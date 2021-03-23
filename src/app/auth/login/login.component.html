@@ -1,0 +1,147 @@
+<!-- <app-progress-bar [isLoading]="isLoading"></app-progress-bar> -->
+<!-- 24112020 - Gaurav - The custome component for ProgressBarComponent did not work here, used the mat-progress-bar directly instead to focus on other priority items first -->
+<!-- 10022021 - Abhishek - Added class 'flex-style' for forget form design issue. -->
+<mat-progress-bar
+  mode="indeterminate"
+  color="warn"
+  [ngStyle]="{ height: '3px' }"
+  *ngIf="isLoading"
+></mat-progress-bar>
+
+<div class="login-grand-container login-page">
+  <div class="login-container">
+    <div class="login-container-box">
+      <app-reset-password *ngIf=isResetPasswordOnLogon></app-reset-password>
+      <mat-card [ngClass]="['mat-elevation-z5']" *ngIf=!isResetPasswordOnLogon>
+        <form
+          #loginForm="ngForm"
+          (ngSubmit)="onLogin(loginForm)"
+          (click)="closePanel()"
+        >
+          <div class="logo">
+            <img src="assets/img/holding_org.png" alt="Holding Org Logo" />
+          </div>
+          <mat-divider class="logo-divider"></mat-divider>
+          <mat-form-field>
+            <mat-label>Username or Email</mat-label>
+            <input
+              matInput
+              type="text"
+              name="username"
+              ngModel
+              #usernameInput="ngModel"
+              required
+              [disabled]="forgotPanelOpenState || isLoading"
+            />
+            <mat-error *ngIf="usernameInput.invalid"
+              >Please enter a valid username or email.</mat-error
+            >
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Password</mat-label>
+            <input
+              matInput
+              [type]="hide ? 'password' : 'text'"
+              name="password"
+              required
+              ngModel
+              #passwordInput="ngModel"
+              [disabled]="forgotPanelOpenState || isLoading"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              (click)="hide = !hide"
+              [attr.aria-label]="'Hide password'"
+              [attr.aria-pressed]="hide"
+              type="button"
+              [disabled]="forgotPanelOpenState"
+            >
+              <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
+            </button>
+            <mat-error *ngIf="passwordInput.invalid"
+              >Please enter a valid password.</mat-error
+            >
+          </mat-form-field>
+          <!-- <div class="forgot-btn">
+            <button mat-button>Forgot Password</button>
+          </div> -->
+
+          <div class="submit-btn">
+            <mat-divider></mat-divider>
+            <button
+              mat-raised-button
+              color="accent"
+              type="submit"
+              *ngIf="!isLoading"
+              [disabled]="!loginForm.valid || forgotPanelOpenState || isLoading || isDisableLoginSubmitButton"
+            >
+              Login
+            </button>
+          </div>
+        </form>
+        <div class="forgot-container">
+          <mat-expansion-panel
+            hideToggle
+            [ngClass]="['mat-elevation-z0']"
+            mat-ex
+            (opened)="forgotPanelOpenState = true"
+            (closed)="forgotPanelOpenState = false"
+          >
+            <mat-expansion-panel-header class="forgot-header">
+              {{
+                forgotPanelOpenState
+                  ? "Please submit your registered e-mail to get help"
+                  : "Forgot User ID / Password"
+              }}
+              <!-- <mat-panel-description>
+                Forgot User ID / Password
+              </mat-panel-description> -->
+            </mat-expansion-panel-header>
+
+            <ng-template matExpansionPanelContent>
+              <div>
+                <!-- 10022021 - Abhishek - Added class 'flex-style' for forget form design issue. -->
+                <form
+                  class="forgot-form d-flex flex-style"
+                  #forgotForm="ngForm"
+                  (ngSubmit)="onForgotCredentials(forgotForm)"
+                >
+                  <mat-form-field>
+                    <mat-label>Email</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="email"
+                      ngModel
+                      #forgotInput="ngModel"
+                      required
+                      email
+                      [disabled]="!forgotPanelOpenState || isLoading"
+                    />
+                    <mat-error *ngIf="forgotInput.invalid">
+                      Please enter a valid email.
+                    </mat-error>
+                  </mat-form-field>
+                  <button
+                    mat-button
+                    class="forgot-btn"
+                    color="accent"
+                    aria-label="Forgot Button"
+                    type="submit"
+                    [disabled]="
+                      !forgotPanelOpenState || isLoading || !forgotForm.valid || isDisableForgotSubmitButton
+                    "
+                  >
+                    Submit
+                  </button>
+                </form>
+              </div>
+            </ng-template>
+          </mat-expansion-panel>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,199 @@
+<!-- 10122020 - Gaurav - Fix to always show required asterik in red -->
+<!-- 10122020 - Gaurav - Fix for at least one privilege to be selected for a role -->
+<!-- 10122020 - Gaurav - Fixed the check-box behaviour!! -->
+<!-- 21122020 - Abhishek - Set the desable condition on check-box for INSIGHT(EDIT and VIEW is not exists for INSIGHT)!! -->
+<div class="main-container">
+  <div class="card-container">
+    <mat-card>
+      <mat-card-header>
+        <!-- Header -->
+        <mat-card-title>
+          {{ getTitle() }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ getSubTitle() ? getSubTitle() : "&nbsp;" }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <form
+          class="grid-container"
+          [formGroup]="roleProfileForm"
+          *ngIf="roleProfileForm"
+        >
+          <div class="form-group">
+            <mat-form-field>
+              <mat-label>Code<span class="field-required"> *</span></mat-label>
+              <input matInput formControlName="code" type="text" />
+              <mat-error
+                *ngIf="roleProfileForm?.controls?.code?.errors?.required"
+                >Role Code is required</mat-error
+              >
+            </mat-form-field>
+          </div>
+
+          <div class="form-group">
+            <mat-form-field>
+              <mat-label>Name<span class="field-required"> *</span></mat-label>
+              <input matInput formControlName="name" type="text" />
+              <mat-error
+                *ngIf="roleProfileForm?.controls?.name?.errors?.required"
+                >Short Role Description is required</mat-error
+              >
+            </mat-form-field>
+          </div>
+        </form>
+
+        <div class="priviliges-table-container">
+          <!-- <h3 [ngClass]="{ 'disable-color': !isCanDo() }">
+            Select priviliges for this role
+          </h3> -->
+          <table *ngIf="menuOptions" class="priviliges-table">
+            <thead>
+              <tr>
+                <th [ngClass]="{ 'disable-color': !isCanDo() }">
+                  Menu Options
+                </th>
+                <th [ngClass]="{ 'disable-color': !isCanDo() }">
+                  Config / Setup<span
+                    [ngClass]="{ 'field-required': !isPrivilegeSelected() }"
+                  >
+                    *</span
+                  >
+                </th>
+                <th [ngClass]="{ 'disable-color': !isCanDo() }">
+                  View<span
+                    [ngClass]="{ 'field-required': !isPrivilegeSelected() }"
+                  >
+                    *</span
+                  >
+                </th>
+                <th [ngClass]="{ 'disable-color': !isCanDo() }">
+                  Analytics<span
+                    [ngClass]="{ 'field-required': !isPrivilegeSelected() }"
+                  >
+                    *</span
+                  >
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of menuOptions; let i = index">
+                <td [ngClass]="{ 'disable-color': !isCanDo() }">
+                  {{ row.name }}
+                </td>
+
+                <td>
+                  <mat-checkbox
+                    #checkBoxConfig
+                    [checked]="
+                      row.privileges.includes(
+                        row.menuName + '_' + menuAccess.EDIT
+                      )
+                    "
+                    [value]="
+                      row.privileges.includes(
+                        row.menuName + '_' + menuAccess.EDIT
+                      )
+                        ? '1'
+                        : '0'
+                    "
+                    (change)="
+                      checkBoxConfig.value === '1'
+                        ? (checkBoxConfig.value = '0')
+                        : (checkBoxConfig.value = '1');
+                      isCanDo() &&
+                        setCheckOptions(
+                          i,
+                          row.menuName + '_' + menuAccess.EDIT,
+                          checkBoxConfig.value === '1'
+                        )
+                    "
+                    [disabled]="!isCanDo()  || row.menuName === menuName.INSIGHT"
+                    [ngClass]="[!isCanDo()  || row.menuName === menuName.INSIGHT ? 'disable-bgColor' : '']"
+                  ></mat-checkbox>
+                </td>
+                <td>
+                  <mat-checkbox
+                    #checkBoxView
+                    [checked]="
+                      row.privileges.includes(
+                        row.menuName + '_' + menuAccess.VIEW
+                      )
+                    "
+                    [value]="
+                      row.privileges.includes(
+                        row.menuName + '_' + menuAccess.VIEW
+                      )
+                        ? '1'
+                        : '0'
+                    "
+                    (change)="
+                      checkBoxView.value === '1'
+                        ? (checkBoxView.value = '0')
+                        : (checkBoxView.value = '1');
+                      isCanDo() &&
+                        setCheckOptions(
+                          i,
+                          row.menuName + '_' + menuAccess.VIEW,
+                          checkBoxView.value === '1'
+                        )
+                    "
+                    [disabled]="!isCanDo() || row.menuName === menuName.INSIGHT "
+                    [ngClass]="[!isCanDo() || row.menuName === menuName.INSIGHT  ? 'disable-bgColor' : '']"
+                  ></mat-checkbox>
+                </td>
+                <td>
+                  <mat-checkbox
+                    #checkBoxAnalytics
+                    [checked]="
+                      row.privileges.includes(
+                        row.menuName + '_' + menuAccess.ANALYTICS
+                      )
+                    "
+                    [value]="
+                      row.privileges.includes(
+                        row.menuName + '_' + menuAccess.ANALYTICS
+                      )
+                        ? '1'
+                        : '0'
+                    "
+                    (change)="
+                      checkBoxAnalytics.value === '1'
+                        ? (checkBoxAnalytics.value = '0')
+                        : (checkBoxAnalytics.value = '1');
+                      isCanDo() &&
+                        setCheckOptions(
+                          i,
+                          row.menuName + '_' + menuAccess.ANALYTICS,
+                          checkBoxAnalytics.value === '1'
+                        )
+                    "
+                    [disabled]="!isCanDo()"
+                    [ngClass]="[!isCanDo() ? 'disable-bgColor' : '']"
+                  ></mat-checkbox>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-card-content>
+      <mat-divider></mat-divider>
+      <mat-card-actions>
+        <!-- Buttons -->
+        <button
+          (click)="onSubmit()"
+          mat-raised-button
+          class="btn-action"
+          *ngIf="isCanDo()"
+          [disabled]="!roleProfileForm?.valid || !isPrivilegeSelected()"
+        >
+          {{ getActionButtonText() }}
+        </button>
+        <button mat-raised-button class="btn-cancel" (click)="onCancel()">
+          Cancel
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

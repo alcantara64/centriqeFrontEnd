@@ -1,0 +1,180 @@
+/* 28112020 - Gaurav - Init version */
+/* 29012021 - Abhishek - Added action view button css */
+:host {
+  /* Search CSS Colors */
+  --button-bgcolor: #145993;
+  --button-textColor: #ffffff;
+  --mat-sort-header-sorted: #000000;
+  --disabled-selections: #757575;
+  --view-icon: #145993;
+  --view-icon-button: #1459934d;
+  --view-icon-button-hover: #145993;
+}
+
+.main-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+}
+
+.table-container {
+  width: 100%;
+}
+
+.table-container-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-container-table .mat-table {
+  width: 100%;
+  min-width: 350px;
+}
+
+/* All about action view buttons - Start */
+.action-buttons mat-icon {
+  font-size: 18px;
+}
+
+.action-buttons {
+  margin: 5px;
+}
+
+.action-buttons {
+  width: 30px;
+  height: 30px;
+  font-size: 0px;
+}
+::ng-deep .mat-mini-fab .mat-button-wrapper {
+  padding: 0px;
+}
+
+.view-icon {
+  color: var(--view-icon);
+}
+
+.action-buttons.view-button:hover {
+  background-color: var(--view-icon-button-hover);
+}
+
+.action-buttons.view-button {
+  background-color: var(--view-icon-button);
+}
+
+.table-top {
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.table-top_row1,
+.table-top_row2 {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-top_row2 button {
+  background-color: var(--button-bgcolor);
+  color: var(--button-textColor);
+}
+
+.table-top_row2 button.disabled {
+  background-color: var(--disabled-selections);
+}
+
+.table-title {
+  margin-bottom: 8px;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+th.mat-sort-header-sorted {
+  color: var(--mat-sort-header-sorted);
+}
+
+.mat-header-cell {
+  font-size: 14px;
+}
+
+/* 17022021 - Abhishek - Added padding-right css with !important to set column spacing in all the tables */
+th.mat-header-cell:last-of-type,
+td.mat-cell:last-of-type,
+td.mat-footer-cell:last-of-type {
+  padding-right: 0px !important;
+}
+
+::ng-deep
+  .mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+::ng-deep
+  .mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+::ng-deep .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
+::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-background {
+  background-color: var(--button-bgcolor);
+}
+
+/* MEDIA QUERIES */
+@media screen and (max-width: 550px) {
+  .main-container {
+    padding: 10px;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .action-buttons {
+    width: 25px;
+    height: 25px;
+  }
+
+  .action-buttons mat-icon {
+    font-size: 14px;
+  }
+
+  .mat-form-field {
+    font-size: 12px;
+    width: 100%;
+  }
+
+  /* table {
+    width: 100%;
+  } */
+
+  .mat-header-cell {
+    font-size: 12px;
+  }
+
+  .mat-cell {
+    font-size: 12px;
+  }
+
+  /* th.mat-header-cell:first-of-type,
+  td.mat-cell:first-of-type,
+  td.mat-footer-cell:first-of-type {
+    padding-left: 10px;
+  } */
+
+  .table-top {
+    flex-direction: column;
+  }
+
+  .table-top_row1,
+  .table-top_row2,
+  .table-add-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .hide-small-screen {
+    display: none;
+  }
+}

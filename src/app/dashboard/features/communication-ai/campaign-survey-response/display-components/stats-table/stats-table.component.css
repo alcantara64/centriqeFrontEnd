@@ -1,0 +1,20 @@
+:host {
+  --table-hover-colour: #d4edda80;
+  --table-odd-row-colour: #d4edda1a;
+}
+
+.large-font-size {
+  font-size: 24px;
+}
+
+.mat-row:nth-child(odd) {
+  background: var(--table-odd-row-colour);
+}
+
+.mat-row:hover {
+  background: var(--table-hover-colour);
+}
+
+.reduced-padding {
+  padding: 0 5px;
+}

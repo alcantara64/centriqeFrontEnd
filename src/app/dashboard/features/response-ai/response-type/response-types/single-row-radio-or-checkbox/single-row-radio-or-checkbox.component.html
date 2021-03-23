@@ -1,0 +1,339 @@
+<!-- 05012021 - Gaurav - Init version -->
+<!-- 12012021 - Gaurav - Some validation changes -->
+<div class="col-12">
+  <form [formGroup]="form">
+    <!-- Base Fields - Starts -->
+    <div class="row">
+      <div class="col-sm-12">
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label
+            >Identifier Name <span class="field-required">*</span></mat-label
+          >
+          <input
+            matInput
+            formControlName="responseIdentifierText"
+            type="text"
+            placeholder="Ex. checkin_process_response, user_contact_preferences, user_rating, etc."
+            (keypress)="
+              templateFieldValidationService.allowNoSpaceAndSpecialChars(
+                $event,
+                { lowercaseOnly: true }
+              )
+            "
+            (change)="
+              this.question
+                ? (this.question.responseIdentifierText = form.get(
+                    'responseIdentifierText'
+                  )?.value)
+                : ''
+            "
+            [maxlength]="responseIdentifierTextMaxLength"
+          />
+          <mat-hint
+            >A unique identifier used to identify customer response for this
+            question.</mat-hint
+          >
+          <mat-error
+            *ngIf="form?.controls?.responseIdentifierText?.errors?.required"
+            >Name is a required field</mat-error
+          >
+        </mat-form-field>
+      </div>
+      <div class="col-sm-6" *ngIf="surveyMode">
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label>Display Question Number (Optional)</mat-label>
+          <input
+            matInput
+            formControlName="questionNumberOrderToDisplay"
+            type="number"
+            placeholder="Ex. 1"
+            onkeypress="return event.charCode >= 48"
+            min="1"
+            (change)="
+              this.question
+                ? (this.question.questionNumberOrderToDisplay = form.get(
+                    'questionNumberOrderToDisplay'
+                  )?.value)
+                : ''
+            "
+          />
+          <mat-hint>Question number to display</mat-hint>
+        </mat-form-field>
+      </div>
+      <div class="col-sm-6 my-xs-3 mt-sm-4">
+        <mat-slide-toggle
+          formControlName="questionRequired"
+          (change)="
+            this.question
+              ? (this.question.required = form.get('questionRequired')?.value)
+              : ''
+          "
+          >Required</mat-slide-toggle
+        >
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-sm-12">
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label>Question Text</mat-label>
+          <input
+            matInput
+            formControlName="questionText"
+            placeholder="Ex. Please rate your overall experience:"
+            [maxlength]="questionTextFieldMaxLength"
+            (change)="
+              this.question
+                ? (this.question.questionText = form.get('questionText')?.value)
+                : ''
+            "
+          />
+          <mat-hint align="end"
+            >{{ form.get("questionText")?.value?.length || 0 }}/{{
+              questionTextFieldMaxLength
+            }}</mat-hint
+          >
+        </mat-form-field>
+      </div>
+      <div class="col-sm-12">
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label>Sub-Question Text</mat-label>
+          <input
+            matInput
+            formControlName="subQuestionText"
+            placeholder="Ex. Field to add question in any other or local language"
+            [maxlength]="questionTextFieldMaxLength"
+            (change)="
+              this.question
+                ? (this.question.subQuestionText = form.get(
+                    'subQuestionText'
+                  )?.value)
+                : ''
+            "
+          />
+          <mat-hint align="end"
+            >{{ form.get("subQuestionText")?.value?.length || 0 }}/{{
+              questionTextFieldMaxLength
+            }}</mat-hint
+          >
+        </mat-form-field>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <!-- Base Fields - Ends -->
+
+    <div class="elements-main">
+      <h3 [ngClass]="[viewOnly ? 'disable-bgColor' : '']">
+        Add new select option
+        <button
+          mat-mini-fab
+          type="button"
+          matTooltip="Add"
+          matTooltipPosition="above"
+          color="none"
+          [ngClass]="[
+            'mat-elevation-z0',
+            viewOnly ? 'disable-bgColor' : 'action-buttons',
+            viewOnly ? 'disable-bgColor' : 'add-button'
+          ]"
+          (click)="onAddElement()"
+          [disabled]="viewOnly"
+        >
+          <mat-icon
+            matBadgeSize="small"
+            [matBadge]="elements?.length"
+            [ngClass]="['add-icon']"
+            >playlist_add</mat-icon
+          >
+        </button>
+      </h3>
+
+      <div class="elements-table-container">
+        <table class="elements-table" *ngIf="elements?.length! > 0">
+          <thead>
+            <tr>
+              <th [ngClass]="[viewOnly ? 'disable-color' : '']">
+                Display Label
+              </th>
+              <th [ngClass]="[viewOnly ? 'disable-color' : '']">
+                Analytics Value
+              </th>
+              <th><mat-icon>delete</mat-icon></th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container formArrayName="elements">
+              <tr
+                *ngFor="let row of elements; let i = index"
+                [formGroupName]="i"
+              >
+                <td>
+                  <div class="form-group">
+                    <mat-form-field appearance="outline">
+                      <mat-label
+                        >Display Label# {{ i + 1 }}
+                        <span class="field-required">*</span></mat-label
+                      >
+                      <input
+                        matInput
+                        formControlName="label"
+                        maxlength="50"
+                        placeholder="Ex. Excellent, Extremely Likely, Less than a year, etc."
+                        (change)="onChangeElementValue()"
+                      />
+                      <mat-hint align="end"
+                        >{{ row.get("label")?.value?.length || 0 }}/50</mat-hint
+                      >
+                      <mat-error *ngIf="row.get('label')?.errors?.required"
+                        >Display Label# {{ i + 1 }} is a required
+                        field</mat-error
+                      >
+                    </mat-form-field>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-group">
+                    <mat-form-field appearance="outline">
+                      <mat-label
+                        >Analytics Value# {{ i + 1 }}
+                        <span class="field-required">*</span></mat-label
+                      >
+                      <input
+                        matInput
+                        formControlName="value"
+                        maxlength="50"
+                        placeholder="Ex. excellent, 5, less_than_year, etc."
+                        (change)="onChangeElementValue()"
+                      />
+                      <mat-hint align="end"
+                        >{{ row.get("value")?.value?.length || 0 }}/50</mat-hint
+                      >
+                      <mat-error *ngIf="row.get('value')?.errors?.required"
+                        >Analytics Value# {{ i + 1 }} is a required
+                        field</mat-error
+                      >
+                    </mat-form-field>
+                  </div>
+                </td>
+                <td>
+                  <button
+                    mat-mini-fab
+                    type="button"
+                    color="none"
+                    matTooltip="Delete"
+                    matTooltipPosition="above"
+                    [ngClass]="[
+                      'mat-elevation-z0',
+                      viewOnly ? 'disable-bgColor' : 'action-buttons',
+                      viewOnly ? 'disable-bgColor' : 'delete-button'
+                    ]"
+                    (click)="onDeleteElement(i)"
+                    [disabled]="viewOnly"
+                  >
+                    <mat-icon [ngClass]="['delete-icon']">delete</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-6 my-xs-3 my-sm-4">
+        <mat-slide-toggle
+          formControlName="addAdditionalTextField"
+          (change)="
+            onAdditionalInputToggle();
+            this.question
+              ? (this.question.questionTypeStructure.addAdditionalTextField = form.get(
+                  'addAdditionalTextField'
+                )?.value)
+              : ''
+          "
+          >Add Additional Text Input Field</mat-slide-toggle
+        >
+      </div>
+    </div>
+
+    <ng-container *ngIf="form.get('addAdditionalTextField')?.value">
+      <mat-divider class="mt-2"></mat-divider>
+      <div class="form-row mt-3">
+        <div class="col-sm-6">
+          <mat-form-field appearance="outline">
+            <mat-label
+              >Max Characters <span class="field-required">*</span></mat-label
+            >
+            <input
+              matInput
+              formControlName="additionalTextMaxLength"
+              type="number"
+              [placeholder]="'Ex. ' + additionalInputSettings.maxLength.min"
+              (keypress)="
+                templateFieldValidationService.allowNoSpaceAndSpecialChars(
+                  $event,
+                  { numberOnly: true }
+                )
+              "
+              [max]="additionalInputSettings.maxLength.max"
+              [min]="additionalInputSettings.maxLength.min"
+              (change)="
+                this.question
+                  ? (this.question.questionTypeStructure.additionalText.maxLength = form.get(
+                      'additionalTextMaxLength'
+                    )?.value)
+                  : ''
+              "
+            />
+            <mat-error
+              *ngIf="
+                form?.controls?.additionalTextMaxLength?.errors?.required ||
+                form?.controls?.additionalTextMaxLength?.errors?.max ||
+                form?.controls?.additionalTextMaxLength?.errors?.min
+              "
+              >Max Characters cannot be less than
+              {{ additionalInputSettings.maxLength.min }} or greater than
+              {{ additionalInputSettings.maxLength.max }}</mat-error
+            >
+          </mat-form-field>
+        </div>
+        <div class="col-sm-6">
+          <mat-form-field appearance="outline">
+            <mat-label>Rows <span class="field-required">*</span></mat-label>
+            <input
+              matInput
+              formControlName="additionalTextRows"
+              type="number"
+              [placeholder]="'Ex. ' + additionalInputSettings.rows.min"
+              (keypress)="
+                templateFieldValidationService.allowNoSpaceAndSpecialChars(
+                  $event,
+                  { numberOnly: true }
+                )
+              "
+              [max]="additionalInputSettings.rows.max"
+              [min]="additionalInputSettings.rows.min"
+              (change)="
+                this.question
+                  ? (this.question.questionTypeStructure.additionalText.rows = form.get(
+                      'additionalTextRows'
+                    )?.value)
+                  : ''
+              "
+            />
+            <mat-error
+              *ngIf="
+                form?.controls?.additionalTextRows?.errors?.required ||
+                form?.controls?.additionalTextRows?.errors?.max ||
+                form?.controls?.additionalTextRows?.errors?.min
+              "
+              >Rows cannot be less than
+              {{ additionalInputSettings.rows.min }} or greater than
+              {{ additionalInputSettings.rows.max }}</mat-error
+            >
+          </mat-form-field>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>

@@ -1,0 +1,23 @@
+<mat-nav-list class="bottom-sheet-dialog">
+  <h2>{{campName}}</h2>
+  <a href="javascript:void(0);" mat-list-item (click)="openLink($event, returnType.launched_yes)" *ngIf="campType != 'list'">
+    <span mat-line>Launch</span>
+    <span class="info" mat-line>After a campaign has been launched, you will not be able to change its parameters anymore. You will only be able to terminate the campaign.</span>
+  </a>
+
+  <a href="javascript:void(0);" mat-list-item (click)="openLink($event, returnType.draft_yes)" *ngIf="campType != 'list'">
+    <span mat-line>Save as draft</span>
+    <span class="info" mat-line>When you save the campaign in draft mode, you will be able to come back later and do changes to the configuration. In this status events will not be triggered – no messages will be sent.</span>
+  </a>
+
+  <a href="javascript:void(0);" mat-list-item (click)="openLink($event, returnType.terminate_yes)" *ngIf="campType == 'list'">
+    <span mat-line>Terminate</span>
+    <span class="info" mat-line>Do you really want to terminate the campaign? All future events will be canceled. You will not be able to activate the campaign again.</span>
+  </a>
+
+  <a href="javascript:void(0);" mat-list-item (click)="openLink($event, returnType.delete_yes)" *ngIf="campType == 'Edit'">
+    <span mat-line>Delete</span>
+    <span class="info" mat-line>Do you really want to delete the campaign? The data will be lost.</span>
+  </a>
+
+</mat-nav-list>

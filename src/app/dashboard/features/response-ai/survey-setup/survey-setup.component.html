@@ -1,0 +1,235 @@
+<!-- 29122020 - Gaurav - Init version -->
+<!-- 13012021 - Gaurav - Added Pages column to display the number of pages the survey has -->
+<!-- 22012021 - Gaurav - Added org DrDw component -->
+<div class="main-container">
+  <div class="table-container mat-elevation-z8">
+    <div class="table-top">
+      <div class="table-top_row1">
+        <h2 class="table-title">
+          List of
+          {{ currentFeature === dataDomainList.nps ? "NPS" : "Response AI" }}
+          Surveys
+        </h2>
+        <mat-form-field>
+          <mat-label>Search</mat-label>
+          <input
+            matInput
+            (keyup)="applyFilter($event)"
+            placeholder="Ex. org"
+            #input
+            [disabled]="isLoading"
+          />
+        </mat-form-field>
+      </div>
+
+      <div class="table-top_row2  table-top_row1" >
+        <app-org-dropdownlist
+        [currentFeatureDataDomain]="currentFeature"
+        [parentSelectedHoldingOrgData]="selectedHoldingOrgData"
+        [parentOrgAccessInformation]="orgAccessInformation"
+        (fromOrgDrDw)="listenToDrDw($event)"
+      ></app-org-dropdownlist>
+
+        <button
+        *ngIf="isShowEditComponents()"
+          mat-raised-button
+          class="table-add-btn"
+          (click)="onAdd()"
+          [disabled]="isLoading"
+        >
+          Add
+          {{ currentFeature === dataDomainList.nps ? "NPS" : "Response AI" }}
+          Survey
+        </button>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+
+    <div class="table-container-table" *ngIf="dataSource">
+      <table mat-table [dataSource]="dataSource" matSort>
+        <ng-container matColumnDef="displayName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Survey Name (Code)
+          </th>
+          <td mat-cell *matCellDef="let element">
+            {{ element?.name }} ({{ element?.code }})
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="org">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Org</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element?.holdingOrg?.name }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="pages">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Pages</th>
+          <td class="text-center" mat-cell *matCellDef="let element">
+            {{ element?.surveyPages?.length }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            System Status
+          </th>
+          <td
+            mat-cell
+            *matCellDef="let element"
+            [ngClass]="[element?.status === 1 ? 'active' : 'inactive']"
+          >
+            {{ element?.status === 1 ? "Active" : "Inactive" }}
+          </td>
+        </ng-container>
+
+        <ng-container
+          class="action-buttons-container"
+          matColumnDef="action_buttons"
+          stickyEnd
+        >
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let element">
+            <div class="action-buttons-row">
+              <button
+                *ngIf="isShowEditComponents()"
+                mat-mini-fab
+                matTooltip="Edit"
+                matTooltipPosition="above"
+                color="none"
+                [ngClass]="[
+                  'mat-elevation-z0',
+                  'action-buttons',
+                  'edit-button'
+                ]"
+                (click)="onEdit(element?._id)"
+              >
+                <mat-icon [ngClass]="['edit-icon']">edit</mat-icon>
+              </button>
+              <button
+                *ngIf="isShowEditComponents()"
+                mat-mini-fab
+                matTooltip="Copy"
+                matTooltipPosition="above"
+                color="none"
+                [ngClass]="[
+                  'mat-elevation-z0',
+                  'action-buttons',
+                  'copy-button'
+                ]"
+                (click)="onDuplicate(element?._id, element?.name)"
+              >
+                <mat-icon [ngClass]="['copy-icon']">library_books</mat-icon>
+              </button>
+              <button
+                *ngIf="isShowEditComponents()"
+                mat-mini-fab
+                [matTooltip]="element?.status === 1 ? 'Inactivate' : 'Activate'"
+                matTooltipPosition="above"
+                color="none"
+                [ngClass]="[
+                  'mat-elevation-z0',
+                  'action-buttons',
+                  element?.status === 1
+                    ? 'status-button'
+                    : 'status-button-inactive'
+                ]"
+                (click)="
+                  onStatusChange(element?.status, element?._id, element?.name)
+                "
+              >
+                <mat-icon
+                  [ngClass]="[
+                    element?.status === 1
+                      ? 'status-icon'
+                      : 'status-icon-inactive'
+                  ]"
+                  >{{
+                    element?.status === 1 ? "toggle_on" : "toggle_off"
+                  }}</mat-icon
+                >
+              </button>
+              <!-- 30122020 - Gaurav - Added new live preview icon for the saved survey -->
+              <!-- 04012021 - Gaurav - Added noopener noreferrer -->
+              <a
+                rel="noopener noreferrer"
+                href="{{
+                  ngMultiPurposeAppUrl +
+                    '/#/surveys/' +
+                    element?._id +
+                    '/preview/' +
+                    element?.previewId
+                }}"
+                target="_blank"
+                *ngIf="ngMultiPurposeAppUrl.length > 0"
+              >
+                <button
+                  mat-mini-fab
+                  matTooltip="Live Web View"
+                  matTooltipPosition="above"
+                  color="none"
+                  [ngClass]="[
+                    'mat-elevation-z0',
+                    'action-buttons',
+                    'web-view-button'
+                  ]"
+                >
+                  <mat-icon [ngClass]="['web-view-icon']">preview</mat-icon>
+                </button>
+              </a>
+
+              <button
+                mat-mini-fab
+                matTooltip="View"
+                matTooltipPosition="above"
+                color="none"
+                [ngClass]="[
+                  'mat-elevation-z0',
+                  'action-buttons',
+                  'view-button'
+                ]"
+                (click)="onView(element?._id)"
+              >
+                <mat-icon [ngClass]="['view-icon']">visibility</mat-icon>
+              </button>
+              <button
+                *ngIf="isShowEditComponents()"
+                mat-mini-fab
+                matTooltip="Delete"
+                matTooltipPosition="above"
+                color="none"
+                [ngClass]="[
+                  'mat-elevation-z0',
+                  'action-buttons',
+                  'delete-button'
+                ]"
+                (click)="onDelete(element?._id, element?.name)"
+              >
+                <mat-icon [ngClass]="['delete-icon']">delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Sticky header row -->
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayedColumns; sticky: true"
+        ></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+        <!-- Row shown when there is no matching data. -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" colspan="4">
+            {{ input.value.length > 0 ? 'No data matching the filter"' : "" }}
+            {{ input.value }} {{ input.value.length > 0 ? '"' : "" }}
+          </td>
+        </tr>
+      </table>
+    </div>
+    <mat-paginator
+      [pageSizeOptions]="[10, 20, 30]"
+      showFirstLastButtons
+    ></mat-paginator>
+  </div>
+</div>

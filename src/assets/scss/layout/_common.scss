@@ -1,0 +1,205 @@
+.field-required {
+  color: $field-required-color;
+}
+
+.cdyNRy .blockbuilder-branding {
+  display: none !important;
+}
+
+//Card container styles
+.card-container {
+  width: 100%;
+  .mat-card-header {
+    .mat-card-header-text {
+      margin: 0;
+    }
+  }
+}
+.main-container {
+  padding: 20px;
+  display: flex;
+  justify-content: $align-center;
+}
+
+
+//campaign/system-admin styles start
+.messageInfo,
+.adminMessage {
+  border: 1px solid #e4e4e4;
+  margin: 0;
+  background: #f3f3f3;
+  margin-top: 10px;
+  padding-top: 10px;
+  .col-4,
+  .col-3 {
+    padding-bottom: 15px;
+    label {
+      display: block;
+      font-size: 11px;
+      color: $color-gray;
+      margin: 0;
+    }
+  }
+  .col-12 h4 {
+    color: $color-gray;
+    margin: 0;
+    padding-top: 15px;
+  }
+  iframe {
+    width: 100%;
+    border: 6px solid rgba($primary-color, 0.2);
+    background: $color-white;
+  }
+}
+.adminMessaageCard {
+  h4 {
+    margin-bottom: 5px !important;
+    color: $color-gray;
+  }
+  .adminMessage {
+    margin: 15px 0;
+    margin-top: 15px !important;
+  }
+  .eventsList > div {
+    border: 1px solid #f3f3f3;
+  }
+  iframe {
+    width: 100%;
+    border: 6px solid rgba($primary-color, 0.2);
+    background: $color-white;
+  }
+}
+//campaign/system-admin styles end
+
+.mat-table {
+  tbody tr:hover {
+    background: rgba($primary-color, 0.1);
+    td {
+      background: none;
+    }
+  }
+}
+
+//table row expand styles start
+.rowExapandTable {
+  .expand-td {
+    &:hover {
+      background-color: none;
+    }
+    padding-left: 0 !important;
+    > div.example-element-detail {
+      max-height: 250px;
+      overflow: auto;
+      pre {
+        border-radius: 10px;
+        box-shadow: inset 2px 3px 8px #c1c1c1;
+        background: #e5f3ff;
+        padding: 15px;
+        margin: 0;
+      }
+    }
+  }
+
+  tr.example-detail-row {
+    height: 0;
+  }
+
+  tr.example-element-row:not(.example-expanded-row):hover {
+    background: whitesmoke;
+  }
+
+  tr.example-element-row:not(.example-expanded-row):active {
+    background: $hover-bg-color;
+  }
+
+  .example-element-row td {
+    border-bottom-width: 0;
+  }
+
+  .example-element-detail {
+    overflow: hidden;
+    display: flex;
+  }
+
+  .example-element-diagram {
+    min-width: 80px;
+    border: 2px solid $color-black;
+    padding: 8px;
+    font-weight: lighter;
+    margin: 8px 0;
+    height: 104px;
+  }
+
+  .example-element-symbol {
+    font-weight: bold;
+    font-size: 40px;
+    line-height: normal;
+  }
+
+  .example-element-description {
+    padding: 16px;
+    width: $hundred-percent;
+    height: $hundred-percent;
+  }
+}
+//table row expand styles end
+
+//Mat styles
+/* Careful changing these ::ng-deep settings */
+::ng-deep
+  .mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+::ng-deep
+  .mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+::ng-deep .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
+::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-background {
+  background-color: $btn-bgcolor;
+}
+
+//::ng-deep
+  .disable-bgColor.mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+//::ng-deep
+  .disable-bgColor.mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+//::ng-deep
+  .disable-bgColor.mat-checkbox-indeterminate.mat-accent
+  .mat-checkbox-background,
+//::ng-deep
+  .disable-bgColor.mat-checkbox-checked.mat-accent
+  .mat-checkbox-background {
+  background-color: $disabled-selections;
+}
+/* Roles Drag-Drop - Starts */
+//::ng-deep
+  .mat-button-toggle-appearance-standard
+  .mat-button-toggle-label-content {
+  line-height: 0px;
+}
+
+mat-card-actions {
+  text-align: right;
+}
+mat-form-field {
+  width: 100%;
+  padding-top: 8px;
+}
+
+.field-required {
+  color: $field-required-color;
+}
+.disable-color {
+  color: $disabled-selections;
+}
+.tab-invalid {
+  color: $tab-invalid-textColor;
+}
+
+.grid-container {
+  display: grid;
+  grid-column-gap: 30px;
+  grid-template-columns: auto auto auto;
+  padding: 10px;
+  padding-top: 15px;
+}

@@ -1,0 +1,46 @@
+.elements-main {
+  padding-top: 15px;
+  padding: 10px;
+
+  h3 {
+    font-size: 18px;
+  }
+}
+
+.elements-table-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.elements-table {
+  td,
+  th {
+    border: 1px solid $tablerow-bgColor;
+    padding: 8px;
+    text-align: center;
+  }
+
+  th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    background-color: $btn-bgcolor;
+    color: $white;
+  }
+}
+
+.disable-color {
+  color: $disabled-selections;
+}
+
+h3 {
+  .disable-bgColor {
+    color: $disabled-selections;
+  }
+}
+
+th {
+  .disable-color {
+    color: $disabled-selections;
+  }
+}

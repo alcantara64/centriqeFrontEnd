@@ -1,0 +1,56 @@
+:host {
+  --table-hover-colour: #d4edda80;
+  --table-odd-row-colour: #d4edda1a;
+}
+
+.main-container {
+  display: flex;
+  justify-content: center;
+}
+
+.card-container {
+  width: 100%;
+}
+
+.large-font-size {
+  font-size: 24px;
+}
+
+.likert-panel-header {
+  height: 110px;
+}
+
+.mat-row:nth-child(odd) {
+  background: var(--table-odd-row-colour);
+}
+
+.mat-row:hover {
+  background: var(--table-hover-colour);
+}
+
+.light-green-bg {
+  background: var(--table-odd-row-colour);
+}
+
+.pdf-pages {
+  top: 0;
+}
+/* Show one page at a time */
+.show-singleton {
+  position: absolute;
+  top: 0;
+}
+
+/* Determinate spinner CSS */
+.spinner-center {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.32);
+  z-index: 20000;
+}

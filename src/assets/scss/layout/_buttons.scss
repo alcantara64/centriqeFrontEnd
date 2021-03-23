@@ -1,0 +1,61 @@
+// common button styles
+button:focus {
+  outline: none;
+}
+
+.add-icon {
+  color: $add-icon;
+}
+
+.delete-icon {
+  color: $delete-icon;
+}
+
+.btn-action,
+.btn-cancel {
+  color: $white;
+}
+
+.btn-action {
+  background-color: $primary-color;
+}
+
+.btn-cancel {
+  background-color: $btn-bgcolor-cancel;
+}
+.action-buttons {
+  margin: 5px !important;
+  width: 30px !important;
+  height: 30px !important;
+  font-size: 0px !important;
+
+  mat-icon {
+    font-size: 18px;
+    &:hover {
+      color: $all-icons-hover;
+    }
+  }
+
+  &:hover mat-icon {
+    color: $white;
+  }
+
+  &.add-button {
+    background-color: $add-icon-button;
+    &:hover {
+      background-color: $add-icon-button-hover;
+    }
+  }
+
+  .delete-button {
+    background-color: $delete-icon-button;
+    &:hover {
+      background-color: $delete-icon-button-hover;
+    }
+  }
+}
+.mat-mini-fab {
+  .mat-button-wrapper{
+    padding: 0 !important;
+  }
+}

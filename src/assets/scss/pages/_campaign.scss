@@ -1,0 +1,141 @@
+.filter-criteria-table {
+  .and-or {
+    text-align: $align-center;
+    vertical-align: middle;
+    button {
+      display: block;
+    }
+    .btn-action {
+      margin-bottom: 5px;
+    }
+  }
+  td.startParamTd {
+    width: 100px;
+    position: relative;
+    mat-form-field {
+      width: 70px;
+      pointer-events: none;
+      input {
+        pointer-events: none;
+      }
+    }
+    .arrow-up {
+      top: 20px;
+    }
+    .arrow-down {
+      bottom: 16px;
+    }
+    .arrow-up,
+    .arrow-down {
+      position: absolute;
+      right: 11px;
+      color: #2196f3;
+      padding: 0 5px;
+      cursor: pointer;
+      &:hover {
+        color: $color-danger;
+      }
+    }
+  }
+}
+.form-check-label {
+  white-space: nowrap;
+}
+
+.event-timeZone {
+  background: #f7f7f7;
+  padding: 0.5rem 1rem;
+  padding-bottom: 3px;
+  span.time {
+    color: #ababab;
+  }
+  button {
+    float: right;
+    line-height: 25px;
+    top: -4px;
+  }
+  .back-btn {
+    text-align: right;
+    mat-icon {
+      transform: rotate(180deg);
+      cursor: pointer;
+      color: $primary-color;
+    }
+  }
+}
+.viewResponseDisabled {
+  background: #fbecef !important;
+  pointer-events: none;
+  mat-icon {
+    color: #f6c5cd !important;
+  }
+}
+.card-container {
+  .campaign-form {
+    h4 {
+      margin-bottom: 5px !important;
+      color: $color-gray;
+    }
+  }
+}
+
+.timeZone {
+  right: 20px;
+  position: absolute;
+  margin-top: -20px;
+  color: $color-gray;
+  span {
+    color: $color-black;
+  }
+}
+.messageDisabled {
+  background: #c7d7c782 !important;
+  pointer-events: none;
+  mat-icon {
+    color: #477b4766 !important;
+  }
+}
+.p-buttonset button {
+  padding: 0;
+  margin: 0;
+  line-height: 1.8;
+  font-size: 12px;
+}
+.campaign-recur {
+  border: 1px solid #d6d6d6;
+  margin: 0px;
+  padding: 15px 0;
+  background: #f1f1f1;
+  input[type="radio"] {
+    margin-right: 5px;
+  }
+  .scheduleBox {
+    .main {
+      background: $color-white;
+      padding: 0.5rem 1rem;
+    }
+  }
+}
+//Schedule preview dialog styles start
+.scheduleDialog {
+  ul {
+    list-style: none;
+    padding: 0;
+    li {
+      padding: 5px 0;
+      position: relative;
+      &:hover {
+        background: $hover-bg-color;
+        color: $primary-color;
+      }
+      mat-icon {
+        position: absolute;
+        font-size: 18px;
+      }
+      span {
+        margin-left: 25px;
+      }
+    }
+  }
+}
+//Schedule preview dialog styles end

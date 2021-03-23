@@ -1,0 +1,162 @@
+<div class="main-container">
+  <div class="card-container">
+    <mat-card>
+      <mat-card-header>
+        <!-- Header -->
+        <mat-card-title>
+          {{ getTitle() }}
+        </mat-card-title>
+        <!-- 08022021 - Abhishek - Added subheader -->
+        <mat-card-subtitle>
+          {{ getSubTitle() ? getSubTitle() : "&nbsp;" }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <mat-tab-group animationDuration="0ms" (selectedTabChange)="tabChangeFun($event)"
+                       [(selectedIndex)]="selectedIndex">
+          <mat-tab [label]="
+              !templateFG?.valid &&
+              (templateFG?.touched || templateFG?.dirty)
+                ? 'Template Profile *'
+                : 'Template Profile'
+            ">
+            <form [formGroup]="templateFG" *ngIf="templateFG">
+              <div class="grid-container">
+                <div class="form-group">
+                  <mat-form-field>
+                    <mat-label>{{orgLable}}</mat-label>
+                    <input matInput formControlName="memberOrg" type="text"/>
+                    </mat-form-field>
+                </div>
+                <div class="form-group">
+                  <mat-form-field>
+                    <mat-label>
+                      {{
+                    templateFG?.controls?.tempCode?.errors?.required &&
+                    (templateFG?.controls?.tempCode?.touched ||
+                      templateFG?.controls?.tempCode?.dirty)
+                      ? "Template Code *"
+                      : "Template Code"
+                      }}
+                    </mat-label>
+                    <input matInput formControlName="tempCode" type="text" />
+                    <mat-error *ngIf="templateFG?.controls?.tempCode?.errors?.required">Template Code is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="form-group">
+                  <mat-form-field>
+                    <mat-label>
+                      {{
+                    templateFG?.controls?.tempName?.errors?.required &&
+                    (templateFG?.controls?.tempName?.touched ||
+                      templateFG?.controls?.tempName?.dirty)
+                      ? "Template Name *"
+                      : "Template Name"
+                      }}
+                    </mat-label>
+                    <input matInput formControlName="tempName" type="text" />
+                    <mat-error *ngIf="templateFG?.controls?.tempName?.errors?.required">Template Name is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="form-group">
+                  <mat-form-field>
+                    <mat-label>
+                      {{
+                    templateFG?.controls?.description?.errors?.required &&
+                    (templateFG?.controls?.description?.touched ||
+                      templateFG?.controls?.description?.dirty)
+                      ? "Description *"
+                      : "Description"
+                      }}
+                    </mat-label>
+                    <input matInput formControlName="description" type="text" />
+                    <mat-error *ngIf="templateFG?.controls?.description?.errors?.required">Description is required</mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+            </form>
+          </mat-tab>
+          <mat-tab label="Email">
+            <div class="config-tab">
+                <div class="section__2">
+                  <form [formGroup]="templateEmailFG" *ngIf="templateEmailFG" class="row">
+                      <div class="form-group col-6">
+                          <mat-form-field>
+                            <mat-label>
+                              {{
+                                templateEmailFG?.controls?.subject?.errors?.required &&
+                            (templateEmailFG?.controls?.subject?.touched ||
+                            templateEmailFG?.controls?.subject?.dirty)
+                              ? "Subject *"
+                              : "Subject"
+                              }}
+                            </mat-label>
+                            <input matInput formControlName="subject" type="text" />
+                            <mat-error *ngIf="templateEmailFG?.controls?.subject?.errors?.required">Subject is required</mat-error>
+                          </mat-form-field>
+                        </div>
+                  </form>
+                </div>
+            </div>
+          </mat-tab>
+          <mat-tab label="SMS">
+              <div class="config-tab">
+                  <div class="section__2">
+                    <form [formGroup]="templateSMSFG" *ngIf="templateSMSFG">
+                      <div class="row">
+                        <div class="col-6">
+                          <div class="form-group">
+                              <mat-form-field>
+                                <mat-label>Text</mat-label>
+                                <textarea matInput formControlName="smsText" maxlength="160"></textarea>
+                              </mat-form-field>
+                            </div>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+              </div>
+            </mat-tab>
+            <mat-tab label="WhatsApp">
+                <div class="config-tab">
+                    <div class="section__2">
+                      <form [formGroup]="templateWhatsAppFG" *ngIf="templateWhatsAppFG">
+                          <div class="row">
+                              <div class="col-6">
+                                <div class="form-group">
+                                    <mat-form-field>
+                                      <mat-label>Text</mat-label>
+                                      <textarea matInput formControlName="whatsAppText" maxlength="2000"></textarea>
+                                    </mat-form-field>
+                                  </div>
+                              </div>
+                            </div>
+                      </form>
+                    </div>
+                </div>
+              </mat-tab>
+        </mat-tab-group>
+        <div [hidden]="_emaiEditorHidden">
+            <email-editor  [options]="options"
+                          (loaded)="_editorLoaded($event)" #editor>
+            </email-editor>
+          </div>
+      </mat-card-content>
+      <mat-divider></mat-divider>
+      <mat-card-actions>
+        <!-- Buttons -->
+        <button (click)="onSubmit()"
+                mat-raised-button
+                class="btn-action"
+                *ngIf="isCanDo()"
+                [disabled]="!templateFG?.valid">
+          {{ getActionButtonText() }}
+        </button>
+        <button mat-raised-button class="btn-cancel" (click)="onCancel()">
+          Cancel
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

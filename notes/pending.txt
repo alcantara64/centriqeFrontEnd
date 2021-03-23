@@ -1,0 +1,37 @@
+
+TODO:
+1. Add no-caching setting in the index.html
+2. 24112020 - Gaurav - The custome component for ProgressBarComponent did not work, used the mat-progress-bar directly instead to focus on other priority items first
+3. Set the angular theme color to match that of the menu and headers colors
+4. TOO MUCH EFFORT FOR THE CAUSE: Holding Org Table: Set the Sort Icon on the table header to that one on the side-menu lock icon
+
+TODO: Typescript strong typing -
+1. Create interfaces matching API return data and apply to any Typescript
+2. Check all any return types and create/bind to applicable interfaces wherever possible
+
+TODO: PWA - 
+1. Currently the app does not show the material icons or fonts when the app is offline. Implement PWA to store static assets in the cache
+2. Show an offline | online indicator on the app.
+
+23122020:
+1. Remove response types json file from temp-data.
+2. Remove hard-codings for response AI when the backend APIs are available
+
+
+02122020: 
+1. FIXED: Warning messages on User Component for using [disabled] inside responsive forms - 
+forms.js:3616 
+      It looks like you're using the disabled attribute with a reactive form directive. If you set disabled to true
+      when you set up this control in your component class, the disabled attribute will actually be set in the DOM for
+      you. We recommend using this approach to avoid 'changed after checked' errors.
+
+      Example:
+      form = new FormGroup({
+        first: new FormControl({value: 'Nancy', disabled: true}, Validators.required),
+        last: new FormControl('Drew', Validators.required)
+      });
+      
+
+30112020: 
+1. DONE: Make changes to Holding Org and Customer List after backend changes for dataDomainConfig
+

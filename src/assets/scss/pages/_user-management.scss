@@ -1,0 +1,200 @@
+.priviliges-table-container {
+  width: $hundred-percent;
+  display: flex;
+  flex-direction: column;
+  .priviliges-table{
+    td, th{
+      border: 1px solid $tablerow-bgColor;
+      padding: 8px;
+      text-align: $align-center;
+    }
+    th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      background-color: $btn-bgcolor;
+      color: $white;
+    }
+    tr{
+      &:nth-child(even) {
+        background-color: $tableroweven-bgColor;
+      }
+      &:hover {
+        background-color: $tablerow-bgColor;
+      }
+    }
+  }
+}
+
+.checkbox-admin {
+  width: 100%;
+  padding-top: 25px;
+}
+.password-field {
+  display: flex;
+  flex-direction: row;
+  mat-checkbox {
+    width: 20%;
+  }
+  input {
+    width: 100%;
+  }
+}
+.password-checkbox {
+  text-align: right;
+}
+
+.user-management-container{
+  .active {
+    color: $color-active;
+  }
+
+  .inactive {
+    color: $color-inactive;
+  }
+}
+/* Roles Drag-Drop - starts */
+.roles-dragdrop-main,
+.cda-main {
+  padding-top: 15px;
+  padding: 10px;
+  h3 {
+    font-size: 18px;
+    &.disable-bgColor{
+      color: $disabled-selections;
+    }
+  }
+}
+
+.roles-dragdrop-container {
+  width: 45%;
+  max-width: $hundred-percent;
+  margin: 0 25px 15px 0;
+  display: inline-block;
+  vertical-align: top;
+  h4 {
+    margin-bottom: 8px;
+    color: $disabled-selections;
+  }
+  &:last-of-type {
+    margin-right: 0px;
+  }
+}
+
+.roles-dragdrop-list {
+  border: solid 1px #ccc;
+  min-height: 60px;
+  background: $white;
+  border-radius: 4px;
+  overflow: hidden;
+  display: block;
+}
+.roles-dragdrop-box {
+  padding: 10px 5px;
+  border-bottom: solid 1px #ccc;
+  color: rgba(0, 0, 0, 0.87);
+  display: flex;
+  flex-direction: row;
+  align-items: $align-center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  cursor: move;
+  background: $white;
+  font-size: 14px;
+  &:last-child {
+    border: none;
+  }
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+.roles-dragdrop-list.cdk-drop-list-dragging
+  .roles-dragdrop-box:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.roles-dragdrop-box.cdk-drag-disabled {
+  background: #ccc;
+  cursor: default;
+}
+/* Roles Drag-Drop - Ends */
+
+/* CDA starts */
+.cda-table-container {
+  width: $hundred-percent;
+  display: flex;
+  flex-direction: column;
+  .cda-table{
+    td, th {
+      border: 1px solid $tablerow-bgColor;
+      padding: 8px;
+      text-align: $align-center;
+    }
+    th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      background-color: $btn-bgcolor;
+      color: $white;
+    }
+    tr:nth-child(even) {
+      background-color: var(--tableroweven-bgColor);
+    }
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .roles-dragdrop-main,
+  .cda-main {
+    padding: 5px;
+    h3 {
+      font-size: 16px;
+    }
+  }
+
+  .roles-dragdrop-container {
+    margin: 0 15px 10px 0;
+    h4 {
+      font-size: 13px;
+    }
+  }
+
+  .roles-dragdrop-box {
+    font-size: 12px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .roles-dragdrop-main,
+  .cda-main {
+    h3{
+      font-size: 13px;
+    }
+  }
+  .roles-dragdrop-container {
+    width: 48%;
+    margin: 0 5px 5px 0;
+    h4 {
+      font-size: 11px;
+      margin-bottom: 0px;
+    }
+  }
+
+  .roles-dragdrop-box {
+    font-size: 10px;
+  }
+
+  .mat-tab-label-content {
+    font-size: 13px;
+  }
+}

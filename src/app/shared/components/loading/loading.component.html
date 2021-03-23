@@ -1,0 +1,12 @@
+<!-- 08022021 - Gaurav - Init version: template for Progress-Bar -->
+<!-- 09022021 - Gaurav - Added placeholder for the height of the progress-bar -->
+<ng-container *ngIf="loadingService.loading$ | async; else placeholder">
+  <mat-progress-bar
+    [mode]="loadingService.mode"
+    color="warn"
+    [ngStyle]="{ height: '2px' }"
+  ></mat-progress-bar>
+</ng-container>
+<ng-template #placeholder>
+  <div [ngStyle]="{ height: '2px' }"></div>
+</ng-template>

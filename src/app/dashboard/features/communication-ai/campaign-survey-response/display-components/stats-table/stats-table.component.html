@@ -1,0 +1,307 @@
+<!-- 26022021 - Gaurav - JIRA-CA-187: move huge html to reusable components for this module  -->
+<!-- 03032021 - Gaurav - JIRA-CA-196: Show Likert tables in generated response PDF -->
+<!-- 04032021 - Gaurav - JIRA-CA-199: reduce survey report PDF size -->
+<ng-container [ngSwitch]="surveyResponseTableFor">
+  <ng-container *ngSwitchCase="'submission-status'">
+    <!-- Submission status table -->
+    <ng-container *ngIf="data.submissionStatusTableDataSource">
+      <ng-container *ngIf="materialStyle; else regularHtmlStyle">
+        <table
+          mat-table
+          [dataSource]="data.submissionStatusTableDataSource"
+          class="mat-elevation-z0"
+        >
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.status }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="percent">
+            <th mat-header-cell *matHeaderCellDef>%</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.percent }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef>Value</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.value }}
+            </td>
+          </ng-container>
+
+          <tr
+            mat-header-row
+            *matHeaderRowDef="data.submissionStatusTableDisplayColumns"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="
+              let row;
+              columns: data.submissionStatusTableDisplayColumns
+            "
+          ></tr>
+        </table>
+      </ng-container>
+      <ng-template #regularHtmlStyle>
+        <table class="table table-bordered">
+          <tr>
+            <ng-container
+              *ngFor="let header of data.submissionStatusTableDisplayColumns"
+            >
+              <th>
+                {{ header.charAt(0).toUpperCase() + header.slice(1) }}
+              </th>
+            </ng-container>
+          </tr>
+          <tr *ngFor="let row of data.submissionStatusTableDataSource">
+            <td>
+              {{ row?.status }}
+            </td>
+            <td>
+              {{ row?.percent }}
+            </td>
+            <td>
+              {{ row?.value }}
+            </td>
+          </tr>
+        </table>
+      </ng-template>
+    </ng-container>
+  </ng-container>
+  <ng-container *ngSwitchCase="'base-question-types'">
+    <!-- Response/Question type table except Likerts -->
+    <ng-container *ngIf="data?.tableDataSource">
+      <ng-container *ngIf="materialStyle; else regularHtmlStyle">
+        <table
+          mat-table
+          [dataSource]="data?.tableDataSource!"
+          class="mat-elevation-z0"
+        >
+          <ng-container matColumnDef="displayValue">
+            <th mat-header-cell *matHeaderCellDef>Provided Option</th>
+            <td
+              [ngClass]="{
+                'large-font-size':
+                  data?.questionType === questionTypes.ratingEmoji
+              }"
+              mat-cell
+              *matCellDef="let element"
+            >
+              {{
+                element?.displayValue
+                  ? element.displayValue
+                  : element.selectedValue
+              }}
+              <ng-container *ngIf="element?.displayValue2">
+                <div>{{ element?.displayValue2 }}</div>
+              </ng-container>
+            </td>
+          </ng-container>
+
+          <ng-container
+            matColumnDef="selectedValue"
+            *ngIf="data?.questionType === questionTypes.ratingEmoji"
+          >
+            <th mat-header-cell *matHeaderCellDef>Insight Value</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.selectedValue }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="percent_hits">
+            <th mat-header-cell *matHeaderCellDef>% hits</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.displayPercent }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="hits">
+            <th mat-header-cell *matHeaderCellDef>
+              Hits ({{ data?.totalHits }})
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.hits }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="data?.tableDisplayColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: data?.tableDisplayColumns"
+          ></tr>
+        </table>
+      </ng-container>
+      <ng-template #regularHtmlStyle>
+        <table class="table table-bordered mt-3">
+          <tr>
+            <th class="reduced-padding">Provided Option</th>
+            <th class="reduced-padding">Insight Value</th>
+            <th class="reduced-padding">% hits</th>
+            <th class="reduced-padding">Hits ({{ data?.totalHits }})</th>
+          </tr>
+          <tr *ngFor="let row of data.tableDataSource">
+            <td class="reduced-padding">
+              {{ row?.displayValue ? row?.displayValue : row?.selectedValue }}
+            </td>
+            <td class="reduced-padding">
+              {{ row?.selectedValue }}
+            </td>
+            <td class="reduced-padding">
+              {{ row?.displayPercent }}
+            </td>
+            <td class="reduced-padding">
+              {{ row?.hits }}
+            </td>
+          </tr>
+        </table>
+      </ng-template>
+    </ng-container>
+  </ng-container>
+
+  <ng-container *ngSwitchCase="'likert-question-types'">
+    <!-- Response/Question type FOR Likerts -->
+    <ng-container *ngIf="data?.tableDataSource">
+      <ng-container *ngIf="materialStyle; else regularHtmlStyle">
+        <table
+          #likertTable
+          mat-table
+          [dataSource]="data?.tableDataSource!"
+          class="mat-elevation-z0"
+        >
+          <ng-container matColumnDef="responseIdDisplayValue">
+            <th mat-header-cell *matHeaderCellDef>Response For</th>
+            <td mat-cell *matCellDef="let element">
+              {{
+                data?.questionType === questionTypes.likertCheck
+                  ? element?.responseIdDisplayValue
+                  : element?.displayValue
+              }}
+              <ng-container
+                *ngIf="
+                  data?.questionType === questionTypes.likertCheck &&
+                  element?.responseIdDisplayValue2
+                "
+                ><div>
+                  {{ element?.responseIdDisplayValue2 }}
+                </div></ng-container
+              >
+              <ng-container
+                *ngIf="
+                  data?.questionType === questionTypes.likertRadio &&
+                  element?.displayValue2
+                "
+                ><div>
+                  {{ element?.displayValue2 }}
+                </div></ng-container
+              >
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="percent_hits">
+            <th mat-header-cell *matHeaderCellDef>% hits</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.displayPercent }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="hits">
+            <th mat-header-cell *matHeaderCellDef>Hits</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.hits }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="data?.tableDisplayColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: data?.tableDisplayColumns"
+          ></tr>
+
+          <!-- Group header -->
+          <ng-container matColumnDef="groupHeader">
+            <td
+              colspan="999"
+              mat-cell
+              *matCellDef="let groupBy"
+              style="background-color: #fff0e6"
+            >
+              <span class="h5">
+                {{ groupBy?.groupVal }}
+                {{ groupBy?.groupVal2 }}
+              </span>
+            </td>
+          </ng-container>
+
+          <tr
+            mat-row
+            *matRowDef="let row; columns: ['groupHeader']; when: isLikertGroup"
+          ></tr>
+        </table>
+      </ng-container>
+
+      <ng-template #regularHtmlStyle>
+        <table
+          class="table table-bordered"
+          [ngStyle]="{
+            'font-size': data.tableDataSource.length > 25 ? '12px' : 'inherit'
+          }"
+        >
+          <tr>
+            <th class="reduced-padding" colspan="2">Response For</th>
+            <th class="reduced-padding">% hits</th>
+            <th class="reduced-padding">Hits</th>
+          </tr>
+          <tr *ngFor="let row of data.tableDataSource">
+            <th
+              class="reduced-padding"
+              [attr.rowspan]="row?.rowspan + 1"
+              *ngIf="row?.isGroupBy"
+            >
+              {{ row?.groupVal }} | {{ row?.groupVal2 }}
+              <div>
+                {{
+                  data?.questionType === questionTypes.likertRadio
+                    ? "Total Responses: " + row?.totalHitsByResponseId
+                    : ""
+                }}
+              </div>
+            </th>
+
+            <td class="reduced-padding" *ngIf="!row?.isGroupBy">
+              {{
+                data?.questionType === questionTypes.likertCheck
+                  ? row?.responseIdDisplayValue
+                  : row?.displayValue
+              }}
+              <ng-container
+                *ngIf="
+                  data?.questionType === questionTypes.likertCheck &&
+                  row?.responseIdDisplayValue2
+                "
+                ><span>
+                  | {{ row?.responseIdDisplayValue2 }}
+                </span></ng-container
+              >
+              <ng-container
+                *ngIf="
+                  data?.questionType === questionTypes.likertRadio &&
+                  row?.displayValue2
+                "
+                ><span> | {{ row?.displayValue2 }} </span></ng-container
+              >
+            </td>
+            <td class="reduced-padding" *ngIf="!row?.isGroupBy">
+              {{ row?.displayPercent }}
+            </td>
+            <td class="reduced-padding" *ngIf="!row?.isGroupBy">
+              {{ row?.hits }}
+            </td>
+          </tr>
+        </table>
+      </ng-template>
+    </ng-container>
+  </ng-container>
+</ng-container>

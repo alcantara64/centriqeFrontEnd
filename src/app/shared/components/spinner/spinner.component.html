@@ -1,0 +1,6 @@
+<!-- 09022021 - Gaurav - Added option to show Progress-Spinner with an overlay instead of a Progress-Bar -->
+<ng-container *ngIf="loadingService.spinner$ | async">
+  <div class="spinner-container">
+    <mat-spinner color="warn"></mat-spinner>
+  </div>
+</ng-container>

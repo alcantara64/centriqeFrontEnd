@@ -1,0 +1,132 @@
+<div class="main-container container-fluid">
+  <h1 mat-dialog-title>Send Demo Message</h1>
+  <mat-progress-bar
+    mode="indeterminate"
+    color="warn"
+    [ngStyle]="{ height: '1px' }"
+    *ngIf="isLoading"
+  ></mat-progress-bar>
+  <hr />
+  <div mat-dialog-content>
+    <h3>
+      Template: <b>{{ data.template.name }} ({{ data.template.code }})</b>
+    </h3>
+    <h3>
+      Customer:
+      <b
+        >{{ data.customer.firstName }} {{ data.customer.lastName }} ({{
+          data.customer.code
+        }})</b
+      >
+    </h3>
+
+    <div class="shadow-sm p-2 m-2 rounded bg-light" style="width: 500px">
+      <h3 style="margin-bottom: 5px">Please select the channel:</h3>
+      <form #sendForm="ngForm">
+        <div class="grid-container">
+          <mat-checkbox
+            class="mt-3"
+            style="margin-left: 0px; margin-right: 0px"
+            name="email"
+            [(ngModel)]="payload.channelSelection.email"
+            >Email</mat-checkbox
+          >
+          <mat-form-field appearance="outline" hintLabel="Max 100 characters">
+            <mat-label>Recipient</mat-label>
+            <input
+              matInput
+              type="email"
+              name="emailRecipient"
+              [(ngModel)]="payload.manualOverride.emailTo"
+              #emailRecipientInput="ngModel"
+              placeholder="Ex. john@doe.com"
+              maxLength="100"
+              [disabled]="isLoading || !payload.channelSelection.email"
+              [required]="payload.channelSelection.email ? 'true' : 'false'"
+            />
+            <mat-hint align="end"
+              >{{ emailRecipientInput.value?.length || 0 }}/100</mat-hint
+            >
+          </mat-form-field>
+
+          <mat-checkbox
+            class="mt-3"
+            style="margin-left: 0px; margin-right: 0px"
+            name="whatsApp"
+            [(ngModel)]="payload.channelSelection.whatsApp"
+            >WhatsApp</mat-checkbox
+          >
+          <mat-form-field appearance="outline" hintLabel="Max 15 digits">
+            <mat-label>Recipient</mat-label>
+            <input
+              matInput
+              type="text"
+              name="whatsappRecipient"
+              [(ngModel)]="payload.manualOverride.whatsAppTo"
+              #whatsappRecipientInput="ngModel"
+              placeholder="Ex. 0010050060007"
+              maxLength="15"
+              [disabled]="isLoading || !payload.channelSelection.whatsApp"
+              [required]="payload.channelSelection.whatsApp ? 'true' : 'false'"
+              (keypress)="validateNumber($event)"
+            />
+            <mat-hint align="end"
+              >{{ whatsappRecipientInput.value?.length || 0 }}/15</mat-hint
+            >
+          </mat-form-field>
+
+          <mat-checkbox
+            class="mt-3"
+            style="margin-left: 0px; margin-right: 0px"
+            name="sms"
+            [(ngModel)]="payload.channelSelection.sms"
+            >SMS</mat-checkbox
+          >
+
+          <mat-form-field appearance="outline" hintLabel="Max 15 digits">
+            <mat-label>Recipient</mat-label>
+            <input
+              matInput
+              type="text"
+              name="smsRecipient"
+              [(ngModel)]="payload.manualOverride.smsTo"
+              #smsRecipientInput="ngModel"
+              placeholder="Ex. 0010050060007"
+              maxLength="15"
+              [disabled]="isLoading || !payload.channelSelection.sms"
+              [required]="payload.channelSelection.sms ? 'true' : 'false'"
+              (keypress)="validateNumber($event)"
+            />
+            <mat-hint align="end"
+              >{{ smsRecipientInput.value?.length || 0 }}/15</mat-hint
+            >
+          </mat-form-field>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div mat-dialog-actions>
+    <button
+      mat-raised-button
+      class="send-btn"
+      (click)="onSend()"
+      [disabled]="
+        isLoading ||
+        (!payload.channelSelection.sms &&
+          !payload.channelSelection.email &&
+          !payload.channelSelection.whatsApp) ||
+        !sendForm.valid
+      "
+    >
+      Send
+    </button>
+    <button
+      mat-raised-button
+      class="cancel-btn"
+      (click)="onCancel()"
+      [disabled]="isLoading"
+    >
+      Cancel
+    </button>
+  </div>
+</div>

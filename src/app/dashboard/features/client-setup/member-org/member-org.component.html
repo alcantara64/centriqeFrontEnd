@@ -1,0 +1,276 @@
+<!-- 10122020 - Gaurav - Fix to always show required asterik in red -->
+<div class="main-container">
+  <div class="card-container">
+    <mat-card>
+      <mat-card-header>
+        <!-- Header -->
+        <mat-card-title>
+          {{ getTitle() }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ getSubTitle() ? getSubTitle() : "&nbsp;" }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <mat-tab-group
+          animationDuration="0ms"
+          [(selectedIndex)]="selectedIndex"
+        >
+          <mat-tab
+            [label]="!orgProfileForm?.valid ? 'Org Profile *' : 'Org Profile'"
+          >
+            <form
+              class="grid-container"
+              [formGroup]="orgProfileForm"
+              *ngIf="orgProfileForm"
+            >
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Member Organization Code<span class="field-required">
+                      *</span
+                    ></mat-label
+                  >
+                  <input matInput formControlName="code" type="text" />
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.code?.errors?.required"
+                    >Organization Code is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Name<span class="field-required"> *</span></mat-label
+                  >
+                  <input matInput formControlName="name" type="text" />
+                  <mat-hint align="end"
+                    >{{ orgProfileForm?.controls?.name?.value?.length || 0 }}/{{
+                      maxOrgNameLength
+                    }}</mat-hint
+                  >
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.name?.errors?.required"
+                    >Organization Name is required</mat-error
+                  >
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.name?.errors?.maxlength"
+                    >Organization Name can be upto
+                    {{ maxOrgNameLength }} characters only</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Address Line 1<span class="field-required">
+                      *</span
+                    ></mat-label
+                  >
+                  <input matInput formControlName="addressLine1" type="text" />
+                  <mat-error
+                    *ngIf="
+                      orgProfileForm?.controls?.addressLine1?.errors?.required
+                    "
+                    >Address Line 1 is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>Address Line 2</mat-label>
+                  <input matInput formControlName="addressLine2" type="text" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Country<span class="field-required"> *</span></mat-label
+                  >
+                  <input matInput formControlName="country" type="text" />
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.country?.errors?.required"
+                    >Country is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >State<span class="field-required"> *</span></mat-label
+                  >
+                  <input matInput formControlName="state" type="text" />
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.state?.errors?.required"
+                    >State is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>City</mat-label>
+                  <input matInput formControlName="city" type="text" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Zip Code<span class="field-required"> *</span></mat-label
+                  >
+                  <input matInput formControlName="zipCode" type="text" />
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.zipCode?.errors?.required"
+                    >Zip Code is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Phone Number<span class="field-required">
+                      *</span
+                    ></mat-label
+                  >
+                  <input matInput formControlName="phone" type="text" />
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.phone?.errors?.required"
+                    >Phone Number is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>Fax Number</mat-label>
+                  <input matInput formControlName="fax" type="text" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label>Toll Free Number</mat-label>
+                  <input
+                    matInput
+                    formControlName="tollFreeNumber"
+                    type="text"
+                  />
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Email Address<span class="field-required">
+                      *</span
+                    ></mat-label
+                  >
+                  <input
+                    matInput
+                    formControlName="email"
+                    type="text"
+                    placeholder="Ex. john@doe.com"
+                  />
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.email?.errors?.required"
+                    >Email Address is required</mat-error
+                  >
+                  <mat-error
+                    *ngIf="orgProfileForm?.controls?.email?.errors?.email"
+                    >Please enter a valid email</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Website<span class="field-required"> *</span></mat-label
+                  >
+                  <input
+                    matInput
+                    formControlName="websiteAddress"
+                    type="text"
+                    placeholder="Ex. www.example.com"
+                  />
+                  <mat-error
+                    *ngIf="
+                      orgProfileForm?.controls?.websiteAddress?.errors?.required
+                    "
+                    >Website Address is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+            </form>
+          </mat-tab>
+          <mat-tab label="Config">
+            <div class="config-tab">
+              <mat-card class="config-container">
+                <div class="section__2">
+                  <!-- 2020-12-08 FK - Adding fields for sms and WhatsApp channels -->
+                  <h3 [ngClass]="{ 'disable-color': !isCanDo() }">Messaging</h3>
+                  <mat-divider></mat-divider>
+                  <form [formGroup]="orgConfigForm" *ngIf="orgConfigForm">
+                    <div class="form-group">
+                      <mat-form-field id="defaultEmailSender">
+                        <mat-label>Default Email Sender Address</mat-label>
+                        <input
+                          matInput
+                          formControlName="defaultEmailSender"
+                          type="text"
+                          placeholder="Ex. John Doe <john@doe.com>"
+                        />
+                      </mat-form-field>
+                      <mat-form-field id="defaultWhatsAppSender">
+                        <mat-label>Default WhatsApp Sender Number</mat-label>
+                        <input
+                          matInput
+                          formControlName="defaultWhatsAppSender"
+                          type="text"
+                          placeholder="Ex. +91 1264567"
+                        />
+                      </mat-form-field>
+                      <mat-form-field id="defaultSmsSender">
+                        <mat-label>Default SMS Sender Number</mat-label>
+                        <input
+                          matInput
+                          formControlName="defaultSmsSender"
+                          type="text"
+                          placeholder="Ex. +91 1264567"
+                        />
+                      </mat-form-field>
+                    </div>
+                  </form>
+                </div>
+              </mat-card>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+      <mat-divider></mat-divider>
+      <mat-card-actions>
+        <!-- Buttons -->
+        <button
+          (click)="onSubmit()"
+          mat-raised-button
+          class="btn-action"
+          *ngIf="isCanDo()"
+          [disabled]="!orgProfileForm?.valid"
+        >
+          {{ getActionButtonText() }}
+        </button>
+        <button mat-raised-button class="btn-cancel" (click)="onCancel()">
+          Cancel
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

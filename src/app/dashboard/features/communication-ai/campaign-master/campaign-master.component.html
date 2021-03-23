@@ -1,0 +1,695 @@
+<div class="main-container">
+  <div class="card-container">
+    <mat-card class="campaign-form">
+      <mat-card-header>
+        <!-- Header -->
+        <mat-card-title>
+          {{ getTitle() }}
+        </mat-card-title>
+        <!-- 08022021 - Abhishek - Added subheader -->
+        <mat-card-subtitle>
+          {{ getSubTitle() ? getSubTitle() : "&nbsp;" }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <mat-tab-group animationDuration="0ms" [(selectedIndex)]="selectedIndex">
+          <mat-tab [label]="
+          !campaignFG?.valid &&
+          (campaignFG?.touched || campaignFG?.dirty)
+            ? messageView ? 'Campaign' : 'Config *'
+            : messageView ? 'Campaign' : 'Config'">
+            <form [formGroup]="campaignFG" *ngIf="campaignFG">
+              <div class="grid-container p-0">
+                <div class="form-group">
+                  <mat-form-field>
+                    <mat-label>{{orgLable}} Name (Code)</mat-label>
+                    <input matInput formControlName="memberOrg" type="text" />
+                  </mat-form-field>
+                </div>
+                <div class="form-group" *ngIf="routerModule == 'communicationAI'">
+                  <mat-form-field>
+                    <mat-label>
+                      {{
+                      campaignFG?.controls?.tempCode?.errors?.required &&
+                      (campaignFG?.controls?.tempCode?.touched ||
+                      campaignFG?.controls?.tempCode?.dirty)
+                      ? "Template Name (Code)*"
+                      : "Template Name (Code)"
+                      }}
+                    </mat-label>
+                    <mat-select formControlName="tempCode" [(value)]="selectedMemberOrg">
+                      <mat-option [value]="temp?._id" *ngFor="let temp of templateList">{{ temp?.name }} ({{temp?.code}})
+                      </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="campaignFG?.controls?.tempCode?.errors?.required">Template required</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="form-group" *ngIf="routerModule != 'communicationAI' && accessMode == accessModes.Add" >
+                  <mat-form-field>
+                    <mat-label>
+                      {{
+                      campaignFG?.controls?.surveyCode?.errors?.required &&
+                      (campaignFG?.controls?.surveyCode?.touched ||
+                      campaignFG?.controls?.surveyCode?.dirty)
+                      ? "Survey Name (Code)*"
+                      : "Survey Name (Code)"
+                      }}
+                    </mat-label>
+                    <mat-select formControlName="surveyCode">
+                      <mat-option [value]="survey?._id" *ngFor="let survey of respSurveyList">{{ survey?.name }} ({{ survey?.code }})
+                      </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="campaignFG?.controls?.surveyCode?.errors?.required">Survey Code required</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="form-group" *ngIf="routerModule != 'communicationAI' && accessMode != accessModes.Add">
+                  <mat-form-field>
+                    <mat-label>Survey Name (Code)</mat-label>
+                    <input matInput formControlName="surveyCode" type="text" />
+                  </mat-form-field>
+                </div>
+                <div class="form-group" *ngIf="!messageView">
+                  <mat-form-field>
+                    <mat-label>
+                      {{
+                      campaignFG?.controls?.campCode?.errors?.required &&
+                      (campaignFG?.controls?.campCode?.touched ||
+                      campaignFG?.controls?.campCode?.dirty)
+                      ? "Campaign Code*"
+                      : "Campaign Code"
+                      }}
+                    </mat-label>
+                    <input matInput formControlName="campCode" type="text" />
+                    <mat-error *ngIf="campaignFG?.controls?.campCode?.errors?.required">Campaign Code required</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="form-group" *ngIf="!messageView">
+                  <mat-form-field>
+                    <mat-label>
+                      {{
+                      campaignFG?.controls?.campName?.errors?.required &&
+                      (campaignFG?.controls?.campName?.touched ||
+                      campaignFG?.controls?.campName?.dirty)
+                      ? "Campaign Name *"
+                      : "Campaign Name"
+                      }}
+                    </mat-label>
+                    <input matInput formControlName="campName" type="text" />
+                    <mat-error *ngIf="campaignFG?.controls?.campName?.errors?.required">Campaign Name required</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="form-group" *ngIf="messageView">
+                  <mat-form-field>
+                    <mat-label>Campaing Name (Code)</mat-label>
+                    <input matInput formControlName="campaignCodeName" type="text" />
+                  </mat-form-field>
+                </div>
+                <div class="form-group">
+                  <mat-form-field>
+                    <mat-label>
+                      {{
+                      campaignFG?.controls?.description?.errors?.required &&
+                      (campaignFG?.controls?.description?.touched ||
+                      campaignFG?.controls?.description?.dirty)
+                      ? "Description *"
+                      : "Description"
+                      }}
+                    </mat-label>
+                    <input matInput formControlName="description" type="text" />
+                    <mat-error *ngIf="campaignFG?.controls?.description?.errors?.required">Description required</mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="row m-0">
+                <div class="col p-0 align-self-end">
+                  <h2>Customer Filter Criteria</h2>
+                </div>
+                <div class="col-4 p-0 text-right" [hidden]="!(userAccessOrgData?.memOrgDrop?.visible)">
+                  <mat-form-field>
+                    <mat-label>
+                      {{
+                        campaignFG?.controls?.memberOrgDrop?.errors?.required &&
+                        (campaignFG?.controls?.memberOrgDrop?.touched ||
+                        campaignFG?.controls?.memberOrgDrop?.dirty)
+                        ? "Member Org Name (Code)*"
+                        : "Member Org Name (Code)"
+                        }}
+                    </mat-label>
+                    <mat-select formControlName="memberOrgDrop">
+                      <mat-option [value]="memOrg?._id" *ngFor="let memOrg of userAccessOrgData?.memOrgDrop?.dropItems">{{ memOrg?.name }} ({{ memOrg?.code }})
+                      </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="campaignFG?.controls?.memberOrgDrop?.errors?.required">Member Org required</mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- 05012021 - Abhishek - Added div with bootstrap classes to set horizontal scroll in table -->
+              <div class="w-100 overflow-auto">
+                <table class="filter-criteria-table table table-striped table-bordered table-hover table-sm mb-0">
+                  <thead>
+                    <tr>
+                      <th style="max-width: 100px">Start</th>
+                      <th>Attribute</th>
+                      <th>Operator</th>
+                      <th>Value</th>
+                      <th style="max-width: 100px">End</th>
+                      <th style="min-width: 100px">And/Or</th>
+                    </tr>
+                  </thead>
+                  <tbody formArrayName="filterCriteriaArray">
+                    <tr *ngFor="let item of filterCriteria.controls; let i = index;" [formGroupName]="i">
+                      <td class="startParamTd">
+                        <mat-form-field>
+                          <mat-label>Start</mat-label>
+                          <input matInput formControlName="startParam" value="1" tabindex="-1" />
+                        </mat-form-field>
+                        <mat-icon class="arrow-up" (click)="startParamFun(i, 'add')" *ngIf="isCanDo()">keyboard_arrow_up
+                        </mat-icon>
+                        <mat-icon class="arrow-down" (click)="startParamFun(i, 'remove')" *ngIf="isCanDo()">
+                          keyboard_arrow_down</mat-icon>
+                      </td>
+                      <td>
+                        <mat-form-field>
+                          <mat-label>Attributes</mat-label>
+                          <mat-select formControlName="attributes" (selectionChange)="attrChangeFun(i)">
+                            <mat-option [value]="attr?.value" *ngFor="let attr of attributList">{{ attr?.type }}
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </td>
+                      <td>
+                        <mat-form-field>
+                          <mat-label>Operator</mat-label>
+                          <mat-select formControlName="operator" (selectionChange)="operatorChange(i)">
+                            <mat-option [value]="opt?.type"
+                              *ngFor="let opt of operatorList[filterCriteriaArray[i].get('attributes')?.value != null ? filterCriteriaArray[i].get('attrType')?.value : null]">
+                              {{
+                              opt?.view }}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </td>
+                      <td>
+                        <mat-form-field *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'string'">
+                          <mat-label>Value</mat-label>
+                          <mat-select formControlName="attrValue">
+                            <mat-option [value]="item?.id" *ngFor="let item of dynamicDropDown[i][i]">{{ item?.value }}
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                        <mat-form-field *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'Text'">
+                          <mat-label>Value</mat-label>
+                          <input matInput formControlName="attrValue" type="text" />
+                        </mat-form-field>
+                        <mat-form-field *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'NumberDate'">
+                          <mat-label>Value</mat-label>
+                          <input matInput type="number" min="1" max="31" (keypress)="numberChange($event)"
+                            formControlName="attrValue" value="1" placeholder="Only 0 to 31 allowed" />
+                        </mat-form-field>
+                        <mat-form-field *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'integer' || filterCriteriaArray[i].get('attrValueType')?.value == 'number'">
+                          <mat-label>Value</mat-label>
+                          <input matInput type="number" (keypress)="filterIntegerChnage(filterCriteriaArray[i].get('attrValueType')?.value, $event)" min="1" formControlName="attrValue" value="1" />
+                        </mat-form-field>
+                        <!-- <input class="form-control" type="text" formControlName="attrValue" value="1" *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'Text'" /> -->
+                        <!-- <input class="form-control" type="number" maxlength="2" min="1" max="31" (keypress)="numberChange($event)" formControlName="attrValue" value="1" *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'NumberDate'" placeholder="Only 0 to 31 allowed" /> -->
+                        <!-- <input class="form-control" type="number" maxlength="2" min="1" formControlName="attrValue" value="1" *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'Number'"/> -->
+                        <mat-form-field *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'date' || filterCriteriaArray[i].get('attrValueType')?.value == 'stringMonthDay'">
+                          <mat-label>Value</mat-label>
+                          <input matInput [matDatepicker]="picker" formControlName="attrValue">
+                          <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+                          <mat-datepicker #picker></mat-datepicker>
+                        </mat-form-field>
+                        <mat-form-field *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'Multiple'">
+                          <mat-label>Value</mat-label>
+                          <mat-select formControlName="attrValue" multiple>
+                            <mat-option *ngFor="let attr of dynamicDropDown[i][i]" [value]="attr">{{attr?.value}}
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                        <input class="form-control d-none" type="text" formControlName="attrValueType" value="1" />
+                        <input class="form-control d-none" type="text" formControlName="attrType" value="1" />
+                      </td>
+                      <td class="startParamTd">
+                        <mat-form-field>
+                          <mat-label>End</mat-label>
+                          <input matInput maxlength="2" min="1" formControlName="endParam" value="1" tabindex="-1" />
+                        </mat-form-field>
+                        <mat-icon class="arrow-up" (click)="endParamFun(i, 'add')" *ngIf="isCanDo()">keyboard_arrow_up
+                        </mat-icon>
+                        <mat-icon class="arrow-down" (click)="endParamFun(i, 'remove')" *ngIf="isCanDo()">
+                          keyboard_arrow_down</mat-icon>
+                      </td>
+                      <td class="and-or">
+                        <input type="text" class="d-none" formControlName="andOr" />
+                        <span *ngIf="filterCriteriaArray[i].get('andOr')?.value != null"
+                          class="mr-2">{{filterCriteriaArray[i].get('andOr')?.value}}</span>
+                        <a class="text-danger float-right" *ngIf="filterCriteriaArray.length > 1 && isCanDo()"
+                          href="javascript:void(0)" style="font-size: 1.6rem;" (click)="delRoleRow(i)">
+                          <mat-icon [ngClass]="['delete-icon']">delete</mat-icon>
+                        </a>
+                        <a class="text-danger float-right" *ngIf="filterCriteriaArray.length == 1 && isCanDo()"
+                          href="javascript:void(0)" style="font-size: 1.6rem;" (click)="delRoleRow(i)">
+                          <mat-icon [ngClass]="['view-icon']">cached</mat-icon>
+                        </a>
+                        <span class="p-buttonset" *ngIf="filterCriteriaArray.length == i+1">
+                          <button *ngIf="isCanDo()" mat-raised-button class="btn-action" type="button" label="AND"
+                            (click)="customerFilterCr('AND', i)">AND</button>
+                          <button *ngIf="isCanDo()" mat-raised-button class="btn-cancel mr-2" type="button" label="OR"
+                            (click)="customerFilterCr('OR', i)">OR</button>
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="text-right mt-2" *ngIf="modalType != 'View'">
+                <button mat-raised-button class="btn-action" type="button" (click)="checkCriteriaFun()"
+                  *ngIf="isCanDo()">Check Criteria</button>
+              </div>
+              <div class="row p-0 m-0">
+                <h2 class="col-md align-self-end p-0">Communication Frequency & Schedule<sup class="text-danger">*</sup></h2>
+                <div class="col-md-auto">
+                  <mat-form-field>
+                    <mat-label>
+                      {{
+                      campaignFG?.controls?.timeZone?.errors?.required &&
+                      (campaignFG?.controls?.timeZone?.touched ||
+                      campaignFG?.controls?.timeZone?.dirty)
+                      ? "Time Zone *"
+                      : "Time Zone"
+                      }}
+                    </mat-label>
+                    <input type="text" placeholder="Pick one" aria-label="Number" matInput [formControl]="timeControl"
+                      [matAutocomplete]="auto">
+                    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+                      <mat-option *ngFor="let item of filteredOptions | async" [value]="item">
+                        {{item}}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error *ngIf="timeControl?.errors?.required">Time Zone required</mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="row campaign-recur">
+                <div class="col-md-12">
+                  <div class="row">
+                    <div class="col-md-7">Recurrence Pattern<sup class="text-danger">*</sup></div>
+                    <div class="col-md pt-2">Range of Recurrence<sup class="text-danger">*</sup></div>
+                  </div>
+                </div>
+                <div class="col-md-7">
+                  <div class="row">
+                    <div class="col-md-atuo">
+                      <div class="form-check">
+                        <label class="form-check-label d-block radio_check">
+                          <input type="radio" (click)="radioButtonClick('oneTime', 'type2')" name="timeSetup"
+                            formControlName="timeSetup" class="mb-2" value="oneTime" checked="checked" />One Time
+                        </label>
+                        <label class="form-check-label d-block radio_check">
+                          <input type="radio" (click)="radioButtonClick('daily', 'type2')" name="timeSetup"
+                            formControlName="timeSetup" class="mb-2" value="daily">Daily
+                        </label>
+                        <label class="form-check-label d-block radio_check">
+                          <input type="radio" (click)="radioButtonClick('weekly', 'type2')" name="timeSetup"
+                            formControlName="timeSetup" class="mb-2" value="weekly">Weekly
+                        </label>
+                        <label class="form-check-label d-block radio_check">
+                          <input type="radio" (click)="radioButtonClick('monthly', 'type2')" name="timeSetup"
+                            formControlName="timeSetup" class="mb-2" value="monthly">Monthly
+                        </label>
+                        <label class="form-check-label d-block radio_check">
+                          <input type="radio" (click)="radioButtonClick('yearly', 'type2')" name="timeSetup"
+                            formControlName="timeSetup" class="mb-2" value="yearly">Yearly
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md scheduleBox">
+                      <div [hidden]="recurrPattern != 'daily'">
+                        <div class="main">
+                          <div class="form-group">
+                            <span class="heads">Daily Recurrence<sup class="text-danger">*</sup></span>
+                            <div class="row pt-2">
+                              <div class="col-md-auto pt-4">Every</div>
+                              <div class="col-md-2 p-0">
+                                <mat-form-field>
+                                  <input matInput type="number" maxlength="2" min="1" max="31"
+                                    formControlName="dailyRecurrence" />
+                                </mat-form-field>
+                                <small class="text-danger" *ngIf="campaignFG.get('dailyRecurrence')?.value > 31">Max 31
+                                  Days</small>
+                                <small class="text-danger" *ngIf="campaignFG.get('dailyRecurrence')?.value < 0">Min 1
+                                  Days</small>
+                              </div>
+                              <div class="col-md pt-4">
+                                <label>Day(s)</label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div [hidden]="recurrPattern != 'weekly'">
+                        <div class="main">
+                          <span class="heads">Weekly Recurrence<sup class="text-danger">*</sup></span>
+                          <div class="form-inline">
+                            <div class="form-group mb-2">
+                              <label for="staticEmail2" class="">Recur every</label>
+                            </div>
+                            <div class="form-group mx-sm-3 mb-2">
+                              <mat-form-field style="width: 70px;">
+                                <input matInput type="number" maxlength="2" min="1" formControlName="weekRecurrence" />
+                              </mat-form-field>
+                              <small class="text-danger" *ngIf="campaignFG.get('weekRecurrence')?.value < 0">Min 1
+                                Week</small>
+                            </div>
+                            <div class="form-group mb-2">
+                              <label for="staticEmail2" class="">Week(s) on:</label>
+                            </div>
+                          </div>
+                          <div class="row px-3">
+                            <div class="col-md-3 p-0">
+                              <div class="form-check-inline mr-0">
+                                <label class="form-check-label">
+                                  <input type="checkbox" class="form-check-input" value="sunday"
+                                    formControlName="sunday">Sunday
+                                </label>
+                              </div>
+                            </div>
+                            <div class="col-md-3 p-0">
+                              <div class="form-check-inline mr-0">
+                                <label class="form-check-label">
+                                  <input type="checkbox" class="form-check-input" formControlName="monday" value="">Monday
+                                </label>
+                              </div>
+                            </div>
+                            <div class="col-md-3 p-0">
+                              <div class="form-check-inline mr-0">
+                                <label class="form-check-label">
+                                  <input type="checkbox" class="form-check-input" formControlName="tueday" value="">Tuesday
+                                </label>
+                              </div>
+                            </div>
+                            <div class="col-md-3 p-0">
+                              <div class="form-check-inline mr-0">
+                                <label class="form-check-label">
+                                  <input type="checkbox" class="form-check-input" formControlName="wedday"
+                                    value="">Wednesday
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row px-3">
+                            <div class="col-md-3 p-0">
+                              <div class="form-check-inline mr-0">
+                                <label class="form-check-label">
+                                  <input type="checkbox" class="form-check-input" formControlName="thusday"
+                                    value="">Thursday
+                                </label>
+                              </div>
+                            </div>
+                            <div class="col-md-3 p-0">
+                              <div class="form-check-inline mr-0">
+                                <label class="form-check-label">
+                                  <input type="checkbox" class="form-check-input" formControlName="friday" value="">Friday
+                                </label>
+                              </div>
+                            </div>
+                            <div class="col-md-3 p-0">
+                              <div class="form-check-inline mr-0">
+                                <label class="form-check-label">
+                                  <input type="checkbox" class="form-check-input" formControlName="satday" value="">Saturday
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div [hidden]="recurrPattern != 'monthly'">
+                        <div class="main">
+                          <span class="heads">Monthly Recurrence<sup class="text-danger">*</sup></span>
+                          <div class="row pt-2">
+                            <div class="col-md-auto pr-0">
+                              <div class="form-check form-check-inline pt-4 m-0">
+                                <label class="form-check-label pl-0 mb-2" for="inlineCheckbox1">
+                                  <input type="radio" name="monthlyradio" formControlName="monthlyradio"
+                                    (click)="daySelctionFun()" value="day">
+                                  Day
+                                </label>
+                              </div>
+                            </div>
+                            <div class="col-md-auto p-0">
+                              <div class="form-check form-check-inline p-0 m-0">
+                                <mat-form-field style="width: 50px;" class="ml-2">
+                                  <input matInput class="form-check-input" formControlName="monthdays" type="number"
+                                    maxlength="2" min="1" max="31" value="1" />
+                                </mat-form-field>
+                                <label class="form-check-label pt-2" for="inlineCheckbox1">of every</label>
+                              </div>
+                              <small class="text-danger" *ngIf="campaignFG.get('monthdays')?.value < 0">Min 1 Day</small>
+                            </div>
+                            <div class="col-md p-0">
+                              <div class="form-check form-check-inline m-0" style="width: 100%;">
+                                <mat-form-field style="width: 50px;" class="ml-2">
+                                  <input matInput class="form-check-input" formControlName="monthMonth" type="number"
+                                    maxlength="2" min="1" max="12" value="" />
+                                </mat-form-field>
+                                <label class="form-check-label pt-2">month(s)</label>
+                              </div>
+                              <small class="text-danger" *ngIf="campaignFG.get('monthMonth')?.value < 0">Min 1 Month</small>
+                              <small class="text-danger" *ngIf="campaignFG.get('monthMonth')?.value > 12">Max 12
+                                Months</small>
+                            </div>
+                          </div>
+                          <small class="text-danger" *ngIf="campaignFG.get('monthdays')?.value > 31">Max 31 Days</small>
+                          <div class="row">
+                            <div class="col-md-auto pt-4 pr-0 mr-2">
+                              <div class="form-check form-check-inline m-0">
+                                <input class="form-check-input" type="radio" name="monthlyradio"
+                                  formControlName="monthlyradio" (click)="theSelctionFun()" value="weekly">
+                                <label class="form-check-label pl-0 m-0" for="inlineCheckbox1">The</label>
+                              </div>
+                            </div>
+                            <div class="col-md p-0">
+                              <div class="m-0">
+                                <div class="d-inline pr-2">
+                                  <mat-form-field style="width: 100px">
+                                    <mat-select formControlName="number">
+                                      <mat-option [value]="number?.name" *ngFor="let number of numberList">{{ number?.name
+                                        }}</mat-option>
+                                    </mat-select>
+                                  </mat-form-field>
+                                </div>
+                                <div class="d-inline">
+                                  <mat-form-field style="width: 100px">
+                                    <mat-select formControlName="days">
+                                      <mat-option [value]="days?._id" *ngFor="let days of weekDaysList">{{days?.name}}
+                                      </mat-option>
+                                    </mat-select>
+                                  </mat-form-field>
+                                </div>
+                                <label class="form-check-label ml-2" for="inlineCheckbox1">of every</label>
+                              </div>
+                            </div>
+                            <div style="max-width: 26%;" class="col-md-4 p-0">
+                              <div class="form-check form-check-inline m-0">
+                                <mat-form-field style="width: 50px;">
+                                  <input matInput class="form-check-input" formControlName="month" type="number"
+                                    maxlength="2" min="1" max="12" value="" />
+                                </mat-form-field>
+                                <label class="m-0">month(s)</label>
+                              </div>
+                              <small class="text-danger" *ngIf="campaignFG.get('month')?.value < 0">Min 1 Month</small>
+                              <small class="text-danger" *ngIf="campaignFG.get('month')?.value > 12">Max 12 Months</small>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div [hidden]="recurrPattern != 'yearly'">
+                        <div class="main">
+                          <span class="heads">Yearly Recurrence<sup class="text-danger">*</sup></span>
+                          <div class="row pt-1">
+                            <div class="col-md-auto pt-4"><label for="staticEmail2">Recur every</label></div>
+                            <div class="col-md-2 pl-0">
+                              <mat-form-field>
+                                <input matInput type="number" maxlength="2" min="1" formControlName="yearRecurrence" />
+                              </mat-form-field>
+                              <small class="text-danger" *ngIf="campaignFG.get('yearRecurrence')?.value < 0">Min 1
+                                Days</small>
+                            </div>
+                            <div class="col-md-auto pt-4"><label for="staticEmail2">year(s):</label></div>
+                          </div>
+                          <div class="row pt-2">
+                            <div class="col-md-auto  pr-0 pt-4">
+                              <div class="form-check form-check-inline">
+                                <input type="radio" (click)="onRadioFun()" name="yearlyradio" formControlName="yearlyradio"
+                                  value="days">
+                                <label class="m-0" for="inlineCheckbox1">On:</label>
+                              </div>
+                            </div>
+                            <div class="col-md-auto p-0 mr-2">
+                              <mat-form-field style="width: 100px;">
+                                <mat-select formControlName="myearRecmonthonth">
+                                  <mat-option [value]="month?._id" *ngFor="let month of monthsList">{{month?.name}}
+                                  </mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+                            <div class="col-md p-0">
+                              <div>
+                                <mat-form-field style="width: 50px;">
+                                  <input matInput max="31" type="number" maxlength="2" min="1"
+                                    formControlName="yearRecNmuber" />
+                                </mat-form-field>
+                                <small class="text-danger" *ngIf="campaignFG.get('yearRecNmuber')?.value < 0">Min 1
+                                  Days</small>
+                                <small class="text-danger" *ngIf="campaignFG.get('yearRecNmuber')?.value > 31">Max 31
+                                  Days</small>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-md-auto pr-0 pt-4">
+                              <div class="form-check form-check-inline">
+                                <label class="form-check-label pl-0 mb-2" for="inlineCheckbox1">
+                                  <input class="form-check-input" (click)="onTheRadioFun()" type="radio" name="yearlyradio"
+                                    formControlName="yearlyradio" value="day">
+                                  On the
+                                </label>
+                              </div>
+                            </div>
+                            <div class="col-md-5 p-0">
+                              <div class="form-check form-check-inline d-flex">
+                                <div class="d-inline pr-2">
+                                  <mat-form-field style="width: 80px;">
+                                    <mat-select formControlName="monthRecnumber">
+                                      <mat-option [value]="number?.name" *ngFor="let number of numberList">{{number?.name}}
+                                      </mat-option>
+                                    </mat-select>
+                                  </mat-form-field>
+                                </div>
+                                <div class="d-inline">
+                                  <mat-form-field style="width: 80px;">
+                                    <mat-select formControlName="monthRecdays">
+                                      <mat-option [value]="days?._id" *ngFor="let days of weekDaysList">{{days?.name}}
+                                      </mat-option>
+                                    </mat-select>
+                                  </mat-form-field>
+                                </div>
+                                <div class="d-inline">
+                                  <label class="form-check-label ml-2" for="inlineCheckbox1">of</label>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md">
+                              <div class="form-check form-check-inline">
+                                <mat-form-field style="width: 80px;">
+                                  <mat-select formControlName="monthRecmonth">
+                                    <mat-option [value]="month?._id" *ngFor="let month of monthsList">{{month?.name}}
+                                    </mat-option>
+                                  </mat-select>
+                                </mat-form-field>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+                <div class="col-md">
+                  <div class="row">
+                    <div class="col-md-5 pt-2">
+                      <div>
+                        <div>
+                          <mat-form-field>
+                            <input matInput [matDatepicker]="picker" placeholder="Start Date" formControlName="startDate"
+                              (dateChange)="startDChangeFun($event)">
+                            <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
+                          </mat-form-field>
+                          <!-- <mat-error *ngIf="campaignFG?.controls?.startDate?.errors?.required">Date is required</mat-error> -->
+                        </div>
+                      </div>
+                      <mat-form-field>
+                        <mat-label>{{
+                          campaignFG?.controls?.setTime?.errors?.required &&
+                          (campaignFG?.controls?.setTime?.touched ||
+                          campaignFG?.controls?.setTime?.dirty)
+                          ? "Time *"
+                          : "Time"
+                          }}</mat-label>
+                        <input matInput type="time" name="setTime" formControlName="setTime" />
+                        <mat-error *ngIf="campaignFG?.controls?.setTime?.errors?.required">Time is required</mat-error>
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-7 pt-2" [hidden]="recurrPattern == 'oneTime'">
+                      <div class="row">
+                        <div class="col pl-0">
+                          <label class="form-check-label col-auto radio_check pr-0 pt-4">
+                            <input class="mt-2" type="radio" name="timeSetupd" formControlName="timeSetupd"
+                              (change)="endbyRadioChange('oneTime')" value="oneTime" />
+                          </label>
+                          <mat-form-field style="width: 100px;">
+                            <mat-label>End By</mat-label>
+                            <input matInput [matDatepicker]="picker1" (click)="toggle('date')" [min]="minDateValue" formControlName="endDate">
+                            <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
+                            <mat-datepicker #picker1 #ref
+                            (opened)="toggle(ref)"
+                            (closed)="toggle(ref)"></mat-datepicker>
+                          </mat-form-field>
+                        </div>
+                      </div>
+                      <!-- <p-calendar showButtonBar="true" [minDate]="minDateValue" dateFormat="dd/mm/yy" [readonlyInput]="true" formControlName="endDate"></p-calendar> -->
+                      <label class="form-check-label col-atuo radio_check p-0 mr-2">
+                        <input class="mt-2" type="radio" name="timeSetupd" formControlName="timeSetupd"
+                          (change)="endbyRadioChange('daily')" value="daily">End After
+                      </label>
+                      <mat-form-field style="width: 50px;" class="p-0">
+                        <input matInput type="number" maxlength="2" min="1" formControlName="endAfter" />
+                      </mat-form-field>
+                      <small class="text-danger" *ngIf="campaignFG.get('endAfter')?.value < 0">Min 1 Days</small>
+                      <span class="pt-2">Occurences</span>
+                      <!-- <input type="number" maxlength="2"  min="1" formControlName="endAfter" class="form-control form-control-sm px-1" /> -->
+                      <div>
+                        <label class="form-check-label col-atuo radio_check" style="display: inline-block !important;">
+                          <input type="radio" name="timeSetupd" formControlName="timeSetupd"
+                            (change)="endbyRadioChange('weekly')" value="weekly">No End Date
+                        </label>
+                      </div>
+
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </form>
+            <mat-divider></mat-divider>
+            <mat-card-actions class="m-0 pt-4">
+              <!-- Buttons -->
+              <button (click)="previewScheduleFun('onPreview')" mat-raised-button class="btn-action mr-2" *ngIf="isCanDo()"
+                [disabled]="!campaignFG?.valid">
+                Preview Schedule
+              </button>
+              <button (click)="onSubmit()" mat-raised-button class="btn-action" *ngIf="isCanDo()"
+              [disabled]="!campaignFG?.valid">
+                {{ getActionButtonText() }}
+              </button>
+              <button mat-raised-button class="btn-cancel" (click)="onCancel()">
+                Cancel
+              </button>
+            </mat-card-actions>
+          </mat-tab>
+          <mat-tab label="Events" *ngIf="accessMode != accessModes.Add">
+       <camp-message-event></camp-message-event>
+       <mat-divider></mat-divider>
+       <mat-card-actions class="m-0">
+        <button mat-raised-button class="btn-cancel" (click)="onCancel()">Cancel</button>
+      </mat-card-actions>
+        </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

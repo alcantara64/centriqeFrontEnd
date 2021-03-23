@@ -1,0 +1,54 @@
+<!-- 25112020 - Gaurav - Init version: System Dialog for user alerts -->
+<div class="dialog-container">
+  <h1 mat-dialog-title>{{ dialogTitle }}</h1>
+
+  <div mat-dialog-content>
+    {{ dialogBody }}
+  </div>
+
+  <!-- Decide on which buttons to display based on the showButtons alert type requested -->
+  <div mat-dialog-actions>
+    <button
+      *ngIf="
+        showButtons === buttonDisplayTypes.info_alert_ok ||
+        showButtons === buttonDisplayTypes.success_alert_ok
+      "
+      mat-button
+      [mat-dialog-close]="returnType.continue_yes"
+      cdkFocusInitial
+    >
+      Close
+    </button>
+
+    <button
+      *ngIf="
+        showButtons === buttonDisplayTypes.warning_alert_yes_no ||
+        showButtons === buttonDisplayTypes.warning_alert_yes_no_cancel ||
+        showButtons === buttonDisplayTypes.danger_alert_yes_no
+      "
+      mat-button
+      [mat-dialog-close]="returnType.continue_yes"
+      cdkFocusInitial
+    >
+      Yes
+    </button>
+    <button
+      *ngIf="
+        showButtons === buttonDisplayTypes.warning_alert_yes_no ||
+        showButtons === buttonDisplayTypes.warning_alert_yes_no_cancel ||
+        showButtons === buttonDisplayTypes.danger_alert_yes_no
+      "
+      mat-button
+      [mat-dialog-close]="returnType.continue_no"
+    >
+      No
+    </button>
+    <button
+      *ngIf="showButtons === buttonDisplayTypes.warning_alert_yes_no_cancel"
+      mat-button
+      [mat-dialog-close]="returnType.cancel"
+    >
+      Cancel
+    </button>
+  </div>
+</div>

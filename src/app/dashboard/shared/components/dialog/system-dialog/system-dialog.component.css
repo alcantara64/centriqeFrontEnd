@@ -1,0 +1,26 @@
+/* 25112020 - Gaurav - Init version: System Dialog for user alerts */
+:host {
+  /* Search CSS Colors */
+  --info-bgcolor: rgba(20, 91, 148, 0.3);
+  --success-bgcolor: rgba(71, 123, 71, 0.3);
+  --warning-bgcolor: rgba(193, 109, 6, 0.3);
+  --danger-bgcolor: rgba(220, 56, 72, 0.3);
+  --button-bgcolor: #145993;
+  --button-textColor: #ffffff;
+}
+
+/* Added a custom container to set the background color based on alert types, if needed */
+::ng-deep .mat-dialog-container {
+  padding: 0px;
+}
+
+.dialog-container {
+  padding: 24px;
+  /* background-color: var(--success-bgcolor); */
+}
+
+.mat-button {
+  background-color: var(--button-bgcolor);
+  color: var(--button-textColor);
+  min-width: 0px;
+}

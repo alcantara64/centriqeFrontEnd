@@ -1,0 +1,479 @@
+<!-- 05012021 - Gaurav - Init version -->
+<!-- 25012021 - Gaurav - Added fields tableColSubHeading and tableDataRowSubHeading to likerts -->
+<div class="col-12">
+  <form [formGroup]="form">
+    <!-- Base Fields - Starts -->
+    <div class="row">
+      <div class="col-sm-12">
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label
+            >Identifier Name <span class="field-required">*</span></mat-label
+          >
+          <input
+            matInput
+            formControlName="responseIdentifierText"
+            type="text"
+            placeholder="Ex. checkin_process_response, user_contact_preferences, user_rating, etc."
+            (keypress)="
+              templateFieldValidationService.allowNoSpaceAndSpecialChars(
+                $event,
+                { lowercaseOnly: true }
+              )
+            "
+            (change)="
+              this.question
+                ? (this.question.responseIdentifierText = form.get(
+                    'responseIdentifierText'
+                  )?.value)
+                : ''
+            "
+            maxlength="100"
+          />
+          <mat-hint
+            >A unique identifier used to identify customer response for this
+            question.</mat-hint
+          >
+          <mat-error
+            *ngIf="form?.controls?.responseIdentifierText?.errors?.required"
+            >Name is a required field</mat-error
+          >
+        </mat-form-field>
+      </div>
+      <div class="col-sm-6" *ngIf="surveyMode">
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label>Display Question Number (Optional)</mat-label>
+          <input
+            matInput
+            formControlName="questionNumberOrderToDisplay"
+            type="number"
+            placeholder="Ex. 1"
+            onkeypress="return event.charCode >= 48"
+            min="1"
+            (change)="
+              this.question
+                ? (this.question.questionNumberOrderToDisplay = form.get(
+                    'questionNumberOrderToDisplay'
+                  )?.value)
+                : ''
+            "
+          />
+          <mat-hint>Question number to display</mat-hint>
+        </mat-form-field>
+      </div>
+      <div class="col-sm-6 my-xs-3 mt-sm-4">
+        <mat-slide-toggle
+          formControlName="questionRequired"
+          (change)="
+            this.question
+              ? (this.question.required = form.get('questionRequired')?.value)
+              : ''
+          "
+          >Required</mat-slide-toggle
+        >
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-sm-12">
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label>Question Text</mat-label>
+          <input
+            matInput
+            formControlName="questionText"
+            placeholder="Ex. Please rate your overall experience:"
+            [maxlength]="questionTextFieldMaxLength"
+            (change)="
+              this.question
+                ? (this.question.questionText = form.get('questionText')?.value)
+                : ''
+            "
+          />
+          <mat-hint align="end"
+            >{{ form.get("questionText")?.value?.length || 0 }}/{{
+              questionTextFieldMaxLength
+            }}</mat-hint
+          >
+        </mat-form-field>
+      </div>
+      <div class="col-sm-12">
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label>Sub-Question Text</mat-label>
+          <input
+            matInput
+            formControlName="subQuestionText"
+            placeholder="Ex. Field to add question in any other or local language"
+            [maxlength]="questionTextFieldMaxLength"
+            (change)="
+              this.question
+                ? (this.question.subQuestionText = form.get(
+                    'subQuestionText'
+                  )?.value)
+                : ''
+            "
+          />
+          <mat-hint align="end"
+            >{{ form.get("subQuestionText")?.value?.length || 0 }}/{{
+              questionTextFieldMaxLength
+            }}</mat-hint
+          >
+        </mat-form-field>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <!-- Base Fields - Ends -->
+
+    <div class="form-row">
+      <div class="col-sm-6">
+        <mat-form-field appearance="outline">
+          <mat-label>Table Heading (Optional)</mat-label>
+          <input
+            matInput
+            formControlName="tableHeading"
+            maxlength="50"
+            placeholder="Ex. Product List:, Available Amenities:, etc."
+            (change)="
+              this.question
+                ? (this.question.questionTypeStructure.tableHeading = form.get(
+                    'tableHeading'
+                  )?.value)
+                : ''
+            "
+          />
+          <mat-hint align="end"
+            >{{ form.get("tableHeading")?.value?.length || 0 }}/50</mat-hint
+          >
+        </mat-form-field>
+      </div>
+      <div class="col-sm-6 my-xs-3 mt-sm-4">
+        <mat-slide-toggle
+          formControlName="addAdditionalTextForEachRow"
+          (change)="onChangeRowValue()"
+          >Add Additional Text Input for each table row</mat-slide-toggle
+        >
+      </div>
+    </div>
+
+    <!-- Likert Columns and Data -->
+    <div class="elements-main">
+      <h3 [ngClass]="[viewOnly ? 'disable-bgColor' : '']">
+        Add new table column option
+        <button
+          mat-mini-fab
+          type="button"
+          matTooltip="Add"
+          matTooltipPosition="above"
+          color="none"
+          [ngClass]="[
+            'mat-elevation-z0',
+            viewOnly ? 'disable-bgColor' : 'action-buttons',
+            viewOnly ? 'disable-bgColor' : 'add-button'
+          ]"
+          (click)="onAddCol()"
+          [disabled]="viewOnly"
+        >
+          <mat-icon
+            matBadgeSize="small"
+            [matBadge]="tableCols?.length"
+            [ngClass]="['add-icon']"
+            >playlist_add</mat-icon
+          >
+        </button>
+      </h3>
+
+      <div class="elements-table-container">
+        <table class="elements-table" *ngIf="tableCols?.length! > 0">
+          <thead>
+            <tr>
+              <th [ngClass]="[viewOnly ? 'disable-color' : '']">
+                Column Heading
+              </th>
+              <th [ngClass]="[viewOnly ? 'disable-color' : '']">
+                Column Sub-Heading (optional)
+              </th>
+              <th [ngClass]="[viewOnly ? 'disable-color' : '']">
+                Analytics Value
+              </th>
+              <th><mat-icon>delete</mat-icon></th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container formArrayName="tableCols">
+              <tr
+                *ngFor="let row of tableCols; let i = index"
+                [formGroupName]="i"
+              >
+                <td>
+                  <div class="form-group">
+                    <mat-form-field appearance="outline">
+                      <mat-label
+                        >Column Heading# {{ i + 1 }}
+                        <span class="field-required">*</span></mat-label
+                      >
+                      <input
+                        matInput
+                        formControlName="tableColHeading"
+                        [maxlength]="likertDataLengthConfig.tableColHeading"
+                        placeholder="Ex. Excellent, Good, Average, Below Average, etc."
+                        (change)="onChangeColValue()"
+                      />
+                      <mat-hint align="end"
+                        >{{ row.get("tableColHeading")?.value?.length || 0 }}/{{
+                          likertDataLengthConfig.tableColHeading
+                        }}</mat-hint
+                      >
+                      <mat-error
+                        *ngIf="row.get('tableColHeading')?.errors?.required"
+                        >Column Heading# {{ i + 1 }} is a required
+                        field</mat-error
+                      >
+                    </mat-form-field>
+                  </div>
+                </td>
+
+                <td>
+                  <div class="form-group">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Column Sub-Heading# {{ i + 1 }} </mat-label>
+                      <input
+                        matInput
+                        formControlName="tableColSubHeading"
+                        [maxlength]="likertDataLengthConfig.tableColHeading"
+                        placeholder="Ex. Ausgezeichnet, ممتاز, अति उत्कृष्ट, Excelente, etc."
+                        (change)="onChangeColValue()"
+                      />
+                      <mat-hint align="end"
+                        >{{
+                          row.get("tableColSubHeading")?.value?.length || 0
+                        }}/{{
+                          likertDataLengthConfig.tableColHeading
+                        }}</mat-hint
+                      >
+                    </mat-form-field>
+                  </div>
+                </td>
+
+                <ng-container
+                  *ngIf="
+                    questionType === questionTypes.likertCheck;
+                    else likertRadio
+                  "
+                >
+                  <td>
+                    <div formGroupName="tableColDataValue">
+                      <div class="form-group">
+                        <mat-form-field appearance="outline">
+                          <mat-label
+                            >Analytics Value# {{ i + 1 }}
+                            <span class="field-required">*</span></mat-label
+                          >
+                          <input
+                            matInput
+                            formControlName="value"
+                            maxlength="50"
+                            placeholder="Ex. excellent, 5, good, 4, etc"
+                            (change)="onChangeColValue()"
+                          />
+                          <mat-hint align="end"
+                            >{{
+                              row.get("tableColDataValue")?.value?.value
+                                ?.length || 0
+                            }}/50</mat-hint
+                          >
+                          <mat-error
+                            *ngIf="
+                              row.get('tableColDataValue')?.get('value')?.errors
+                                ?.required
+                            "
+                            >Analytics Value# {{ i + 1 }} is a required
+                            field</mat-error
+                          >
+                        </mat-form-field>
+                      </div>
+                    </div>
+                  </td>
+                </ng-container>
+                <ng-template #likertRadio>
+                  <td>
+                    <div class="form-group">
+                      <mat-form-field appearance="outline">
+                        <mat-label
+                          >Analytics Value# {{ i + 1 }}
+                          <span class="field-required">*</span></mat-label
+                        >
+                        <input
+                          matInput
+                          formControlName="tableColDataValue"
+                          maxlength="50"
+                          placeholder="Ex. excellent, 5, good, 4, etc"
+                          (change)="onChangeColValue()"
+                        />
+                        <mat-hint align="end"
+                          >{{
+                            row.get("tableColDataValue")?.value?.length || 0
+                          }}/50</mat-hint
+                        >
+                        <mat-error
+                          *ngIf="row.get('tableColDataValue')?.errors?.required"
+                          >Analytics Value# {{ i + 1 }} is a required
+                          field</mat-error
+                        >
+                      </mat-form-field>
+                    </div>
+                  </td>
+                </ng-template>
+
+                <td>
+                  <button
+                    mat-mini-fab
+                    type="button"
+                    color="none"
+                    matTooltip="Delete"
+                    matTooltipPosition="above"
+                    [ngClass]="[
+                      'mat-elevation-z0',
+                      viewOnly ? 'disable-bgColor' : 'action-buttons',
+                      viewOnly ? 'disable-bgColor' : 'delete-button'
+                    ]"
+                    (click)="onDeleteCol(i)"
+                    [disabled]="viewOnly"
+                  >
+                    <mat-icon [ngClass]="['delete-icon']">delete</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+
+        <!-- Likert Rows -->
+        <div class="elements-main">
+          <h3 [ngClass]="[viewOnly ? 'disable-bgColor' : '']">
+            Add new table row option
+            <button
+              mat-mini-fab
+              type="button"
+              matTooltip="Add"
+              matTooltipPosition="above"
+              color="none"
+              [ngClass]="[
+                'mat-elevation-z0',
+                viewOnly ? 'disable-bgColor' : 'action-buttons',
+                viewOnly ? 'disable-bgColor' : 'add-button'
+              ]"
+              (click)="onAddRow()"
+              [disabled]="viewOnly"
+            >
+              <mat-icon
+                matBadgeSize="small"
+                [matBadge]="tableRows?.length"
+                [ngClass]="['add-icon']"
+                >playlist_add</mat-icon
+              >
+            </button>
+          </h3>
+          <div class="elements-table-container">
+            <table class="elements-table" *ngIf="tableRows?.length! > 0">
+              <thead>
+                <tr>
+                  <th [ngClass]="[viewOnly ? 'disable-color' : '']">
+                    Row Heading
+                  </th>
+                  <th [ngClass]="[viewOnly ? 'disable-color' : '']">
+                    Row Sub-Heading (optional)
+                  </th>
+                  <th><mat-icon>delete</mat-icon></th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container formArrayName="tableRows">
+                  <tr
+                    *ngFor="let row of tableRows; let i = index"
+                    [formGroupName]="i"
+                  >
+                    <td>
+                      <div class="form-group">
+                        <mat-form-field appearance="outline">
+                          <mat-label
+                            >Row Heading# {{ i + 1 }}
+                            <span class="field-required">*</span></mat-label
+                          >
+                          <input
+                            matInput
+                            formControlName="tableDataRowHeading"
+                            [maxlength]="
+                              likertDataLengthConfig.tableDataRowHeading
+                            "
+                            placeholder="Ex. Quality of Service, Quality of Food, Value for price paid, etc."
+                            (change)="onChangeRowValue()"
+                          />
+                          <mat-hint align="end"
+                            >{{
+                              row.get("tableDataRowHeading")?.value?.length ||
+                                0
+                            }}/{{
+                              likertDataLengthConfig.tableDataRowHeading
+                            }}</mat-hint
+                          >
+                          <mat-error
+                            *ngIf="
+                              row.get('tableDataRowHeading')?.errors?.required
+                            "
+                            >Row Heading# {{ i + 1 }} is a required
+                            field</mat-error
+                          >
+                        </mat-form-field>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="form-group">
+                        <mat-form-field appearance="outline">
+                          <mat-label>Row Sub-Heading# {{ i + 1 }} </mat-label>
+                          <input
+                            matInput
+                            formControlName="tableDataRowSubHeading"
+                            [maxlength]="
+                              likertDataLengthConfig.tableDataRowHeading
+                            "
+                            placeholder="Ex. Servicequalität, جودة الخدمة, सेवा की गुणवत्ता, etc."
+                            (change)="onChangeRowValue()"
+                          />
+                          <mat-hint align="end"
+                            >{{
+                              row.get("tableDataRowSubHeading")?.value
+                                ?.length || 0
+                            }}/{{
+                              likertDataLengthConfig.tableDataRowHeading
+                            }}</mat-hint
+                          >
+                        </mat-form-field>
+                      </div>
+                    </td>
+
+                    <td>
+                      <button
+                        mat-mini-fab
+                        type="button"
+                        color="none"
+                        matTooltip="Delete"
+                        matTooltipPosition="above"
+                        [ngClass]="[
+                          'mat-elevation-z0',
+                          viewOnly ? 'disable-bgColor' : 'action-buttons',
+                          viewOnly ? 'disable-bgColor' : 'delete-button'
+                        ]"
+                        (click)="onDeleteRow(i)"
+                        [disabled]="viewOnly"
+                      >
+                        <mat-icon [ngClass]="['delete-icon']">delete</mat-icon>
+                      </button>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

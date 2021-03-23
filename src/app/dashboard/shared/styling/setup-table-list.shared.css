@@ -1,0 +1,349 @@
+/* 30112020 - Gaurav - Init version: CSS styling file shared by components that should display a table list and have edit buttons for each list row. */
+/* This file currently used by (kindly update the list as you reuse this) -
+  Holding Org Setup
+  Member Org Setup
+  Roles Setup
+  Users setup
+*/
+/* 10122020 - Gaurav - Fix to always show required asterik in red: added class .field-required */
+/* 30122020 - Gaurav - Added web-view-icon */
+/* 05032021 - Abhishek - Added save and cancle button color css. */
+/* 18022021 - Abhishek - JIRA-CA-167: Render dashboards on UI -> Added color variables and classes for save and cancel buttons  */
+:host {
+  /* Search CSS Colors */
+  --button-bgcolor: #145993;
+  --button-textColor: #ffffff;
+  --color-status-active: #32aa53;
+  --color-status-inactive: #dc3545;
+  --all-icons-hover: #ffffff;
+  --copy-icon: #08b1a8d1;
+  --copy-icon-button: #1fb7af4d;
+  --copy-icon-button-hover: #08b1a8d1;
+  --edit-icon: #477b47;
+  --edit-icon-button: #477b474d;
+  --edit-icon-button-hover: #477b47;
+  --status-active-icon: #851abd;
+  --status-active-icon-button: #851abd4d;
+  --status-active-icon-button-hover: #851abd;
+  --status-inactive-icon: #c26e06;
+  --status-inactive-icon-button: #c26e064d;
+  --status-inactive-icon-button-hover: #c26e06;
+  --web-view-icon: #e96e81;
+  --web-view-icon-button: #ec95a24d;
+  --web-view-icon-button-hover: #e96e81;
+  --view-icon: #145993;
+  --view-icon-button: #1459934d;
+  --view-icon-button-hover: #145a93;
+  --delete-icon: #c45c5c;
+  --delete-icon-button: #c45c5c4d;
+  --delete-icon-button-hover: #c45c5c;
+  --mat-sort-header-sorted: #000000;
+  --field-required-color: #f44335;
+  --save-icon: #021287;
+  --save-icon-button: #688bff87;
+  --save-icon-button-hover: #1c369f;
+  --check-circle-icon: #025d02;
+  --check-circle-icon-button: #b2d0b2;
+  --check-circle-icon-button-hover: #006400;
+  --cancel-icon: #d7180b;
+  --cancel-icon-button: #ffdddb;
+  --cancel-icon-button-hover: #f44335;
+}
+
+.main-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+}
+
+.table-container {
+  width: 100%;
+}
+
+.table-container-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-container-table .mat-table {
+  width: 100%;
+  min-width: 350px;
+}
+
+.table-top {
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.table-top_row1 {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-top_row2 button {
+  background-color: var(--button-bgcolor);
+  color: var(--button-textColor);
+}
+
+/* Approach 2 - ENDS */
+
+.table-title {
+  margin-bottom: 8px;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+.active {
+  color: var(--color-status-active);
+}
+
+.inactive {
+  color: var(--color-status-inactive);
+}
+
+.field-required {
+  color: var(--field-required-color);
+}
+
+table {
+  width: 100%;
+}
+
+th.mat-sort-header-sorted {
+  color: var(--mat-sort-header-sorted);
+}
+
+.mat-header-cell {
+  font-size: 14px;
+}
+
+::ng-deep .mat-mini-fab .mat-button-wrapper {
+  padding: 0px;
+}
+
+/* 17022021 - Abhishek - Added padding-right css with !important to set column spacing in all the tables */
+th.mat-header-cell:last-of-type,
+td.mat-cell:last-of-type,
+td.mat-footer-cell:last-of-type {
+  padding-right: 0px !important;
+}
+
+/* All about action buttons - Start */
+.action-buttons mat-icon {
+  font-size: 18px;
+}
+
+.action-buttons {
+  margin: 5px;
+}
+
+.action-buttons {
+  width: 30px;
+  height: 30px;
+  font-size: 0px;
+}
+.copy-icon {
+  color: var(--copy-icon);
+}
+
+.action-buttons.copy-button {
+  background-color: var(--copy-icon-button);
+}
+
+.action-buttons.copy-button:hover {
+  background-color: var(--copy-icon-button-hover);
+}
+
+.edit-icon {
+  color: var(--edit-icon);
+}
+
+.action-buttons.edit-button {
+  background-color: var(--edit-icon-button);
+}
+
+.action-buttons.edit-button:hover {
+  background-color: var(--edit-icon-button-hover);
+}
+
+.status-icon {
+  color: var(--status-active-icon);
+}
+
+.action-buttons.status-button {
+  background-color: var(--status-active-icon-button);
+}
+
+.action-buttons.status-button:hover {
+  background-color: var(--status-active-icon-button-hover);
+}
+
+.status-icon-inactive {
+  color: var(--status-inactive-icon);
+}
+
+.action-buttons.status-button-inactive {
+  background-color: var(--status-inactive-icon-button);
+}
+
+.action-buttons.status-button-inactive:hover {
+  background-color: var(--status-inactive-icon-button-hover);
+}
+
+.web-view-icon {
+  color: var(--web-view-icon);
+}
+
+.action-buttons.web-view-button:hover {
+  background-color: var(--web-view-icon-button-hover);
+}
+
+.action-buttons.web-view-button {
+  background-color: var(--web-view-icon-button);
+}
+
+.view-icon {
+  color: var(--view-icon);
+}
+
+.action-buttons.view-button:hover {
+  background-color: var(--view-icon-button-hover);
+}
+
+.action-buttons.view-button {
+  background-color: var(--view-icon-button);
+}
+
+.save-icon {
+  color: var(--save-icon);
+}
+
+.action-buttons.save-button:hover {
+  background-color: var(--save-icon-button-hover);
+}
+
+.action-buttons.save-button {
+  background-color: var(--save-icon-button);
+}
+.check-circle-icon {
+  color: var(--check-circle-icon);
+}
+
+.action-buttons.check-circle-icon-button:hover {
+  background-color: var(--check-circle-icon-button-hover);
+}
+
+.action-buttons.check-circle-icon-button {
+  background-color: var(--check-circle-icon-button);
+}
+
+.right-icon {
+  color: var(--right-icon);
+}
+
+.action-buttons.right-button:hover {
+  background-color: var(--right-icon-button-hover);
+}
+
+.action-buttons.right-button {
+  background-color: var(--right-icon-button);
+}
+
+.cancel-icon {
+  color: var(--cancel-icon);
+}
+
+.action-buttons.cancel-button:hover {
+  background-color: var(--cancel-icon-button-hover);
+}
+
+.action-buttons.cancel-button {
+  background-color: var(--cancel-icon-button);
+}
+
+.delete-icon {
+  color: var(--delete-icon);
+}
+
+.action-buttons.delete-button:hover {
+  background-color: var(--delete-icon-button-hover);
+}
+
+.action-buttons.delete-button {
+  background-color: var(--delete-icon-button);
+}
+
+.action-buttons mat-icon:hover {
+  color: var(--all-icons-hover);
+}
+/* All about action buttons - Ends */
+
+/* MEDIA QUERIES */
+@media screen and (max-width: 550px) {
+  .main-container {
+    padding: 10px;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .action-buttons {
+    width: 25px;
+    height: 25px;
+  }
+
+  .action-buttons mat-icon {
+    font-size: 14px;
+  }
+
+  .mat-form-field {
+    font-size: 12px;
+    width: 100%;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  .mat-header-cell {
+    font-size: 12px;
+  }
+
+  .mat-cell {
+    font-size: 12px;
+  }
+
+  th.mat-header-cell:first-of-type,
+  td.mat-cell:first-of-type,
+  td.mat-footer-cell:first-of-type {
+    padding-left: 10px;
+  }
+
+  .table-top {
+    flex-direction: column;
+  }
+
+  .table-top_row1,
+  .table-top_row2,
+  .table-add-btn {
+    width: 100%;
+    text-align: center;
+  }
+  /* 05012021 - Abhishek - Set css to set header design */
+  .col {
+    padding: 0px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .hide-small-screen {
+    display: none;
+  }
+}

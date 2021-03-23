@@ -1,0 +1,93 @@
+<!-- 23032021 - Gaurav - JIRA-CA-220: Get and reconcile sys data attributes -->
+<ng-container *ngIf="dataAttributesInstance">
+  <div style="width: 100% !important; overflow: auto !important">
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      class="mat-elevation-z0"
+      style="width: 100%"
+    >
+      <ng-container *ngFor="let displayCol of displayedColumns">
+        <!-- Checkbox Column -->
+        <ng-container
+          *ngIf="displayCol.value === 'select'"
+          matColumnDef="select"
+        >
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox
+              (change)="$event ? masterToggle() : null"
+              [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()"
+              [aria-label]="checkboxLabel()"
+              [disabled]="dataAttributesInstance?.isViewOnly"
+            >
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <mat-checkbox
+              (click)="$event.stopPropagation()"
+              (change)="$event ? selection.toggle(row) : null"
+              [checked]="selection.isSelected(row)"
+              [aria-label]="checkboxLabel(row)"
+              [disabled]="dataAttributesInstance?.isViewOnly"
+            >
+            </mat-checkbox>
+          </td>
+        </ng-container>
+
+        <ng-container
+          *ngIf="displayCol.value !== 'select'"
+          [matColumnDef]="displayCol.value"
+        >
+          <th mat-header-cell *matHeaderCellDef>
+            {{ displayCol.displayValue }}
+          </th>
+          <td
+            mat-cell
+            *matCellDef="let element; let i = index"
+            [ngStyle]="{
+              color: dataSource.data[i].detailViewOrder === -1 ? 'red' : ''
+            }"
+          >
+            {{ element[displayCol.value] }}
+          </td>
+        </ng-container>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumnValues"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumnValues"
+        (click)="selection.toggle(row)"
+      ></tr>
+    </table>
+  </div>
+  <div class="mt-2">
+    <button
+      mat-stroked-button
+      [color]="
+        dataAttributesInstance?.dataAttributesList?.length! > 0
+          ? 'warn'
+          : 'primary'
+      "
+      matTooltip="Overwrite/Copy all related System fields to existing Holding Org fields for selected rows"
+      (click)="onReconcile()"
+    >
+      {{
+        dataAttributesInstance?.dataAttributesList?.length! > 0
+          ? "Reconcile all"
+          : "Copy selected"
+      }}
+    </button>
+    <button
+      class="ml-2"
+      mat-stroked-button
+      color="primary"
+      matTooltip="Overwrite existing Holding Org read-only fields from related System fields for selected rows"
+      (click)="onReconcile(true)"
+      [disabled]="!(dataAttributesInstance?.dataAttributesList?.length! > 0)"
+    >
+      Reconcile read-only
+    </button>
+  </div>
+</ng-container>

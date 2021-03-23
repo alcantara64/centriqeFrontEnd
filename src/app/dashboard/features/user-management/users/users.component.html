@@ -1,0 +1,585 @@
+<!-- 10122020 - Gaurav - Fix to always show required asterik in red -->
+<!-- 09022021 - Abhishek - Added new checkbox on user edit screen with Label: AllowGlobalOrgSelector and added its control in form. -->
+<div class="main-container">
+  <div class="card-container user-management-container">
+    <mat-card>
+      <mat-card-header>
+        <!-- Header -->
+        <mat-card-title>
+          {{ getTitle() }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ getSubTitle() ? getSubTitle() : "&nbsp;" }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <mat-tab-group
+          animationDuration="0ms"
+          [(selectedIndex)]="selectedIndex"
+        >
+          <mat-tab
+            [label]="
+              !userProfileForm?.valid &&
+              (userProfileForm?.touched || userProfileForm?.dirty)
+                ? 'User Profile *'
+                : 'User Profile'
+            "
+            [ngClass]="[
+              !userProfileForm?.valid &&
+              (userProfileForm?.touched || userProfileForm?.dirty)
+                ? 'inactive'
+                : ''
+            ]"
+          >
+            <form
+              class="grid-container"
+              [formGroup]="userProfileForm"
+              *ngIf="userProfileForm"
+            >
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >User ID<span class="field-required"> *</span></mat-label
+                  >
+                  <input matInput formControlName="userId" type="text" />
+                  <mat-error
+                    *ngIf="userProfileForm?.controls?.userId?.errors?.required"
+                    >User ID is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >First Name<span class="field-required"> *</span></mat-label
+                  >
+                  <input matInput formControlName="firstName" type="text" />
+                  <mat-error
+                    *ngIf="
+                      userProfileForm?.controls?.firstName?.errors?.required
+                    "
+                    >First Name is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Last Name<span class="field-required"> *</span></mat-label
+                  >
+                  <input matInput formControlName="lastName" type="text" />
+                  <mat-error
+                    *ngIf="
+                      userProfileForm?.controls?.lastName?.errors?.required
+                    "
+                    >Last Name is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Email<span class="field-required"> *</span></mat-label
+                  >
+                  <input matInput formControlName="email" type="text" />
+                  <mat-error
+                    *ngIf="userProfileForm?.controls?.email?.errors?.required"
+                    >Email is required</mat-error
+                  >
+                  <mat-error
+                    *ngIf="userProfileForm?.controls?.email?.errors?.email"
+                    >Please enter a valid email</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Password<span class="field-required"> *</span></mat-label
+                  >
+
+                  <input
+                    *ngIf="this.accessMode === this.accessModes.Add"
+                    matInput
+                    formControlName="password"
+                    type="text"
+                  />
+
+                  <mat-error
+                    *ngIf="
+                      this.accessMode === this.accessModes.Add &&
+                      userProfileForm?.controls?.password?.errors?.required
+                    "
+                    >Password is required</mat-error
+                  >
+
+                  <div
+                    class="password-field"
+                    *ngIf="this.accessMode !== this.accessModes.Add"
+                  >
+                    <div>
+                      <input matInput formControlName="password" type="text" />
+
+                      <mat-error
+                        *ngIf="
+                          userProfileForm?.controls?.password?.errors?.required
+                        "
+                      ></mat-error>
+                    </div>
+                    <mat-checkbox
+                      class="password-checkbox"
+                      matTooltip="Change Password"
+                      [disabled]="!isCanDo()"
+                      [ngClass]="[!isCanDo() ? 'disable-bgColor' : '']"
+                      [checked]="passwordChecked"
+                      [value]="passwordChecked ? 'true' : 'false'"
+                      (change)="onPasswordCheckBox($event)"
+                    ></mat-checkbox>
+                  </div>
+                </mat-form-field>
+              </div>
+
+              <div class="form-group">
+                <mat-form-field>
+                  <mat-label
+                    >Title<span class="field-required"> *</span></mat-label
+                  >
+                  <input matInput formControlName="title" type="text" />
+                  <mat-error
+                    *ngIf="userProfileForm?.controls?.title?.errors?.required"
+                    >Title is required</mat-error
+                  >
+                </mat-form-field>
+              </div>
+
+              <div class="form-group checkbox-admin">
+                <mat-label class="disable-color">Is Admin: </mat-label>
+                <mat-checkbox
+                  [ngClass]="[!isCanDo() ? 'disable-bgColor' : '']"
+                  formControlName="isAdmin"
+                  [value]="userProfileForm?.controls?.isAdmin?.value"
+                  (change)="onIsAdminChek($event)"
+                ></mat-checkbox>
+              </div>
+              <!-- Added new checkbox on user edit screen with Label: AllowGlobalOrgSelector and added its control in form. -->
+              <div class="form-group checkbox-admin">
+                <mat-label class="disable-color">Allow Global Org Selector: </mat-label>
+                <mat-checkbox
+                  [ngClass]="[(!isCanDo() || this.userProfileForm?.controls?.isAdmin?.value) ? 'disable-bgColor' : '']"
+                  formControlName="canUseGlobalOrgSelector"
+                  [checked]="userProfileForm?.controls?.isAdmin?.value"
+                  [value]="userProfileForm?.controls?.canUseGlobalOrgSelector?.value"
+                ></mat-checkbox>
+              </div>
+            </form>
+          </mat-tab>
+
+          <mat-tab
+            [label]="
+              isRolesAssignmentFormValid()
+                ? 'Roles Assignment'
+                : 'Roles Assignment *'
+            "
+            [disabled]="userProfileForm?.controls?.isAdmin?.value"
+          >
+            <div class="roles-dragdrop-main">
+              <div cdkDropListGroup>
+                <h3 [ngClass]="[!isCanDo() ? 'disable-bgColor' : '']">
+                  Roles Assignment (Menu Access)
+                  <mat-button-toggle-group
+                    name="showMenu"
+                    aria-label="Show Menu"
+                    [style.font-size.px]="12"
+                  >
+                    <mat-button-toggle
+                      [value]="true"
+                      #show
+                      (click)="toggleRoleMenuDisplay(show.value)"
+                      >Show Menu</mat-button-toggle
+                    >
+                    <mat-button-toggle
+                      [value]="false"
+                      #hide
+                      (click)="toggleRoleMenuDisplay(hide.value)"
+                      >Hide Menu</mat-button-toggle
+                    >
+                  </mat-button-toggle-group>
+                </h3>
+                <hr />
+
+                <div
+                  class="priviliges-table-container"
+                  *ngIf="showMenuReadOnlyList"
+                >
+                  <table *ngIf="menuOptions" class="priviliges-table">
+                    <thead>
+                      <tr>
+                        <th>Menu Options</th>
+                        <th>Config / Setup</th>
+                        <th>View</th>
+                        <th>Analytics</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let row of menuOptions; let i = index">
+                        <td [ngClass]="{ 'disable-color': !isCanDo() }">
+                          {{ row.name }}
+                        </td>
+
+                        <td>
+                          <h4
+                            [ngClass]="[
+                              row.privileges.includes(
+                                row.menuName + '_' + menuAccess.EDIT
+                              )
+                                ? 'active'
+                                : 'inactive'
+                            ]"
+                          >
+                            {{
+                              row.privileges.includes(
+                                row.menuName + "_" + menuAccess.EDIT
+                              )
+                                ? "Yes"
+                                : "No"
+                            }}
+                          </h4>
+                        </td>
+                        <td>
+                          <h4
+                            [ngClass]="[
+                              row.privileges.includes(
+                                row.menuName + '_' + menuAccess.VIEW
+                              )
+                                ? 'active'
+                                : 'inactive'
+                            ]"
+                          >
+                            {{
+                              row.privileges.includes(
+                                row.menuName + "_" + menuAccess.VIEW
+                              )
+                                ? "Yes"
+                                : "No"
+                            }}
+                          </h4>
+                        </td>
+                        <td>
+                          <h4
+                            [ngClass]="[
+                              row.privileges.includes(
+                                row.menuName + '_' + menuAccess.ANALYTICS
+                              )
+                                ? 'active'
+                                : 'inactive'
+                            ]"
+                          >
+                            {{
+                              row.privileges.includes(
+                                row.menuName + "_" + menuAccess.ANALYTICS
+                              )
+                                ? "Yes"
+                                : "No"
+                            }}
+                          </h4>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div
+                  class="roles-dragdrop-container"
+                  *ngIf="!showMenuReadOnlyList"
+                >
+                  <h4>Available Roles</h4>
+
+                  <div
+                    cdkDropList
+                    [cdkDropListData]="availableRoles"
+                    class="roles-dragdrop-list"
+                    cdkDropListSortingDisabled
+                    (cdkDropListDropped)="drop($event)"
+                    [cdkDropListDisabled]="!isCanDo()"
+                  >
+                    <div
+                      class="roles-dragdrop-box"
+                      *ngFor="let role of availableRoles"
+                      cdkDrag
+                      [cdkDragDisabled]="role.status === 0"
+                    >
+                      {{ role.name }} ({{ role.code }})
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="roles-dragdrop-container"
+                  *ngIf="!showMenuReadOnlyList"
+                >
+                  <h4>Assigned Roles</h4>
+
+                  <div
+                    cdkDropList
+                    [cdkDropListData]="assignedRoles"
+                    class="roles-dragdrop-list"
+                    (cdkDropListDropped)="drop($event)"
+                    [cdkDropListDisabled]="!isCanDo()"
+                  >
+                    <div
+                      class="roles-dragdrop-box"
+                      *ngFor="let role of assignedRoles"
+                      cdkDrag
+                    >
+                      {{ role.name }} ({{ role.code }})
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-tab>
+          <mat-tab
+            [label]="
+              !isRowLevelSecurityFormValid()
+                ? 'Client Data Access *'
+                : 'Client Data Access'
+            "
+            [ngClass]="[!isRowLevelSecurityFormValid() ? 'inactive' : '']"
+            [disabled]="userProfileForm?.controls?.isAdmin?.value"
+          >
+            <div class="cda-main">
+              <h3 [ngClass]="[!isCanDo() ? 'disable-bgColor' : '']">
+                Client Data Access (Row level Security)
+                <!-- [ngClass]="]" -->
+                <button
+                  mat-mini-fab
+                  type="button"
+                  matTooltip="Add"
+                  matTooltipPosition="above"
+                  color="none"
+                  [ngClass]="[
+                    'mat-elevation-z0',
+                    !isCanDo() ? 'disable-bgColor' : 'action-buttons',
+                    !isCanDo() ? 'disable-bgColor' : 'add-button'
+                  ]"
+                  (click)="onAddRowLevelSecurity()"
+                  [disabled]="!isCanDo()"
+                >
+                  <mat-icon [ngClass]="['add-icon']">playlist_add</mat-icon>
+                </button>
+              </h3>
+              <form
+                class="cda-form"
+                [formGroup]="userClientDataAccessForm"
+                *ngIf="userClientDataAccessForm"
+              >
+                <div class="cda-table-container">
+                  <table
+                    class="cda-table"
+                    *ngIf="rowLevelSecurityFromUi?.length! > 0"
+                  >
+                    <thead>
+                      <tr>
+                        <th [ngClass]="[!isCanDo() ? 'disable-color' : '']">
+                          Data Domain
+                        </th>
+                        <th [ngClass]="[!isCanDo() ? 'disable-color' : '']">
+                          Holding Org
+                        </th>
+                        <th [ngClass]="[!isCanDo() ? 'disable-color' : '']">
+                          Member Holding Org
+                        </th>
+                        <th [ngClass]="[!isCanDo() ? 'disable-color' : '']">
+                          Member Org
+                        </th>
+                        <th><mat-icon>delete</mat-icon></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <ng-container formArrayName="rowLevelSecurityFromUi">
+                        <tr
+                          *ngFor="
+                            let row of rowLevelSecurityFromUi;
+                            let i = index
+                          "
+                          [formGroupName]="i"
+                        >
+                          <td>
+                            <div class="form-group">
+                              <mat-form-field>
+                                <mat-label>
+                                  {{
+                                    !row?.valid
+                                      ? "Data Domain *"
+                                      : "Data Domain"
+                                  }}
+                                </mat-label>
+                                <mat-select
+                                  formControlName="dataDomain"
+                                  (selectionChange)="
+                                    onDataDomainChanged(
+                                      i,
+                                      row?.value?.dataDomain,
+                                      holHoldingOrgRef,
+                                      molHoldingOrgRef,
+                                      molMemberOrgsRef
+                                    )
+                                  "
+                                >
+                                  <mat-option
+                                    [value]="domain?.name"
+                                    *ngFor="let domain of dataDomainList"
+                                    >{{ domain?.name }}</mat-option
+                                  >
+                                </mat-select>
+                                <mat-error *ngIf="!row?.valid"></mat-error>
+                              </mat-form-field>
+                            </div>
+                          </td>
+                          <td>
+                            <div class="form-group">
+                              <mat-form-field>
+                                <mat-label
+                                  >Holding Org (Holding Level)</mat-label
+                                >
+                                <mat-select
+                                  formControlName="holHoldingOrg"
+                                  (click)="$event.stopPropagation()"
+                                  (selectionChange)="
+                                    onHoldingOrgChanged(
+                                      i,
+                                      row?.value?.dataDomain,
+                                      holHoldingOrgRef.value,
+                                      false
+                                    )
+                                  "
+                                  #holHoldingOrgRef
+                                >
+                                  <mat-option></mat-option>
+                                  <mat-option
+                                    [value]="org?._id"
+                                    *ngFor="let org of holdingOrgsList"
+                                    >{{ org?.name }}</mat-option
+                                  >
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+                          </td>
+                          <td>
+                            <div class="form-group">
+                              <mat-form-field>
+                                <mat-label
+                                  >Holding Org (Member Level)</mat-label
+                                >
+                                <mat-select
+                                  formControlName="molHoldingOrg"
+                                  (click)="$event.stopPropagation()"
+                                  (selectionChange)="
+                                    onHoldingOrgChanged(
+                                      i,
+                                      row?.value?.dataDomain,
+                                      molHoldingOrgRef.value,
+                                      true
+                                    )
+                                  "
+                                  #molHoldingOrgRef
+                                >
+                                  <mat-option></mat-option>
+                                  <mat-option
+                                    [value]="org?._id"
+                                    *ngFor="let org of holdingOrgsList"
+                                    >{{ org?.name }}</mat-option
+                                  >
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+                          </td>
+                          <td>
+                            <div class="form-group">
+                              <mat-form-field>
+                                <mat-label>{{
+                                  hasMemberOrgs(row?.value?.molHoldingOrg)
+                                    ? "Member Org (Member Level)"
+                                    : "No Member Orgs"
+                                }}</mat-label>
+                                <mat-select
+                                  formControlName="molMemberOrgs"
+                                  (click)="$event.stopPropagation()"
+                                  multiple
+                                  #molMemberOrgsRef
+                                >
+                                  <mat-option
+                                    [value]="org?._id"
+                                    *ngFor="
+                                      let org of getMemberOrgs(
+                                        row?.value?.molHoldingOrg
+                                      )
+                                    "
+                                    >{{ org?.name }}</mat-option
+                                  >
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+                          </td>
+                          <td>
+                            <button
+                              mat-mini-fab
+                              type="button"
+                              color="none"
+                              matTooltip="Delete"
+                              matTooltipPosition="above"
+                              [ngClass]="[
+                                'mat-elevation-z0',
+                                !isCanDo()
+                                  ? 'disable-bgColor'
+                                  : 'action-buttons',
+                                !isCanDo() ? 'disable-bgColor' : 'delete-button'
+                              ]"
+                              (click)="onDeleteRowLevelSecurity(i)"
+                              [disabled]="!isCanDo()"
+                            >
+                              <mat-icon [ngClass]="['delete-icon']"
+                                >delete</mat-icon
+                              >
+                            </button>
+                          </td>
+                        </tr>
+                      </ng-container>
+                    </tbody>
+                  </table>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+      <mat-divider></mat-divider>
+      <mat-card-actions>
+        <!-- Buttons -->
+        <button
+          (click)="onSubmit()"
+          mat-raised-button
+          class="btn-action"
+          *ngIf="isCanDo()"
+          [disabled]="
+            !userProfileForm?.valid ||
+            (passwordChecked && !userProfileForm?.controls?.password?.valid) ||
+            !isRowLevelSecurityFormValid() ||
+            !isRolesAssignmentFormValid()
+          "
+        >
+          {{ getActionButtonText() }}
+        </button>
+
+        <button mat-raised-button class="btn-cancel" (click)="onCancel()">
+          Cancel
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

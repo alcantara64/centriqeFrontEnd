@@ -1,0 +1,26 @@
+
+30/11/2020 - Gaurav:
+1. Roles: 
+  Q1.1: What is the use of 'privileges' field in the Roles table?
+  Q1.2: It seems inactive Roles (or Users) are not returned in the query API?
+
+2. Users:
+  Q2.1: Do we need the Role and Holding options for User CRUD operations? As I remember, this shall be driven from the 'privileges' column for User table? 
+
+3. Customer List:
+  Q3.1: If no dataDomainConfig for a holding org selected in the app header, the Customer List page when opened shall filter by holdingOrgId by default. This also applies when the dataDomainConfig: {customer :{holdingOrg: true}} for the globally selected holding org in the app
+
+  Current implemented logic (Customer List page filter) =>
+  1. Get current selected (global) holding org
+  2. check dataDomainConfig records, if found GOTO 2.1, else GOTO3 
+    2.1 check memberOrg value for 'customer' key, if true GOTO 2.2 else GOTO 3
+    2.2 check that there are memberOrgs[].length > 0 available for this global holdingOrg, if found GOTO 2.3 else GOTO 3
+    2.3 filter Customer List by first memberOrg[0] (display memberOrg Name if memberOrg[].length === 1, else drop-down for memberOrg list)
+  3. filter Customer List by global holdingOrgId
+
+
+  01122020 - Gaurav:
+  The global holding orgs (user/me), are not refreshed after creating a holding or any member org, do we  refresh user/me on holding/member org CRUD updates?
+
+  
+

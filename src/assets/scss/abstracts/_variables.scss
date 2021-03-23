@@ -1,0 +1,52 @@
+// FONT
+$default-font-size: 1.6rem;
+
+// GRID
+$grid-width: 114rem;
+$gutter-vertical: 8rem;
+$gutter-vertical-small: 6rem;
+$gutter-horizontal: 6rem;
+
+// theme colors
+$primary-color: #145993;
+$color-white: #fff;
+$color-black: #000;
+$color-danger: rgb(255, 0, 0);
+$color-gray: rgb(128, 128, 128);
+$color-active: #32aa53;
+$color-inactive: #dc3545;
+
+//button colors
+$accent-color: #3dc2ff;
+$warn-color: #f44335;
+$white: #fff;
+$btn-bgcolor: #145993;
+$btn-bgcolor-cancel: #dc3545;
+$btn-textColor: #ffffff;
+
+//other colors
+$tab-invalid-textColor: #dc3545;
+$row-invalid-bgcolor: #dc35454d;
+$disabled-selections: #757575;
+$field-required-color: #f44335;
+$tablerow-bgColor: #dddddd;
+$tableroweven-bgColor: #f2f2f2;
+$hover-bg-color: #efefef;
+//Icons
+$add-icon: #145993;
+$add-icon-button: #1459934d;
+$add-icon-button-hover: #145993;
+$delete-icon: #c45c5c;
+$delete-icon-button: #c45c5c4d;
+$delete-icon-button-hover: #c45c5c;
+$all-icons-hover: #ffffff;
+
+//login page variables
+$forgot-header-color: #757575;
+$forgot-header-hover-color: #ff4081;
+$login-bgcolor: #f3f3f3;
+
+//Alignment
+$align-center: center;
+$spacer: 1rem;
+$hundred-percent: 100%;

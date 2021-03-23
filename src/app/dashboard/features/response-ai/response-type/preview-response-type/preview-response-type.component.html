@@ -1,0 +1,495 @@
+<!-- 28122020 - Gaurav - Preview Response Types -->
+<!-- 05012021 - Gaurav - Added preview for NPS or singleChoiceRadioBox -->
+<!-- 06012021 - Gaurav - Added singleChoiceRadioH and multiChoiceCheckH previews -->
+<!-- 08012021 - Gaurav - Added DropDown Selection preview -->
+<!-- 11012021 - Gaurav - Added Likert preview -->
+<!-- 25012021 - Gaurav - Display additional text fields for single-choice-radiobox question type -->
+<!-- 25012021 - Gaurav - Display fields tableColSubHeading and tableDataRowSubHeading on likerts -->
+<!-- 09022021 - Gaurav - Jira CA-97: Update text box hint. Changed 'words' to 'characters' -->
+<ng-container [ngSwitch]="selectedQuestionType">
+  <!-- questionTypesEnum.singleTextInput -->
+  <ng-container *ngSwitchCase="questionTypesEnum.singleTextInput">
+    <div class="form-group">
+      <label
+        *ngIf="form.get('questionFieldLabel')?.value"
+        [for]="form.get('questionFieldID')?.value"
+        >{{ form.get("questionFieldLabel")?.value }}</label
+      >
+      <input
+        class="form-control"
+        [type]="form.get('questionFieldType')?.value"
+        [id]="form.get('questionFieldID')?.value"
+        [name]="form.get('questionFieldName')?.value"
+        [maxLength]="form.get('questionFieldMaxLength')?.value"
+        [required]="form.get('questionRequired')?.value"
+        [ngClass]="[
+          !singleTextInput.value && form.get('questionRequired')?.value
+            ? 'is-invalid'
+            : ''
+        ]"
+        [disabled]="viewOnly"
+        #singleTextInput
+      />
+    </div>
+  </ng-container>
+
+  <!-- questionTypesEnum.singleTextArea -->
+  <ng-container *ngSwitchCase="questionTypesEnum.singleTextArea">
+    <div class="form-group">
+      <label
+        *ngIf="form.get('questionFieldLabel')?.value"
+        [for]="form.get('questionFieldID')?.value"
+        >{{ form.get("questionFieldLabel")?.value }}</label
+      >
+      <textarea
+        class="form-control"
+        [rows]="form.get('questionFieldRows')?.value"
+        [id]="form.get('questionFieldID')?.value"
+        [name]="form.get('questionFieldName')?.value"
+        [maxLength]="form.get('questionFieldMaxLength')?.value"
+        [required]="form.get('questionRequired')?.value"
+        [ngClass]="[
+          !singleTextArea.value && form.get('questionRequired')?.value
+            ? 'is-invalid'
+            : ''
+        ]"
+        [disabled]="viewOnly"
+        #singleTextArea
+      ></textarea>
+    </div>
+  </ng-container>
+
+  <!-- questionTypesEnum.ratingStar -->
+  <ng-container *ngSwitchCase="questionTypesEnum.ratingStar">
+    <button
+      mat-icon-button
+      [style.color]="'orange'"
+      style="outline: none; margin-bottom: 10px"
+      *ngFor="let r of userStarRating"
+      (click)="onChangeRating(r.rating)"
+      [disabled]="viewOnly"
+    >
+      <mat-icon [style.fontSize.px]="form.get('starSizepx')?.value">{{
+        r.icon
+      }}</mat-icon>
+    </button>
+    <ng-container *ngIf="form.get('addAdditionalTextField')?.value">
+      <textarea
+        class="form-control"
+        [rows]="form.get('additionalTextRows')?.value"
+        [name]="form.get('additionalTextName')?.value"
+        [maxLength]="form.get('additionalTextMaxLength')?.value"
+        placeholder="Please specify, in max {{
+          form.get('additionalTextMaxLength')?.value
+        }} characters"
+        [disabled]="viewOnly"
+      ></textarea>
+    </ng-container>
+  </ng-container>
+
+  <!-- questionTypesEnum.ratingEmoji -->
+  <ng-container *ngSwitchCase="questionTypesEnum.ratingEmoji">
+    <ng-container *ngFor="let r of form.get('emojiList')?.value">
+      <button
+        mat-icon-button
+        color="accent"
+        style="outline: none; margin-bottom: 10px"
+        [style.display]="
+          form.get('orientation')?.value === 'x' ? 'inline-block' : 'block'
+        "
+        (click)="userSelectedRating = r.rating"
+        [disabled]="viewOnly"
+      >
+        <span
+          [style.fontSize.px]="form.get('emojiSizepx')?.value"
+          [ngStyle]="{
+            color: userSelectedRating === r.rating ? 'orange' : 'rgba(0,0,0,.3)'
+          }"
+          >{{ r.emoji }}
+          {{ form.get("orientation")?.value === "y" ? r.rating : "" }}</span
+        >
+      </button>
+    </ng-container>
+    <ng-container *ngIf="form.get('addAdditionalTextField')?.value">
+      <textarea
+        class="form-control"
+        [rows]="form.get('additionalTextRows')?.value"
+        [name]="form.get('additionalTextName')?.value"
+        [maxLength]="form.get('additionalTextMaxLength')?.value"
+        placeholder="Please specify, in max {{
+          form.get('additionalTextMaxLength')?.value
+        }} characters"
+        [disabled]="viewOnly"
+      ></textarea>
+    </ng-container>
+  </ng-container>
+
+  <!-- questionTypesEnum.singleChoiceRadioBox -->
+  <ng-container *ngSwitchCase="questionTypesEnum.singleChoiceRadioBox">
+    <section style="width: 100%">
+      <div class="row no-gutters">
+        <div class="col-md-12">
+          <mat-button-toggle-group
+            style="width: 100%"
+            [name]="form.get('groupName')?.value"
+          >
+            <ng-container
+              *ngFor="
+                let counter of [].constructor(
+                  form.get('groupElementsCount')?.value
+                );
+                let i = index
+              "
+            >
+              <mat-button-toggle
+                style="width: 100%; padding: 5px 15px"
+                [value]="i"
+                [disabled]="viewOnly"
+              >
+                {{ i }}</mat-button-toggle
+              >
+            </ng-container>
+          </mat-button-toggle-group>
+        </div>
+      </div>
+      <div class="row no-gutters">
+        <div class="col-md-12">
+          <ng-container
+            *ngIf="
+              form.get('leftHintText')?.value &&
+              form.get('rightHintText')?.value
+            "
+          >
+            <br />
+            <div class="d-flex justify-content-between">
+              <div class="p-2" *ngIf="form.get('leftHintText')?.value">
+                {{ form.get("leftHintText")?.value }}
+              </div>
+              <div class="p-2" *ngIf="form.get('rightHintText')?.value">
+                {{ form.get("rightHintText")?.value }}
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </section>
+    <ng-container *ngIf="form.get('addAdditionalTextField')?.value">
+      <textarea
+        class="form-control"
+        [rows]="form.get('additionalTextRows')?.value"
+        [name]="form.get('additionalTextName')?.value"
+        [maxLength]="form.get('additionalTextMaxLength')?.value"
+        placeholder="Please specify, in max {{
+          form.get('additionalTextMaxLength')?.value
+        }} characters"
+        [disabled]="viewOnly"
+      ></textarea>
+    </ng-container>
+  </ng-container>
+
+  <!-- questionTypesEnum.singleChoiceRadioH -->
+  <ng-container *ngSwitchCase="questionTypesEnum.singleChoiceRadioH">
+    <div class="radio-label-vertical-wrapper">
+      <div class="form-group">
+        <ng-container *ngFor="let item of form?.get('elements')?.value">
+          <label class="radio-label-vertical">
+            <input
+              type="radio"
+              [required]="form?.get('questionRequired')?.value"
+              [name]="form?.get('groupName')?.value"
+              [value]="item.value"
+              [disabled]="viewOnly"
+            />
+            {{ item.label }}
+          </label>
+        </ng-container>
+      </div>
+    </div>
+    <ng-container *ngIf="form.get('addAdditionalTextField')?.value">
+      <textarea
+        class="form-control"
+        [rows]="form.get('additionalTextRows')?.value"
+        [name]="form.get('additionalTextName')?.value"
+        [maxLength]="form.get('additionalTextMaxLength')?.value"
+        placeholder="Please specify, in max {{
+          form.get('additionalTextMaxLength')?.value
+        }} characters"
+        [disabled]="viewOnly"
+      ></textarea>
+    </ng-container>
+  </ng-container>
+
+  <!-- questionTypesEnum.multiChoiceCheckH -->
+  <ng-container *ngSwitchCase="questionTypesEnum.multiChoiceCheckH">
+    <div class="checkbox-label-vertical-wrapper">
+      <div class="form-group">
+        <ng-container *ngFor="let item of form?.get('elements')?.value">
+          <label class="checkbox-label-vertical">
+            <input
+              type="checkbox"
+              [required]="form?.get('questionRequired')?.value"
+              [name]="item.name"
+              [value]="item.value"
+              [disabled]="viewOnly"
+            />
+            {{ item.label }}
+          </label>
+        </ng-container>
+      </div>
+    </div>
+    <ng-container *ngIf="form.get('addAdditionalTextField')?.value">
+      <textarea
+        class="form-control"
+        [rows]="form.get('additionalTextRows')?.value"
+        [name]="form.get('additionalTextName')?.value"
+        [maxLength]="form.get('additionalTextMaxLength')?.value"
+        placeholder="Please specify, in max {{
+          form.get('additionalTextMaxLength')?.value
+        }} characters"
+        [disabled]="viewOnly"
+      ></textarea>
+    </ng-container>
+  </ng-container>
+
+  <!-- ********* questionTypesEnum.matrixRadio: matrix of radio-buttons ********* -->
+  <ng-container *ngSwitchCase="questionTypesEnum.matrixRadio">
+    <div class="container" *ngIf="displayMatrixValues">
+      <div class="row">
+        <ng-container *ngFor="let matrixValue of displayMatrixValues">
+          <div class="col-md-{{ 12 / form.get('matrixColumns')?.value }}">
+            <label [for]="matrixValue.id"
+              >{{ form.get("showLabelLeft")?.value ? matrixValue.label : "" }}
+              <input
+                type="radio"
+                [name]="form.get('matrixName')?.value"
+                [id]="matrixValue.id"
+                [value]="matrixValue.value"
+                (change)="onUserSelection(matrixValue.value)"
+                [disabled]="viewOnly"
+              />
+              {{
+                form.get("showLabelLeft")?.value ? "" : matrixValue.label
+              }}</label
+            >
+          </div>
+        </ng-container>
+      </div>
+      <ng-container *ngIf="form.get('addAdditionalTextField')?.value">
+        <textarea
+          class="form-control"
+          [rows]="form.get('additionalTextRows')?.value"
+          [name]="form.get('additionalTextName')?.value"
+          [maxLength]="form.get('additionalTextMaxLength')?.value"
+          placeholder="Please specify, in max {{
+            form.get('additionalTextMaxLength')?.value
+          }} characters"
+          [disabled]="
+            viewOnly ||
+            !this.selectedValue ||
+            !this.selectedValue.includes('other')
+          "
+          #addTextMatrix
+        ></textarea>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <!-- ********* questionTypesEnum.matrixCheck: matrix of check-boxes ********* -->
+  <ng-container *ngSwitchCase="questionTypesEnum.matrixCheck">
+    <div class="container" *ngIf="displayMatrixValues">
+      <div class="row">
+        <ng-container *ngFor="let matrixValue of displayMatrixValues">
+          <div class="col-md-{{ 12 / form.get('matrixColumns')?.value }}">
+            <label [for]="matrixValue.id"
+              >{{ form.get("showLabelLeft")?.value ? matrixValue.label : "" }}
+              <input
+                type="checkbox"
+                [name]="matrixValue.name"
+                [id]="matrixValue.id"
+                [value]="matrixValue.value"
+                (change)="
+                  onUserSelection(
+                    matrixValue.value,
+                    !checkboxMatrixCheck.checked
+                  )
+                "
+                [disabled]="viewOnly"
+                #checkboxMatrixCheck
+              />
+              {{
+                form.get("showLabelLeft")?.value ? "" : matrixValue.label
+              }}</label
+            >
+          </div>
+        </ng-container>
+      </div>
+      <ng-container *ngIf="form.get('addAdditionalTextField')?.value">
+        <textarea
+          class="form-control"
+          [rows]="form.get('additionalTextRows')?.value"
+          [name]="form.get('additionalTextName')?.value"
+          [maxLength]="form.get('additionalTextMaxLength')?.value"
+          placeholder="Please specify, in max {{
+            form.get('additionalTextMaxLength')?.value
+          }} characters"
+          [disabled]="viewOnly || !this.selectedValue.includes('other')"
+          #addTextMatrix
+        ></textarea>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <!-- ********* questionTypesEnum.dropDownSelection: Drop-down select list ********* -->
+  <ng-container *ngSwitchCase="questionTypesEnum.dropDownSelection">
+    <mat-form-field [appearance]="form.get('dropDownApperance')?.value">
+      <mat-label *ngIf="form.get('dropDownLabel')?.value">{{
+        form.get("dropDownLabel")?.value
+      }}</mat-label>
+      <mat-select
+        [required]="form?.get('questionRequired')?.value"
+        [disabled]="viewOnly"
+      >
+        <mat-option
+          *ngFor="let item of form.get('dropDownValues')?.value"
+          [value]="item.value"
+        >
+          {{ item.viewValue }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <ng-container *ngIf="form.get('addAdditionalTextField')?.value">
+      <textarea
+        class="form-control"
+        [rows]="form.get('additionalTextRows')?.value"
+        [name]="form.get('additionalTextName')?.value"
+        [maxLength]="form.get('additionalTextMaxLength')?.value"
+        placeholder="Please specify, in max {{
+          form.get('additionalTextMaxLength')?.value
+        }} characters"
+        [disabled]="viewOnly"
+      ></textarea>
+    </ng-container>
+  </ng-container>
+
+  <!-- ********* questionTypesEnum.likertRadio: multiple rows and its radio-groups ********* -->
+  <ng-container *ngSwitchCase="questionTypesEnum.likertRadio">
+    <h4>{{ form.get("tableHeading")?.value }}</h4>
+    <div class="table-responsive" *ngIf="form.get('tableRows')?.value">
+      <table class="table table-striped table-sm">
+        <thead>
+          <tr>
+            <th></th>
+            <th *ngFor="let headerText of form.get('tableCols')?.value">
+              <span>{{
+                headerText?.tableColHeading ? headerText?.tableColHeading : " "
+              }}</span>
+              <br />
+              <span>{{
+                headerText?.tableColSubHeading
+                  ? headerText?.tableColSubHeading
+                  : " "
+              }}</span>
+            </th>
+            <ng-container
+              *ngIf="form.get('addAdditionalTextForEachRow')?.value"
+            >
+              <th>Remarks</th>
+            </ng-container>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of form.get('tableRows')?.value; let i = index">
+            <td style="text-align: left">
+              <span>{{ row.tableDataRowHeading }}</span
+              ><br /><span>{{ row.tableDataRowSubHeading }}</span>
+            </td>
+            <td *ngFor="let radioValue of form.get('tableCols')?.value">
+              <input
+                type="radio"
+                [name]="row.tableDataElementName + '_' + i"
+                [value]="radioValue.tableColDataValue"
+                [disabled]="viewOnly"
+              />
+            </td>
+            <td
+              *ngIf="
+                form.get('addAdditionalTextForEachRow')?.value &&
+                row?.additionalText
+              "
+            >
+              <input
+                class="form-control"
+                [type]="row.additionalText?.type"
+                [name]="row.additionalText?.name"
+                [maxLength]="row.additionalText?.maxLength"
+                placeholder="Please specify"
+                [disabled]="viewOnly"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+
+  <!-- ********* questionTypesEnum.likertCheck: multiple rows and its check-boxes ********* -->
+  <ng-container *ngSwitchCase="questionTypesEnum.likertCheck">
+    <h4>{{ form.get("tableHeading")?.value }}</h4>
+    <div class="table-responsive" *ngIf="form.get('tableRows')?.value">
+      <table class="table table-striped table-sm">
+        <thead>
+          <tr>
+            <th></th>
+            <th *ngFor="let headerText of form.get('tableCols')?.value">
+              <span>{{
+                headerText?.tableColHeading ? headerText?.tableColHeading : " "
+              }}</span>
+              <br />
+              <span>{{
+                headerText?.tableColSubHeading
+                  ? headerText?.tableColSubHeading
+                  : " "
+              }}</span>
+            </th>
+            <ng-container
+              *ngIf="form.get('addAdditionalTextForEachRow')?.value"
+            >
+              <th>Remarks</th>
+            </ng-container>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of form.get('tableRows')?.value; let i = index">
+            <td style="text-align: left">
+              <span>{{ row.tableDataRowHeading }}</span
+              ><br /><span>{{ row.tableDataRowSubHeading }}</span>
+            </td>
+            <td *ngFor="let item of form.get('tableCols')?.value">
+              <input
+                type="checkbox"
+                [name]="item?.tableColDataValue?.name"
+                [value]="item?.tableColDataValue?.value"
+                [disabled]="viewOnly"
+              />
+            </td>
+            <td
+              *ngIf="
+                form.get('addAdditionalTextForEachRow')?.value &&
+                row?.additionalText
+              "
+            >
+              <input
+                class="form-control"
+                [type]="row.additionalText?.type"
+                [name]="row.additionalText?.name"
+                [maxLength]="row.additionalText?.maxLength"
+                placeholder="Please specify"
+                [disabled]="viewOnly"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+</ng-container>

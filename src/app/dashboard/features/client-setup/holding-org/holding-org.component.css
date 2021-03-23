@@ -1,0 +1,281 @@
+/* 25112020 - Gaurav - Init version: Component HTML to ADD/EDIT/VIEW Holding Org  */
+/* 10122020 - Gaurav - Fix to always show required asterik in red: added class .field-required */
+:host {
+  /* Search CSS Colors */
+  --btn-bgcolor: #145993;
+  --btn-bgcolor-cancel: #dc3545;
+  --btn-textColor: #ffffff;
+  --tab-invalid-textColor: #dc3545;
+  --row-invalid-bgcolor: #dc35454d;
+  --disabled-selections: #757575;
+  --field-required-color: #f44335;
+}
+
+.main-container {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  /* align-items: center; */
+}
+
+.card-container {
+  width: 100%;
+}
+
+mat-card-actions {
+  text-align: right;
+}
+
+.btn-action,
+.btn-cancel {
+  color: var(--btn-textColor);
+}
+
+.btn-action {
+  background-color: var(--btn-bgcolor);
+}
+
+.btn-cancel {
+  background-color: var(--btn-bgcolor-cancel);
+}
+
+.grid-container {
+  display: grid;
+  grid-column-gap: 30px;
+  grid-template-columns: auto auto auto;
+  padding: 10px;
+  padding-top: 15px;
+}
+
+mat-form-field {
+  width: 100%;
+  padding-top: 8px;
+}
+
+.tab-invalid {
+  color: var(--tab-invalid-textColor);
+}
+
+.field-required {
+  color: var(--field-required-color);
+}
+
+/* Config tab - Starts */
+.config-tab {
+  padding: 20px;
+}
+
+.config-card {
+  width: 90%;
+  padding: 20px;
+}
+
+table {
+  width: 100%;
+  padding: 10px;
+}
+th {
+  text-align: left;
+}
+
+.org-header th {
+  text-align: center;
+}
+
+/* Careful changing these ::ng-deep settings */
+::ng-deep .mat-radio-button.mat-accent .mat-radio-inner-circle,
+::ng-deep
+  .mat-radio-button.mat-accent
+  .mat-radio-ripple
+  .mat-ripple-element:not(.mat-radio-persistent-ripple),
+::ng-deep
+  .mat-radio-button.mat-accent.mat-radio-checked
+  .mat-radio-persistent-ripple,
+::ng-deep .mat-radio-button.mat-accent:active .mat-radio-persistent-ripple,
+::ng-deep
+  .mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+::ng-deep
+  .mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+::ng-deep .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
+::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-background {
+  background-color: var(--btn-bgcolor);
+}
+
+::ng-deep .disable-bgColor.mat-radio-button.mat-accent .mat-radio-inner-circle,
+::ng-deep
+  .disable-bgColor.mat-radio-button.mat-accent
+  .mat-radio-ripple
+  .mat-ripple-element:not(.mat-radio-persistent-ripple),
+::ng-deep
+  .disable-bgColor.mat-radio-button.mat-accent.mat-radio-checked
+  .mat-radio-persistent-ripple,
+::ng-deep
+  .disable-bgColor.mat-radio-button.mat-accent:active
+  .mat-radio-persistent-ripple,
+::ng-deep
+  .disable-bgColor.mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+::ng-deep
+  .disable-bgColor.mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+::ng-deep
+  .disable-bgColor.mat-checkbox-indeterminate.mat-accent
+  .mat-checkbox-background,
+::ng-deep
+  .disable-bgColor.mat-checkbox-checked.mat-accent
+  .mat-checkbox-background {
+  background-color: var(--disabled-selections);
+}
+
+::ng-deep
+  .mat-radio-button.mat-accent.mat-radio-checked
+  .mat-radio-outer-circle {
+  border-color: var(--btn-bgcolor);
+}
+
+::ng-deep
+  .disable-bgColor.mat-radio-button.mat-accent.mat-radio-checked
+  .mat-radio-outer-circle {
+  border-color: var(--disabled-selections);
+}
+
+.disable-color {
+  color: var(--disabled-selections);
+}
+
+.row-invalid-bgcolor {
+  background-color: var(--row-invalid-bgcolor);
+}
+
+mat-checkbox {
+  margin-left: 2px;
+  margin-right: 11px;
+}
+
+.holding-org-selection {
+  padding-left: 50px;
+}
+
+.member-org-selection {
+  padding-left: 90px;
+}
+/* 09012021 - Abhishek - Added section__3 class for group 'Theme' */
+.section__2, .section__3 {
+  margin-top: 15px;
+}
+
+/* 09012021 - Abhishek - Added logo class for holding org logo preview */
+.logo {
+  margin: 5px auto;
+  width: auto;
+  height: 150px;
+  object-fit: contain;
+}
+
+/* #defaultEmailSender {
+  width: 40%;
+} */
+/* Config tab - Ends */
+
+@media screen and (max-width: 700px) {
+  .grid-container {
+    grid-template-columns: auto auto;
+  }
+
+  th,
+  td,
+  mat-radio-button,
+  mat-check-box {
+    font-size: 12px;
+  }
+
+  .member-org-selection {
+    padding-left: 70px;
+  }
+
+  .config-tab {
+    padding: 10px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .holding-org-selection {
+    padding-left: 40px;
+  }
+
+  th,
+  td,
+  mat-radio-button,
+  mat-check-box {
+    font-size: 11px;
+  }
+
+  .config-tab {
+    padding: 5px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .grid-container {
+    grid-template-columns: auto;
+  }
+
+  .main-container {
+    padding: 15px;
+  }
+
+  .mat-card-title {
+    font-size: 18px;
+  }
+
+  .holding-org-selection {
+    padding-left: 30px;
+  }
+
+  .member-org-selection {
+    padding-left: 60px;
+  }
+
+  th,
+  td,
+  mat-radio-button,
+  mat-check-box {
+    font-size: 10px;
+  }
+
+  .config-card {
+    padding: 10px;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .holding-org-selection {
+    padding-left: 25px;
+  }
+
+  .member-org-selection {
+    padding-left: 45px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .holding-org-selection {
+    padding-left: 20px;
+  }
+
+  .member-org-selection {
+    padding-left: 35px;
+  }
+}
+
+@media screen and (max-width: 350px) {
+  .holding-org-selection {
+    padding-left: 15px;
+  }
+
+  .member-org-selection {
+    padding-left: 25px;
+  }
+}

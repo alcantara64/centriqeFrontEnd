@@ -1,0 +1,139 @@
+:host {
+  /* Search CSS Colors */
+  --btn-bgcolor: #145993;
+  --colorWhite: #ffffff;
+  --tablerow-bgColor: #dddddd;
+  --tableroweven-bgColor: #f2f2f2;
+  --add-icon: #145993;
+  --add-icon-button: #1459934d;
+  --add-icon-button-hover: #145993;
+  --delete-icon: #c45c5c;
+  --delete-icon-button: #c45c5c4d;
+  --delete-icon-button-hover: #c45c5c;
+  --all-icons-hover: #ffffff;
+  --disabled-selections: #757575;
+}
+
+.elements-main {
+  padding-top: 15px;
+  padding: 10px;
+}
+
+.elements-main h3 {
+  font-size: 18px;
+}
+
+.elements-table-container {
+  /* padding: 10px; */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.elements-table td,
+.elements-table th {
+  border: 1px solid var(--tablerow-bgColor);
+  padding: 8px;
+  text-align: center;
+}
+
+.elements-table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  background-color: var(--btn-bgcolor);
+  color: var(--colorWhite);
+}
+
+.disable-color {
+  color: var(--disabled-selections);
+}
+
+h3.disable-bgColor {
+  color: var(--disabled-selections);
+}
+
+th.disable-color {
+  color: var(--disabled-selections);
+}
+
+.action-buttons mat-icon {
+  font-size: 18px;
+}
+
+.action-buttons {
+  margin: 5px;
+  width: 30px;
+  height: 30px;
+  font-size: 0px;
+}
+.action-buttons:hover mat-icon {
+  color: var(--colorWhite);
+}
+
+.add-icon {
+  color: var(--add-icon);
+}
+
+.action-buttons.add-button:hover {
+  background-color: var(--add-icon-button-hover);
+}
+
+.action-buttons.add-button {
+  background-color: var(--add-icon-button);
+}
+
+.delete-icon {
+  color: var(--delete-icon);
+}
+
+.action-buttons.delete-button:hover {
+  background-color: var(--delete-icon-button-hover);
+}
+
+.action-buttons.delete-button {
+  background-color: var(--delete-icon-button);
+}
+
+.action-buttons mat-icon:hover {
+  color: var(--all-icons-hover);
+}
+
+::ng-deep .mat-badge-content {
+  background: var(--btn-bgcolor);
+  color: var(--colorWhite);
+}
+
+@media screen and (max-width: 900px) {
+  th,
+  td {
+    font-size: 12px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  th,
+  td {
+    font-size: 11px;
+  }
+
+  .elements-main {
+    padding: 5px;
+  }
+
+  .elements-main h3 {
+    font-size: 16px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  th,
+  td {
+    font-size: 10px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .elements-main h3 {
+    font-size: 13px;
+  }
+}

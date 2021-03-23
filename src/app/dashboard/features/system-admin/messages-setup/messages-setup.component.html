@@ -1,0 +1,260 @@
+<!-- 23122020 - Abhishek - Init version -->
+<div class="main-container">
+    <div class="table-container mat-elevation-z8" [hidden]="_messageViewMode">
+      <div class="table-top">
+        <div class="table-top_row1">
+          <h2 class="table-title">List of Messages</h2>
+          <mat-form-field>
+            <mat-label>Search</mat-label>
+            <input
+              matInput
+              placeholder="Ex. org"
+              #input
+              [disabled]="isLoading"
+              (keyup)="applyFilter($event)"
+            />
+          </mat-form-field>
+        </div>
+        <!-- *ngIf="isShowEditComponents()" -->
+        <!-- <div class="table-top_row2" >
+          <button
+            mat-raised-button
+            class="table-add-btn"
+            [disabled]="isLoading"
+          >
+            Add Message
+          </button>
+        </div> -->
+      </div>
+      <mat-divider></mat-divider>
+
+      <div class="table-container-table">
+        <table mat-table (matSortChange)="sortData($event)" [dataSource]="dataSource" matSort>
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Created At</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.createdAt | date: 'fullDate' }} {{ element?.createdAt | date: 'shortTime' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="channel">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Channel</th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+            >
+              {{ element?.channel }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+            >
+              {{ element?.status }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="event">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Event</th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+            >
+              {{ element?.provider?.eventType }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="from">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>From</th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+            >
+              {{ element?.from }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="to">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>To</th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+            >
+              {{ element?.to }}
+            </td>
+          </ng-container>
+          <ng-container
+            class="action-buttons-container"
+            matColumnDef="action_buttons"
+            stickyEnd
+          >
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element">
+              <div class="action-buttons-row">
+                <button
+                  mat-mini-fab
+                  matTooltip="View"
+                  matTooltipPosition="above"
+                  color="none"
+                  [ngClass]="[
+                    'mat-elevation-z0',
+                    'action-buttons',
+                    'view-button'
+                  ]" (click)="onMessage(element?._id)"
+                  >
+                  <mat-icon [ngClass]="['view-icon']">visibility</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Sticky header row -->
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumns; sticky: true"
+          ></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+          <!-- Row shown when there is no matching data. -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">
+              {{ input.value.length > 0 ? 'No data matching the filter"' : "" }}
+              {{ input.value }} {{ input.value.length > 0 ? '"' : "" }}
+            </td>
+          </tr>
+        </table>
+      </div>
+      <mat-paginator
+      [length]="totalRecords"
+      [pageSize]="10"
+      [pageSizeOptions]="[10, 25, 50, 100]"
+      (page)="onPageChange($event)"
+        showFirstLastButtons
+      ></mat-paginator>
+    </div>
+    <div *ngIf="_messageViewMode" class="card-container adminMessaageCard">
+      <mat-card>
+        <mat-card-header><mat-card-title>View Messages</mat-card-title></mat-card-header>
+        <mat-divider></mat-divider>
+        <mat-card-content>
+          <div class="row adminMessage">
+            <div class="col-4">
+              <label>Channel</label>
+              <span>{{messageEventList?.channel}}</span>
+            </div>
+            <div class="col-4">
+              <label>Customer Code</label>
+              <span>{{messageEventList?.provider?.customer?.code}}</span>
+            </div>
+            <div class="col-4">
+              <label>Customer Full Name</label>
+              <span *ngIf="messageEventList?.provider?.customer?.fullName">{{messageEventList?.provider?.customer?.fullName}}</span>
+              <span *ngIf="!messageEventList?.provider?.customer?.fullName">{{messageEventList?.provider?.customer?.firstName}} {{messageEventList?.provider?.customer?.lastName}}</span>
+            </div>
+            <div class="col-4">
+              <label>ID</label>
+              <span>{{messageEventList?._id}}</span>
+            </div>
+            <div class="col-4">
+              <label>Date</label>
+              <span>{{messageEventList?.createdAt | date:'fullDate'}} {{messageEventList?.createdAt | date:'shortTime'}}</span>
+            </div>
+            <div class="col-4">
+              <label>Status</label>
+              <span>{{messageEventList?.status}}</span>
+            </div>
+            <div class="col-4">
+              <label>From</label>
+              <span>{{messageEventList?.from}}</span>
+            </div>
+            <div class="col-4">
+              <label>To</label>
+              <span>{{messageEventList?.to}}</span>
+            </div>
+            <div class="col-4" *ngIf="messageEventList?.channel == 'email'">
+              <label>Subject</label>
+              <span>{{messageEventList?.subject}}</span>
+            </div>
+            <div class="col-4" *ngIf="messageEventList?.channel != 'email'">
+              <label>Text</label>
+              <span>{{messageEventList?.text}}</span>
+            </div>
+          </div>
+          <div class="eventsList">
+            <h4>List of events</h4>
+            <div class="table-container-table">
+              <table mat-table [dataSource]="externalDataSource" matSort *ngIf="messageEventList?.externalData?.events.length > 0" multiTemplateDataRows
+                class="mat-elevation-z8 rowExapandTable">
+                <ng-container matColumnDef="eventId">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Event Id</th>
+                  <td mat-cell *matCellDef="let element">
+                    {{ element?.eventId }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="timestamp">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+                  <td mat-cell *matCellDef="let element">
+                    {{ element?.timestamp | date:'fullDate' }} {{ element?.timestamp | date:'shortTime' }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="event">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Event</th>
+                  <td mat-cell *matCellDef="let element">
+                    {{ element?.event }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef [hidden]="!isUserAdmin">Actions </th>
+                  <td mat-cell *matCellDef="let element" [hidden]="!isUserAdmin">
+                    <a mat-button href="javascript:void()" (click)="isUserAdmin ? expandedElement = expandedElement === element ? null : element : ''">
+                      <mat-icon *ngIf="expandedElement != element" [ngClass]="['edit-icon']">expand_more</mat-icon>
+                      <mat-icon *ngIf="expandedElement == element" [ngClass]="['edit-icon']">expand_less</mat-icon>
+                    </a>
+                  </td>
+                </ng-container>
+                <!-- <ng-container matColumnDef="expandedDetail">
+                  <td mat-cell *matCellDef="let element" [attr.colspan]="externalDataColumns.length" class="expand-td">
+                    <div class="example-element-detail" [class.active]="element == expandedElement"
+                         [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+                      <div class="example-element-description">
+                        <pre>
+                          {{element | json}}
+                        </pre>
+                      </div>
+                    </div>
+                  </td>
+                </ng-container>
+               -->
+               <ng-container matColumnDef="expandedDetail">
+                <td mat-cell *matCellDef="let element" [attr.colspan]="externalDataColumns.length" class="expand-td">
+                  <div class="example-element-detail" [class.active]="expandedElement === element"
+                       [@detailExpand]="expandedElement === element ? 'expanded' : 'collapsed'">
+                    <div class="example-element-description">
+                      <pre>
+                        {{element | json}}
+                      </pre>
+                    </div>
+                  </div>
+                </td>
+              </ng-container>
+                <tr mat-header-row *matHeaderRowDef="externalDataColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let element; columns: externalDataColumns;"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+              </table>
+              <div class="p-2 text-center" *ngIf="messageEventList?.externalData?.events.length == 0">
+                No data available
+              </div>
+            </div>
+          </div>
+          <div class="py-3" [hidden]="!(messageEventList?.channel == 'email')">
+            <h4>Body</h4>
+            <iframe #bodyframe></iframe>
+          </div>
+          <mat-divider></mat-divider>
+          <mat-card-actions class="m-0">
+            <button mat-raised-button class="btn-cancel" (click)="onCancel()">Cancel</button>
+          </mat-card-actions>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>

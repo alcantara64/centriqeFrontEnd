@@ -1,0 +1,88 @@
+:host {
+  --all-icons-hover: #ffffff;
+  --add-icon: #145993;
+  --add-icon-button: #1459934d;
+  --add-icon-button-hover: #145993;
+  --delete-icon: #c45c5c;
+  --delete-icon-button: #c45c5c4d;
+  --delete-icon-button-hover: #c45c5c;
+  --disabled-selections: #757575;
+}
+
+.drag-row.cdk-drag-disabled {
+  /* background: #ccc; */
+  cursor: default;
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.drag-row:last-child {
+  border: none;
+}
+
+.drag-table.cdk-drop-list-dragging .drag-row:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+disable-bgColor {
+  color: var(--disabled-selections);
+}
+
+.delete-icon {
+  color: var(--delete-icon);
+}
+
+.action-buttons mat-icon {
+  font-size: 18px;
+}
+
+.action-buttons {
+  margin: 5px;
+}
+
+.action-buttons {
+  width: 30px;
+  height: 30px;
+  font-size: 0px;
+}
+
+.action-buttons.delete-button:hover {
+  background-color: var(--delete-icon-button-hover);
+}
+
+.action-buttons.delete-button {
+  background-color: var(--delete-icon-button);
+}
+
+.action-buttons mat-icon:hover {
+  color: var(--all-icons-hover);
+}
+
+.add-icon {
+  color: var(--add-icon);
+}
+
+.action-buttons.add-button:hover {
+  background-color: var(--add-icon-button-hover);
+}
+
+.action-buttons.add-button {
+  background-color: var(--add-icon-button);
+}
+
+::ng-deep .mat-mini-fab .mat-button-wrapper {
+  padding: 0;
+}

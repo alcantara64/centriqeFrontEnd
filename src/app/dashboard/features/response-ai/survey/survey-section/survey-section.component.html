@@ -1,0 +1,173 @@
+<!-- 17122020 - Gaurav - Init version -->
+<!-- 22122020 - Gaurav - Question instance validity changes -->
+<!-- 24122020 - Gaurav - added logic to disable 'add saved question' and move section buttons -->
+<!-- 29122020 - Gaurav - Added viewOnly -->
+<!-- 13012021 - Gaurav - Show current section number -->
+<!-- 14012021 - Gaurav - Show totla questions in a section -->
+<div
+  class="d-flex flex-column flex-sm-row justify-content-between align-items-center"
+>
+  <h5 class="h5 font-weight-bolder my-2 mt-xs-4 ml-sm-2">
+    - Section {{ currentSectionIndex + 1 }} -
+    <ng-container *ngIf="page?.pageSections?.length === 1"
+      >(Questions {{ section?.sectionQuestions?.length }})</ng-container
+    >
+  </h5>
+  <div class="d-flex flex-row-reverse">
+    <button
+      color="primary"
+      style="outline: none"
+      mat-icon-button
+      matTooltip="Move section a level-up"
+      matTooltipPosition="above"
+      [disabled]="isDisabledMoveSectionUp"
+      (click)="page.onSectionMoveUp(currentSectionIndex)"
+    >
+      <mat-icon>arrow_upward</mat-icon>
+    </button>
+    <button
+      color="primary"
+      style="outline: none"
+      mat-icon-button
+      matTooltip="Move section a level-down"
+      matTooltipPosition="above"
+      [disabled]="isDisabledMoveSectionDown"
+      (click)="page.onSectionMoveDown(currentSectionIndex)"
+    >
+      <mat-icon>arrow_downward</mat-icon>
+    </button>
+    <button
+      color="primary"
+      style="outline: none"
+      mat-icon-button
+      matTooltip="Delete current section"
+      matTooltipPosition="above"
+      [disabled]="viewOnly"
+      (click)="page.onDeleteSection(currentSectionIndex)"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button
+      color="primary"
+      style="outline: none"
+      mat-icon-button
+      matTooltip="Duplicate this section"
+      matTooltipPosition="above"
+      [disabled]="viewOnly"
+      (click)="page.onDuplicateSection(currentSectionIndex)"
+    >
+      <mat-icon>content_copy</mat-icon>
+    </button>
+
+    <!-- Load Saved Questions -->
+    <button
+      color="primary"
+      style="outline: none"
+      mat-icon-button
+      matTooltip="Add saved question"
+      matTooltipPosition="above"
+      [matMenuTriggerFor]="savedQuestionSubMenu"
+      [disabled]="isDisabledAddSavedQuestion"
+    >
+      <mat-icon>library_books</mat-icon>
+    </button>
+    <mat-menu #savedQuestionSubMenu="matMenu">
+      <ng-container
+        *ngFor="
+          let savedQuestionType of savedQuestionsStructs;
+          let savedQuestionTypeIndex = index
+        "
+      >
+        <button
+          mat-menu-item
+          style="outline: none"
+          (click)="section.onAddSavedQuestion(savedQuestionType)"
+        >
+          {{ savedQuestionType.name }}
+        </button>
+      </ng-container>
+    </mat-menu>
+
+    <!-- Create New questions on the fly -->
+    <button
+      color="primary"
+      style="outline: none"
+      mat-icon-button
+      matTooltip="Add section question"
+      matTooltipPosition="above"
+      [matMenuTriggerFor]="questionSubMenu"
+      [disabled]="viewOnly"
+    >
+      <mat-icon>playlist_add</mat-icon>
+    </button>
+    <mat-menu #questionSubMenu="matMenu">
+      <ng-container
+        *ngFor="
+          let questionType of questionTypes;
+          let questionTypeIndex = index
+        "
+      >
+        <button
+          mat-menu-item
+          style="outline: none"
+          (click)="section.onAddQuestion(questionType.name)"
+        >
+          {{ questionType.displayName }}
+        </button>
+      </ng-container>
+    </mat-menu>
+  </div>
+</div>
+<div class="col-xs-12">
+  <mat-form-field appearance="outline" style="width: 100%">
+    <mat-label
+      >Section#{{ currentSectionIndex + 1 }} Heading (Optional)</mat-label
+    >
+    <input
+      matInput
+      name="sectionHeading"
+      [(ngModel)]="section.sectionHeading"
+      placeholder="Ex. Please take a moment to rate our services."
+      maxlength="100"
+      [disabled]="viewOnly"
+    />
+    <mat-hint align="end"
+      >{{ section?.sectionHeading?.length || 0 }}/100</mat-hint
+    >
+  </mat-form-field>
+</div>
+<!-- Question -->
+<div class="col-xs-12">
+  <ng-container
+    *ngIf="section.sectionQuestions && section.sectionQuestions.length > 0"
+  >
+    <!-- Questions stepper -->
+    <mat-vertical-stepper>
+      <mat-step
+        color="accent"
+        *ngFor="
+          let question of section.sectionQuestions;
+          let currentQuestionIndex = index
+        "
+      >
+        <!-- 22122020 - Gaurav - Highlight the step which has an invalid/incomplete question form -->
+        <ng-template matStepLabel
+          ><span
+            [ngClass]="{ invalid: !question.isQuestionFormValid && !viewOnly }"
+            >{{ question.questionType }}
+            {{ !question.isQuestionFormValid && !viewOnly ? "*" : "" }}</span
+          ></ng-template
+        >
+        <app-survey-question
+          [section]="section"
+          [question]="question"
+          [currentQuestionIndex]="currentQuestionIndex"
+          [viewOnly]="viewOnly"
+          [currentFeature]="currentFeature"
+        ></app-survey-question>
+      </mat-step>
+    </mat-vertical-stepper>
+    <!-- Question Stepper - Ends -->
+  </ng-container>
+</div>
+<!-- Question Ends -->

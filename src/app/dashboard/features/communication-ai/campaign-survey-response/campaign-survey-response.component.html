@@ -1,0 +1,556 @@
+<!-- 09022021 - Gaurav - Init version -->
+<!-- 17022021 - Gaurav - JIRA-CA-148  -->
+<!-- 22022021 - Gaurav - JIRA-CA-155 -->
+<!-- 22022021 - Gaurav - JIRA-CA-156: Table & Graph: Likert Radio - switch data -->
+<!-- 23022021 - Gaurav - Used survey submission status processing from class ProcessSurveySubmissionStatus -->
+<!-- 23022021 - Gaurav - Used survey response processing from class ProcessSurveyResponse -->
+<!-- 24022021 - Gaurav - JIRA-CA-174: Show percentage & (hits) for all question types  -->
+<!-- 25022021 - Gaurav - JIRA-CA-152: Show counter for additional text -->
+<!-- 26022021 - Gaurav - JIRA-CA-187: move huge html to reusable components for this module -->
+<!-- 03032021 - Gaurav - JIRA-CA-196: Show Likert tables in generated response PDF -->
+<!-- 04032021 - Gaurav - JIRA-CA-199: reduce survey report PDF size -->
+<div class="main-container" *ngIf="!isPDFMode">
+  <div class="card-container">
+    <mat-card>
+      <mat-card-header>
+        <!-- Header -->
+        <mat-card-title>
+          {{ getTitle() }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ getSubTitle() }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <ng-container *ngIf="campaignSurveyResponse; else noDataFound">
+          <div
+            class="m-sm-2 d-flex flex-column justify-content-center align-items-center"
+          >
+            <div
+              style="width: 100%"
+              class="p-2 mb-2 d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center light-green-bg"
+            >
+              <h2 class="alert-heading flex-grow-1">
+                {{ campaignSurveyResponse?.surveyVersion?.name! }} ({{
+                  campaignSurveyResponse?.surveyVersion?.code!
+                }})
+              </h2>
+              <div style="width: 100%" class="text-right">
+                <button
+                  mat-raised-button
+                  class="mr-1"
+                  (click)="onProcessToPDF()"
+                  [disabled]="isLoading"
+                >
+                  PDF Mode
+                </button>
+                <button
+                  mat-raised-button
+                  class="btn-cancel mr-1"
+                  (click)="onCancel()"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+
+            <mat-tab-group
+              style="width: 100%"
+              animationDuration="0ms"
+              [selectedIndex]="selectedTabIndex"
+            >
+              <!-- Tab 1 : Summary of Campaign Survey Response -->
+              <mat-tab label="Summary" disabled>Content 1</mat-tab>
+
+              <!-- Tab 2 : Statistical Data of Campaign Survey Response -->
+              <mat-tab>
+                <ng-template mat-tab-label> Statistical Data </ng-template>
+
+                <ng-container *ngIf="processSurveySubmissionStatus as ps3">
+                  <div style="width: 100%" class="p-2 my-2">
+                    <p class="lead">Submission Status:</p>
+                    <p>Total Survey Requested: {{ ps3.totalSurveys }}</p>
+
+                    <mat-tab-group animationDuration="0ms">
+                      <mat-tab>
+                        <ng-template mat-tab-label>
+                          <mat-icon
+                            matTooltip="Survey Submission Status Table"
+                            matTooltipPosition="above"
+                            >table_chart</mat-icon
+                          >
+                        </ng-template>
+
+                        <!-- 26022021 - Gaurav - JIRA-CA-187 -->
+                        <app-survey-response-stats-by-table
+                          surveyResponseTableFor="submission-status"
+                          [data]="ps3"
+                        ></app-survey-response-stats-by-table>
+                      </mat-tab>
+                      <ng-container
+                        *ngIf="
+                          ps3.submissionStatusChartsData &&
+                          ps3.submissionStatusChartsData?.length! > 0
+                        "
+                      >
+                        <mat-tab
+                          *ngFor="
+                            let chartData of ps3.submissionStatusChartsData
+                          "
+                        >
+                          <ng-template mat-tab-label>
+                            <mat-icon
+                              matTooltip="Survey Submission Status Chart"
+                              matTooltipPosition="above"
+                              >{{ chartData?.chartIcon }}</mat-icon
+                            >
+                          </ng-template>
+                          <app-echarts
+                            style="width: 100%"
+                            [chartData]="chartData?.chartOptions!"
+                            chartForType="submission-status"
+                          ></app-echarts>
+                        </mat-tab>
+                      </ng-container>
+                    </mat-tab-group>
+                  </div>
+                </ng-container>
+
+                <ng-container *ngIf="processedSurveyResponse as psr">
+                  <ng-container *ngIf="psr?.length! > 0">
+                    <div style="width: 100%" class="py-4">
+                      <button mat-stroked-button (click)="accordion.openAll()">
+                        Expand All
+                      </button>
+                      <button
+                        class="ml-2"
+                        mat-stroked-button
+                        (click)="accordion.closeAll()"
+                      >
+                        Collapse All
+                      </button>
+                    </div>
+                  </ng-container>
+
+                  <mat-accordion style="width: 100%" multi="true">
+                    <mat-expansion-panel
+                      class="mb-2"
+                      *ngFor="let res of psr; let i = index"
+                    >
+                      <mat-expansion-panel-header
+                        [ngClass]="{
+                          'likert-panel-header': res?.data?.subQuestionText
+                        }"
+                      >
+                        <mat-panel-title class="d-flex flex-column">
+                          <p>
+                            {{ res?.data?.questionText ? "Q." : "" }}
+                            {{ res?.data?.questionText }}
+                          </p>
+                          <p
+                            [ngStyle]="{
+                              display: res?.data?.subQuestionText
+                                ? 'block'
+                                : 'none'
+                            }"
+                            class="ml-3"
+                          >
+                            {{ res?.data?.subQuestionText }}
+                          </p>
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
+
+                      <div style="width: 100%" class="px-4 pb-4">
+                        <p class="lead">
+                          <strong>
+                            {{
+                              res?.data?.questionType ===
+                                questionTypes.singleTextInput ||
+                              res?.data?.questionType ===
+                                questionTypes.singleTextArea
+                                ? "Hits"
+                                : "Responses"
+                            }}: {{ res?.data?.totalHits }}
+                          </strong>
+                        </p>
+
+                        <mat-tab-group animationDuration="0ms">
+                          <mat-tab>
+                            <ng-template mat-tab-label>
+                              <mat-icon
+                                matTooltip="Survey Question Response Review"
+                                matTooltipPosition="above"
+                                >reviews</mat-icon
+                              >
+                            </ng-template>
+
+                            <!-- 26022021 - Gaurav - JIRA-CA-187 - Response by question -->
+                            <app-survey-response-stats-by-question
+                              [data]="res?.data"
+                            ></app-survey-response-stats-by-question>
+                          </mat-tab>
+
+                          <mat-tab *ngIf="res?.data?.tableDataSource">
+                            <ng-template mat-tab-label>
+                              <mat-icon
+                                matTooltip="Survey Question Response Table"
+                                matTooltipPosition="above"
+                                >table_chart</mat-icon
+                              >
+                            </ng-template>
+
+                            <!-- 26022021 - Gaurav - JIRA-CA-187 - Response by table -->
+                            <app-survey-response-stats-by-table
+                              [surveyResponseTableFor]="
+                                res?.data?.questionType !==
+                                  questionTypes.likertRadio &&
+                                res?.data?.questionType !==
+                                  questionTypes.likertCheck
+                                  ? 'base-question-types'
+                                  : 'likert-question-types'
+                              "
+                              [data]="res?.data"
+                              [isLikertGroup]="res?.isLikertGroup"
+                            ></app-survey-response-stats-by-table>
+                          </mat-tab>
+                          <ng-container
+                            *ngIf="
+                              res?.data?.responseCharts &&
+                              res?.data?.responseCharts?.length! > 0
+                            "
+                          >
+                            <mat-tab
+                              *ngFor="let chart of res?.data?.responseCharts"
+                            >
+                              <ng-template mat-tab-label>
+                                <mat-icon
+                                  matTooltip="Survey Question Response Chart"
+                                  matTooltipPosition="above"
+                                  >{{ chart?.chartIcon }}</mat-icon
+                                >
+                              </ng-template>
+                              <app-echarts
+                                style="width: 100%"
+                                [chartData]="chart?.chartOptions!"
+                                [chartForType]="res?.data?.questionType"
+                              ></app-echarts>
+                            </mat-tab>
+                          </ng-container>
+                        </mat-tab-group>
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                </ng-container>
+              </mat-tab>
+
+              <!-- Tab 3 : Drill-down Data of Campaign Survey Response -->
+              <mat-tab label="Drill-down Data" disabled>Content 3</mat-tab>
+            </mat-tab-group>
+          </div>
+        </ng-container>
+        <ng-template #noDataFound>
+          <h1
+            *ngIf="serverError"
+            class="mt-2 text-danger"
+            style="font-weight: 300"
+          >
+            No survey response data found!
+          </h1>
+        </ng-template>
+      </mat-card-content>
+      <mat-divider></mat-divider>
+      <mat-card-actions>
+        <!-- Buttons -->
+        <!-- <button
+          mat-raised-button
+          class="mr-1"
+          (click)="onProcessToPDF(true)"
+          [disabled]="isLoading"
+        >
+          PDF Mode
+        </button> -->
+        <button mat-raised-button class="btn-cancel mr-2" (click)="onCancel()">
+          Cancel
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>
+
+<!-- *************************************************************************************** -->
+<!-- ************************************* PDF Mode **************************************** -->
+<!-- *************************************************************************************** -->
+<ng-container *ngIf="isPDFMode" style="background-color: white">
+  <div class="spinner-center" *ngIf="showAllPdfHtmlPages">
+    <mat-spinner
+      mode="determinate"
+      color="warn"
+      diameter="100"
+      [value]="pdfGenerateProgress"
+    ></mat-spinner>
+    <!-- 04032021 - Gaurav - Add a percentage indicator inside the spinner -->
+    <div
+      style="position: absolute; padding: 14px; color: white; font-size: 18px"
+    >
+      {{ roundedPdfGenerateProgress }}%
+    </div>
+  </div>
+
+  <div
+    class="d-flex flex-row align-items-center mr-2 mt-2"
+    [ngClass]="{
+      'justify-content-between': showAllPdfHtmlPages,
+      'justify-content-end': !showAllPdfHtmlPages
+    }"
+  >
+    <p class="display-4 pl-2 pt-4" *ngIf="showAllPdfHtmlPages">
+      {{ pdfGenerateStatus }}
+    </p>
+    <div>
+      <button
+        mat-raised-button
+        class="mr-1"
+        (click)="onGeneratePDF()"
+        [disabled]="pdfHTMLStep !== 0 || showAllPdfHtmlPages"
+      >
+        {{ showAllPdfHtmlPages ? "Downloading PDF..." : "Download PDF" }}
+      </button>
+
+      <button
+        mat-raised-button
+        class="btn-cancel mr-1"
+        (click)="onBackToResults()"
+        [disabled]="showAllPdfHtmlPages"
+      >
+        Back To Results
+      </button>
+    </div>
+  </div>
+
+  <hr style="width: auto; height: 1px" class="mb-0" />
+
+  <div
+    style="width: 100%"
+    class="d-flex flex-column justify-content-center align-items-center mb-4"
+    style="position: relative"
+    #pdfPage
+  >
+    <div
+      class="align-self-end d-flex flex-row align-items-center justify-content-end mr-4"
+      [ngStyle]="
+        showAllPdfHtmlPages
+          ? { visibility: 'hidden' }
+          : { visibility: 'visible', 'z-index': 100 }
+      "
+    >
+      <button
+        mat-icon-button
+        [disabled]="pdfHTMLStep === 0"
+        (click)="onSetPdfHtmlStep(0)"
+      >
+        <mat-icon>skip_previous</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        [disabled]="pdfHTMLStep === 0"
+        (click)="onPrevPdfHtmlStep()"
+      >
+        <mat-icon style="transform: rotate(-180deg)">play_arrow</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        [disabled]="pdfHTMLStep === totalPdfHtmlPageCount - 1"
+        (click)="onNextPdfHtmlStep()"
+      >
+        <mat-icon>play_arrow</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        [disabled]="pdfHTMLStep === totalPdfHtmlPageCount - 1"
+        (click)="onSetPdfHtmlStep(totalPdfHtmlPageCount - 1)"
+      >
+        <mat-icon>skip_next</mat-icon>
+      </button>
+    </div>
+
+    <ng-container *ngFor="let page of pdfHtmlPages; let pagesIndex = index">
+      <div
+        style="width: 98%"
+        id="pdfContent-{{ pagesIndex }}"
+        class="bg-white p-2 mt-1 mb-2"
+        #pdfContent
+        [ngStyle]="
+          showAllPdfHtmlPages || pagesIndex === pdfHTMLStep
+            ? { visibility: 'visible' }
+            : { visibility: 'hidden' }
+        "
+        [ngClass]="{ 'show-singleton': !showAllPdfHtmlPages }"
+      >
+        <ng-container
+          *ngIf="
+            pagesIndex === 0 && processSurveySubmissionStatus as ps3;
+            else responses
+          "
+        >
+          <p class="display-4">Submission Status:</p>
+          <p class="lead">Total Survey Requested: {{ ps3.totalSurveys }}</p>
+
+          <!-- 26022021 - Gaurav - JIRA-CA-187 -->
+          <app-survey-response-stats-by-table
+            surveyResponseTableFor="submission-status"
+            [data]="ps3"
+            [materialStyle]="false"
+          ></app-survey-response-stats-by-table>
+          <ng-container
+            *ngIf="
+              ps3.submissionStatusChartsData &&
+              ps3.submissionStatusChartsData?.length! > 0
+            "
+          >
+            <div
+              class="mt-2"
+              *ngFor="let chartData of ps3.submissionStatusChartsData"
+            >
+              <app-echarts
+                style="width: 100%"
+                [chartData]="chartData?.chartOptions!"
+                chartForType="submission-status"
+              ></app-echarts>
+            </div>
+          </ng-container>
+          <!-- </div> -->
+          <!-- </ng-container> -->
+        </ng-container>
+
+        <ng-template #responses>
+          <ng-container
+            *ngIf="pagesIndex > 0 && processedSurveyResponse as psr"
+          >
+            <ng-container *ngFor="let res of psr; let i = index">
+              <ng-container *ngIf="i + 1 === pagesIndex">
+                <p
+                  class="display-4"
+                  [ngClass]="
+                    !isLikertQuestionType(res?.data?.questionType!)
+                      ? 'mb-2'
+                      : 'mb-1'
+                  "
+                >
+                  Survey Question Result {{ pagesIndex }} of {{ psr.length }}
+                </p>
+                <mat-divider></mat-divider>
+
+                <p
+                  class="lead"
+                  [ngClass]="
+                    !isLikertQuestionType(res?.data?.questionType!)
+                      ? 'mt-2'
+                      : 'mt-1'
+                  "
+                >
+                  {{ res?.data?.questionText ? "Q." : "" }}
+                  {{ res?.data?.questionText }}
+                </p>
+                <p
+                  [ngStyle]="{
+                    display: res?.data?.subQuestionText ? 'block' : 'none'
+                  }"
+                  class="lead"
+                >
+                  {{ res?.data?.subQuestionText }}
+                </p>
+
+                <p
+                  class="lead"
+                  [ngClass]="
+                    !isLikertQuestionType(res?.data?.questionType!)
+                      ? 'mt-2'
+                      : 'mt-1'
+                  "
+                >
+                  <strong>
+                    {{
+                      res?.data?.questionType ===
+                        questionTypes.singleTextInput ||
+                      res?.data?.questionType === questionTypes.singleTextArea
+                        ? "Hits"
+                        : "Responses"
+                    }}: {{ res?.data?.totalHits }}
+                  </strong>
+                </p>
+
+                <app-survey-response-stats-by-question
+                  [data]="res?.data"
+                  [pdfMode]="isPDFMode"
+                ></app-survey-response-stats-by-question>
+                <!-- </div> -->
+
+                <ng-container *ngIf="res?.data?.tableDataSource">
+                  <ng-container
+                    *ngIf="!isLikertQuestionType(res?.data?.questionType!)"
+                  >
+                    <app-survey-response-stats-by-table
+                      surveyResponseTableFor="base-question-types"
+                      [data]="res?.data"
+                      [isLikertGroup]="res?.isLikertGroup"
+                      [materialStyle]="false"
+                    ></app-survey-response-stats-by-table>
+                  </ng-container>
+                </ng-container>
+
+                <ng-container
+                  *ngIf="
+                    res?.data?.responseCharts &&
+                    res?.data?.responseCharts?.length! > 0
+                  "
+                >
+                  <div
+                    [ngClass]="
+                      !isLikertQuestionType(res?.data?.questionType!)
+                        ? 'mt-2'
+                        : 'mt-1'
+                    "
+                    *ngFor="
+                      let chart of res?.data?.responseCharts;
+                      let chartIndex = index
+                    "
+                  >
+                    <!-- Show just one chart for the sake of fitting it all on one page -->
+                    <ng-container *ngIf="chartIndex === 0">
+                      <app-echarts
+                        style="width: 100%"
+                        [reduceHeight]="
+                          res?.data?.tableDataSource?.length! > 25
+                            ? '300px'
+                            : undefined
+                        "
+                        [chartData]="chart?.chartOptions!"
+                        [chartForType]="res?.data?.questionType"
+                      ></app-echarts>
+                    </ng-container>
+                  </div>
+                </ng-container>
+
+                <ng-container *ngIf="res?.data?.tableDataSource">
+                  <div
+                    #pdfHtmlPageLikertTable
+                    id="pdfContent-{{ pagesIndex }}"
+                    *ngIf="isLikertQuestionType(res?.data?.questionType!)"
+                  >
+                    <app-survey-response-stats-by-table
+                      surveyResponseTableFor="likert-question-types"
+                      [data]="res?.data"
+                      [isLikertGroup]="res?.isLikertGroup"
+                      [materialStyle]="false"
+                    ></app-survey-response-stats-by-table>
+                  </div>
+                </ng-container>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+        </ng-template>
+      </div>
+    </ng-container>
+  </div>
+</ng-container>

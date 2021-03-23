@@ -1,0 +1,74 @@
+<!-- 29012021 - Abhishek - Init version -->
+<!-- 01022021 - Abhishek - Added back button and group cards -->
+<!-- 08022021 - Abhishek - Added getSubtitle() to set subtitle and import generateNameAndCodeString for sub title. -->
+<!-- 10022021 - Abhishek - Set 'Back' button disabled when data is loading. -->
+<div class="main-container">
+    <div class="card-container">
+
+      <mat-card>
+        <div style="margin-bottom: 32px;" >
+        <mat-card-header class="justify-content-between p-1">
+          <!-- Header -->
+          <mat-card-title>
+            Customer Detail View
+          </mat-card-title>
+          <mat-card-subtitle>
+            {{ getSubTitle() ? getSubTitle() : "&nbsp;" }}
+          </mat-card-subtitle>
+          <div >
+            <button
+            [disabled]="isLoading"
+            (click)="onBack()"
+            [ngClass]="{
+              disabled: isLoading
+            }"
+            mat-raised-button
+            class="btn-action"
+          >
+            Back
+          </button>
+          </div>
+        </mat-card-header>
+        <mat-divider></mat-divider>
+      </div>
+        <mat-card style="margin-bottom: 32px;" *ngFor ="let group of groups " class="campaign-form">
+            <mat-card-header>
+                <!-- Header -->
+                <mat-card-title style="font-size: 18px;">
+                <!-- <mat-card-title> -->
+                    {{group.name}}
+                </mat-card-title>
+            </mat-card-header>
+            <mat-divider></mat-divider>
+            <mat-card-content>
+                <form
+                class="grid-container"
+                [formGroup]="customerDetailForm"
+              >
+                <div *ngFor ="let attribute of group.dataAttributes " class="form-group">
+                  <mat-form-field>
+                    <mat-label>{{attribute.name}}</mat-label>
+                    <input matInput type="text" [formControlName]="attribute.code"/>
+                    <!-- <mat-error
+                      *ngIf="roleProfileForm?.controls?.code?.errors?.required"
+                      >Role Code is required</mat-error
+                    > -->
+                  </mat-form-field>
+                </div>
+
+                <!-- <div class="form-group">
+                  <mat-form-field>
+                    <mat-label>Name<span class="field-required">*</span></mat-label>
+                    <input matInput disabled type="text" />
+                    <mat-error
+                      *ngIf="roleProfileForm?.controls?.name?.errors?.required"
+                      >Short Role Description is required</mat-error
+                    >
+                  </mat-form-field>
+                </div> -->
+              </form>
+            </mat-card-content>
+        </mat-card>
+      </mat-card>
+    </div>
+</div>

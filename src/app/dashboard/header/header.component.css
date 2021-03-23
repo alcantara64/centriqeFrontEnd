@@ -1,0 +1,83 @@
+:host {
+  /* Search CSS-COLORS */
+  --header-bgcolor: #145993;
+  --header-link-color: #ffffff;
+  --header-collapse-indicator-color: #2e93e6;
+  --checked-color: "#000000";
+}
+
+.header {
+  background-color: var(--header-bgcolor);
+  padding-left: 0;
+}
+
+.drawer-top {
+  background-color: #ffffff;
+  width: 249px;
+  border-radius: 0;
+  padding: 0;
+  left: 0;
+}
+
+.logo {
+  text-align: center;
+  position: relative;
+}
+
+.logo img {
+  margin: 5px auto;
+  width: auto;
+  height: 50px;
+  object-fit: contain;
+}
+
+.menu-hamburger-icon {
+  position: absolute;
+  right: 2px;
+  top: 18px;
+  font-size: 24px;
+  color: var(--menu-lock-icon-color);
+  cursor: pointer;
+}
+
+.menu-title {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
+}
+
+mat-icon {
+  color: var(--header-collapse-indicator-color);
+}
+
+.mat-menu-item .mat-icon {
+  margin-right: 0px;
+  font-size: 18px;
+  color: var(--checked-color);
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: var(--header-link-color);
+}
+
+a:hover {
+  cursor: pointer;
+}
+
+ul {
+  display: flex;
+}
+
+/* mat-toolbar uses flex by default, make sure the in-between spacer class component
+occupies the remaining space, between 'Franks User Admin' and other RTL links  */
+.spacer {
+  flex: 1 1 auto;
+}

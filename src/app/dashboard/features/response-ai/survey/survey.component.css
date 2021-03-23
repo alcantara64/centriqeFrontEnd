@@ -1,0 +1,43 @@
+/* 15122020 - Gaurav - Init version */
+:host {
+  --btn-bgcolor: #145993;
+  --white: #ffffff;
+}
+
+.main-container {
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.page-add-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-container {
+  width: 100%;
+}
+
+mat-card-actions {
+  text-align: right;
+}
+
+::ng-deep .badge-blue .mat-badge-content,
+::ng-deep
+  .mat-step-header[aria-labelledby="page-stepper"]
+  .mat-step-icon-selected,
+::ng-deep
+  .mat-step-header[aria-labelledby="page-stepper"]
+  .mat-step-icon-state-done,
+::ng-deep
+  .mat-step-header[aria-labelledby="page-stepper"]
+  .mat-step-icon-state-edit {
+  background: var(--btn-bgcolor);
+  color: var(--white);
+}
+
+@media screen and (max-width: 570px) {
+}

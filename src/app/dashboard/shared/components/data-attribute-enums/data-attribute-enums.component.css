@@ -1,0 +1,73 @@
+:host {
+  --all-icons-hover: #ffffff;
+  --add-icon: #145993;
+  --add-icon-button: #1459934d;
+  --add-icon-button-hover: #145993;
+  --delete-icon: #c45c5c;
+  --delete-icon-button: #c45c5c4d;
+  --delete-icon-button-hover: #c45c5c;
+}
+
+.accordion-action-buttons {
+  padding-bottom: 20px;
+}
+
+.enum-headers-align .mat-expansion-panel-header-title,
+.enum-headers-align .mat-expansion-panel-header-description {
+  flex-basis: 0;
+}
+
+.enum-headers-align .mat-expansion-panel-header-description {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.enum-headers-align .mat-form-field + .mat-form-field {
+  margin-left: 8px;
+}
+
+.delete-icon {
+  color: var(--delete-icon);
+}
+
+.action-buttons mat-icon {
+  font-size: 18px;
+}
+
+.action-buttons {
+  margin: 5px;
+}
+
+.action-buttons {
+  width: 30px;
+  height: 30px;
+  font-size: 0px;
+}
+
+.action-buttons.delete-button:hover {
+  background-color: var(--delete-icon-button-hover);
+}
+
+.action-buttons.delete-button {
+  background-color: var(--delete-icon-button);
+}
+
+.action-buttons mat-icon:hover {
+  color: var(--all-icons-hover);
+}
+
+.add-icon {
+  color: var(--add-icon);
+}
+
+.action-buttons.add-button:hover {
+  background-color: var(--add-icon-button-hover);
+}
+
+.action-buttons.add-button {
+  background-color: var(--add-icon-button);
+}
+
+::ng-deep .mat-mini-fab .mat-button-wrapper {
+  padding: 0;
+}

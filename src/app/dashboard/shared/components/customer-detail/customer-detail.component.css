@@ -1,0 +1,4 @@
+/* 01022021 - Abhishek - set value color when field is disable */
+.mat-input-element:disabled, .mat-form-field-type-mat-native-select.mat-form-field-disabled .mat-form-field-infix::after {
+    color: #000;
+}

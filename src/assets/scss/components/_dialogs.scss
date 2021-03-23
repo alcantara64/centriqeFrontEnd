@@ -1,0 +1,49 @@
+.modal-xsm {
+  width: 300px !important;
+  .modal-xsm-body {
+    background: #65aaff;
+    color: $color-white;
+    text-align: $align-center;
+    padding: 1rem;
+    .count {
+      font-size: 3rem;
+      line-height: 1;
+    }
+    .modal-xsm-btn {
+      background: $color-white;
+      &.cancel-btn {
+        background: #a1d9f3;
+      }
+      &:hover {
+        background: #0d70eb;
+        color: $color-white;
+      }
+    }
+  }
+}
+
+//bottom sheet dialog start
+mat-bottom-sheet-container{
+  width: 50%;
+  margin: auto;
+
+  .bottom-sheet-dialog{
+    padding-bottom: $spacer * 2;
+    a{
+      height: auto !important;
+      padding: $spacer/2 $spacer !important;
+      .mat-list-item-content{
+        padding: 0px !important;
+        span.info{
+          color: $color-gray;
+          white-space: initial !important;
+          font-size: 12px !important;
+        }
+      }
+      &:hover{
+        color: $primary-color;
+      }
+    }
+  }
+}
+//bottom sheet dialog end

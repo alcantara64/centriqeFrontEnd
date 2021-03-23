@@ -1,0 +1,213 @@
+<!-- 17122020 - Gaurav - Init version -->
+<!-- 23122020 - Gaurav - Added single-textarea -->
+<!-- 24122020 - Gaurav - added logic to disable move question buttons -->
+<!-- 29122020 - Gaurav - Added viewOnly -->
+<!-- 05012021 - Gaurav - Added NPS or single-choice-radio-box -->
+<!-- 06012021 - Gaurav Added single-choice-radioH and multi-choice-checkboxH -->
+<!-- 06012021 - Gaurav Added matrixRadio and matrixCheck -->
+<!-- 08012021 - Gaurav - Added DropDown Selection -->
+<!-- 11012021 - Gaurav - Added Likerts -->
+<!-- 13012021 - Gaurav - Show current question number sequence -->
+<div
+  class="d-flex flex-column flex-sm-row justify-content-between align-items-center"
+>
+  <h5 class="h5 font-weight-bolder my-2 mt-xs-4 ml-sm-2">
+    - Question Sequence {{ currentQuestionIndex + 1 }} -
+  </h5>
+  <div class="d-flex flex-row-reverse">
+    <button
+      color="accent"
+      style="outline: none"
+      mat-icon-button
+      matTooltip="Move question a level-up"
+      matTooltipPosition="above"
+      [disabled]="isDisabledMoveQuestionUp"
+      (click)="section.onQuestionMoveUp(currentQuestionIndex)"
+    >
+      <mat-icon>arrow_upward</mat-icon>
+    </button>
+    <button
+      color="accent"
+      style="outline: none"
+      mat-icon-button
+      matTooltip="Move question a level-down"
+      matTooltipPosition="above"
+      [disabled]="isDisabledMoveQuestionDown"
+      (click)="section.onQuestionMoveDown(currentQuestionIndex)"
+    >
+      <mat-icon>arrow_downward</mat-icon>
+    </button>
+    <button
+      color="accent"
+      style="outline: none"
+      mat-icon-button
+      matTooltip="Delete current question"
+      matTooltipPosition="above"
+      [disabled]="viewOnly"
+      (click)="section.onDeleteQuestion(currentQuestionIndex)"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button
+      color="accent"
+      style="outline: none"
+      mat-icon-button
+      matTooltip="Duplicate this question"
+      matTooltipPosition="above"
+      [disabled]="viewOnly"
+      (click)="section.onDuplicateQuestion(currentQuestionIndex)"
+    >
+      <mat-icon>content_copy</mat-icon>
+    </button>
+  </div>
+</div>
+
+<!-- Check the current question type (arranged as per entries in enum QuestionTypes) and display relevant fields -->
+<ng-container [ngSwitch]="question.questionType">
+  <!-- ********* questionTypes.singleTextInput: Single input ********* -->
+  <ng-container *ngSwitchCase="questionTypesEnum.singleTextInput">
+    <app-single-textarea-or-input
+      [question]="question"
+      [questionType]="questionTypesEnum.singleTextInput"
+      [surveyMode]="true"
+      [accessMode]="viewOnly ? 'View' : ''"
+    ></app-single-textarea-or-input>
+  </ng-container>
+
+  <!-- ********* questionTypes.singleTextArea: Textarea multi-line input ********* STARTS -->
+  <ng-container *ngSwitchCase="questionTypesEnum.singleTextArea">
+    <app-single-textarea-or-input
+      [question]="question"
+      [questionType]="questionTypesEnum.singleTextArea"
+      [surveyMode]="true"
+      [accessMode]="viewOnly ? 'View' : ''"
+    ></app-single-textarea-or-input>
+  </ng-container>
+  <!-- ********* questionTypes.singleTextArea: Textarea multi-line input ********* ENDS -->
+
+  <!-- ********* questionTypes.singleChoiceRadioH: Single choice Radio button in a row ********* START -->
+  <ng-container *ngSwitchCase="questionTypesEnum.singleChoiceRadioH">
+    <app-single-row-radio-or-checkbox
+      [question]="question"
+      [questionType]="questionTypesEnum.singleChoiceRadioH"
+      [surveyMode]="true"
+      [accessMode]="viewOnly ? 'View' : ''"
+    ></app-single-row-radio-or-checkbox>
+  </ng-container>
+  <!-- ********* questionTypes.singleChoiceRadioH: Single choice Radio button in a row ********* ENDS -->
+
+  <!-- ********* questionTypes.singleChoiceRadioBox: Single choice Radio Box or Mat Toggle Button or NPS in a row ********* STARTS -->
+  <ng-container *ngSwitchCase="questionTypesEnum.singleChoiceRadioBox">
+    <app-nps-single-choice-radio-box
+      [question]="question"
+      [questionType]="questionTypesEnum.singleChoiceRadioBox"
+      [surveyMode]="true"
+      [accessMode]="viewOnly ? 'View' : ''"
+    ></app-nps-single-choice-radio-box>
+  </ng-container>
+  <!-- ********* questionTypes.singleChoiceRadioBox: Single choice Radio Box or Mat Toggle Button or NPS in a row ********* ENDS -->
+
+  <!-- ********* questionTypes.multiChoiceCheckH: Multi choice check boxes in a row ********* STARTS -->
+  <ng-container *ngSwitchCase="questionTypesEnum.multiChoiceCheckH">
+    <app-single-row-radio-or-checkbox
+      [question]="question"
+      [questionType]="questionTypesEnum.multiChoiceCheckH"
+      [surveyMode]="true"
+      [accessMode]="viewOnly ? 'View' : ''"
+    ></app-single-row-radio-or-checkbox>
+  </ng-container>
+  <!-- ********* questionTypes.multiChoiceCheckH: Multi choice check boxes in a row ********* ENDS -->
+
+  <!-- ********* questionTypes.ratingStar: Stars in a row ********* STARTS -->
+  <ng-container *ngSwitchCase="questionTypesEnum.ratingStar">
+    <app-rating-input
+      [question]="question"
+      [questionType]="questionTypesEnum.ratingStar"
+      [surveyMode]="true"
+      [accessMode]="viewOnly ? 'View' : ''"
+    ></app-rating-input>
+  </ng-container>
+  <!-- ********* questionTypes.ratingStar: Stars in a row ********* ENDS -->
+
+  <!-- ********* questionTypes.ratingEmoji: Emojis in a row ********* STARTS -->
+  <ng-container *ngSwitchCase="questionTypesEnum.ratingEmoji">
+    <app-rating-input
+      [question]="question"
+      [questionType]="questionTypesEnum.ratingEmoji"
+      [surveyMode]="true"
+      [accessMode]="viewOnly ? 'View' : ''"
+    ></app-rating-input>
+  </ng-container>
+  <!-- ********* questionTypes.ratingEmoji: Emojis in a row ********* ENDS -->
+
+  <!-- ********* questionTypes.likertRadio: multiple rows and its radio-groups ********* STARTS -->
+  <ng-container *ngSwitchCase="questionTypesEnum.likertRadio">
+    <!--  -->
+  </ng-container>
+  <!-- ********* questionTypes.likertRadio: multiple rows and its radio-groups ********* ENDS -->
+
+  <!-- ********* questionTypes.likertCheck: multiple rows and its check-boxes ********* STARTS -->
+  <ng-container *ngSwitchCase="questionTypesEnum.likertCheck">
+    <!--  -->
+  </ng-container>
+  <!-- ********* questionTypes.likertCheck: multiple rows and its check-boxes ********* ENDS -->
+
+  <!-- ********* questionTypes.matrixRadio: matrix of radio-buttons ********* STARTS -->
+  <ng-container *ngSwitchCase="questionTypesEnum.matrixRadio">
+    <app-matrix-radio-or-checkbox
+      [question]="question"
+      [questionType]="questionTypesEnum.matrixRadio"
+      [surveyMode]="true"
+      [accessMode]="viewOnly ? 'View' : ''"
+    ></app-matrix-radio-or-checkbox>
+  </ng-container>
+  <!-- ********* questionTypes.matrixRadio: matrix of radio-buttons ********* ENDS -->
+
+  <!-- ********* questionTypes.matrixCheck: matrix of check-boxes ********* STARTS -->
+  <ng-container *ngSwitchCase="questionTypesEnum.matrixCheck">
+    <app-matrix-radio-or-checkbox
+      [question]="question"
+      [questionType]="questionTypesEnum.matrixCheck"
+      [surveyMode]="true"
+      [accessMode]="viewOnly ? 'View' : ''"
+    ></app-matrix-radio-or-checkbox>
+  </ng-container>
+  <!-- ********* questionTypes.matrixCheck: matrix of check-boxes ********* ENDS -->
+
+  <!-- ********* questionTypes.dropDownSelection: Drop-down select list ********* STARTS -->
+  <ng-container *ngSwitchCase="questionTypesEnum.dropDownSelection">
+    <app-dropdown-selection
+      [question]="question"
+      [questionType]="questionTypesEnum.dropDownSelection"
+      [surveyMode]="true"
+      [accessMode]="viewOnly ? 'View' : ''"
+    ></app-dropdown-selection>
+  </ng-container>
+  <!-- ********* questionTypes.dropDownSelection: Drop-down select list ********* ENDS -->
+
+  <!-- ********* questionTypes.likertRadio ********* STARTS -->
+  <ng-container *ngSwitchCase="questionTypesEnum.likertRadio">
+    <app-likert-radio-or-checkbox
+      [question]="question"
+      [questionType]="questionTypesEnum.likertRadio"
+      [surveyMode]="true"
+      [accessMode]="viewOnly ? 'View' : ''"
+    ></app-likert-radio-or-checkbox>
+  </ng-container>
+  <!-- ********* questionTypes.likertRadio ********* ENDS -->
+
+  <!-- ********* questionTypes.likertCheck ********* STARTS -->
+  <ng-container *ngSwitchCase="questionTypesEnum.likertCheck">
+    <app-likert-radio-or-checkbox
+      [question]="question"
+      [questionType]="questionTypesEnum.likertCheck"
+      [surveyMode]="true"
+      [accessMode]="viewOnly ? 'View' : ''"
+    ></app-likert-radio-or-checkbox>
+  </ng-container>
+  <!-- ********* questionTypes.likertCheck ********* ENDS -->
+
+  <ng-container *ngSwitchDefault></ng-container>
+</ng-container>
+
+<mat-divider></mat-divider>

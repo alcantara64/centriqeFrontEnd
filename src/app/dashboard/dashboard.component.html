@@ -1,0 +1,200 @@
+<!-- 23112020 - Gaurav - Be careful if setting the main container to display only when !isLoading  -->
+<!-- 27112020 - Gaurav - CanDeactivate changes for Client Setup, to navigate back to last selected menu on user condition -->
+<!-- 11122020 - Gaurav - Listen to global holding org and set the menu logo accordingly -->
+<!-- 16122020 - Gaurav - Change for new menu requirements in issue tracker (issue# 40) -->
+<!-- 23122020 - Gaurav - New System Admin menu related changes -->
+<!-- 16032021 - Gaurav - Take action on child component menuOpened event only when !isCanDeactivateProcess i.e. CanDeactivae process is NOT in progress -->
+<mat-drawer-container [hasBackdrop]="hasBackdrop" class="grand-container">
+  <mat-drawer
+    class="side-container"
+    #drawer
+    [mode]="mode"
+    [ngClass]="['drawer-color']"
+    [style.width]="drawer.opened ? setDrawerPercent : '0%'"
+    opened
+  >
+    <mat-card class="drawer-top">
+      <div class="logo">
+        <mat-icon class="menu-lock-icon" (click)="onToggleLockMenu()">{{
+          lockMenu ? "switch_left" : "switch_right"
+        }}</mat-icon>
+
+        <!-- 11122020 - Gaurav - global holding org logo change -->
+        <img
+          *ngIf="globalHoldingOrg?.logoUrl; else defaultLogo"
+          [src]="globalHoldingOrg?.logoUrl"
+          [alt]="globalHoldingOrg?.name"
+        />
+
+        <ng-template #defaultLogo>
+          <img
+            src="assets/img/holding_org.png"
+            alt="Default Holding Org Logo"
+          />
+        </ng-template>
+        <!-- 11122020 - Gaurav - global holding org logo change - Ends -->
+      </div>
+    </mat-card>
+
+    <mat-accordion #accordion displayMode="flat">
+      <!-- HOME -->
+      <mat-card
+        class="home-menu-card"
+        [ngClass]="[
+          'mat-elevation-z0',
+          selectedMenu === menus.get(menuKeys.HOME)?.menuId
+            ? 'selected-bgcolor'
+            : 'unselected-bgcolor'
+        ]"
+        (click)="onClickHome()"
+      >
+        <a
+          class="home-menu-item"
+          [ngClass]="[
+            selectedMenu === menus.get(menuKeys.HOME)?.menuId
+              ? 'selected-textcolor'
+              : 'unselected-textcolor'
+          ]"
+        >
+          <mat-icon>{{ menus.get(menuKeys.HOME)?.menuIcon }}</mat-icon
+          ><span>{{ menus.get(menuKeys.HOME)?.menuName }}</span>
+        </a>
+      </mat-card>
+
+      <!-- ASK BUDDY -->
+      <app-two-level-menu
+        *ngIf="!menus.get(menuKeys.ASK_BUDDY)?.hidden"
+        [parentMenuItem]="menus.get(menuKeys.ASK_BUDDY)!"
+        [selectedMenu]="selectedMenu"
+        [selectedChildMenu]="selectedChildMenu"
+        (menuOpened)="
+          !isCanDeactivateProcess &&
+            setSelectedMenu(menus.get(menuKeys.ASK_BUDDY)?.menuId!)
+        "
+        (menuItemClicked)="setSelectedChildMenu($event)"
+      ></app-two-level-menu>
+
+      <!-- COMMUNICATION AI -->
+      <app-three-level-menu
+        *ngIf="!menus.get(menuKeys.COMM_AI)?.hidden"
+        [parentMenuItem]="menus.get(menuKeys.COMM_AI)!"
+        [selectedMenu]="selectedMenu"
+        [selectedChildMenu]="selectedChildMenu"
+        (menuOpened)="!isCanDeactivateProcess && setSelectedMenu($event)"
+        (menuItemClicked)="setSelectedChildMenu($event)"
+      ></app-three-level-menu>
+
+      <!-- RESPONSE AI -->
+      <app-three-level-menu
+        *ngIf="!menus.get(menuKeys.RESP_AI)?.hidden"
+        [parentMenuItem]="menus.get(menuKeys.RESP_AI)!"
+        [selectedMenu]="selectedMenu"
+        [selectedChildMenu]="selectedChildMenu"
+        (menuOpened)="!isCanDeactivateProcess && setSelectedMenu($event)"
+        (menuItemClicked)="setSelectedChildMenu($event)"
+      ></app-three-level-menu>
+
+      <!-- NPS -->
+      <app-three-level-menu
+        *ngIf="!menus.get(menuKeys.NPS)?.hidden"
+        [parentMenuItem]="menus.get(menuKeys.NPS)!"
+        [selectedMenu]="selectedMenu"
+        [selectedChildMenu]="selectedChildMenu"
+        (menuOpened)="!isCanDeactivateProcess && setSelectedMenu($event)"
+        (menuItemClicked)="setSelectedChildMenu($event)"
+      ></app-three-level-menu>
+
+      <!-- MARKET PLACE AI -->
+      <app-three-level-menu
+        *ngIf="!menus.get(menuKeys.MARKET_AI)?.hidden"
+        [parentMenuItem]="menus.get(menuKeys.MARKET_AI)!"
+        [selectedMenu]="selectedMenu"
+        [selectedChildMenu]="selectedChildMenu"
+        (menuOpened)="!isCanDeactivateProcess && setSelectedMenu($event)"
+        (menuItemClicked)="setSelectedChildMenu($event)"
+      ></app-three-level-menu>
+
+      <!-- PROFIT EDGE -->
+      <app-three-level-menu
+        *ngIf="!menus.get(menuKeys.PROF_EDGE)?.hidden"
+        [parentMenuItem]="menus.get(menuKeys.PROF_EDGE)!"
+        [selectedMenu]="selectedMenu"
+        [selectedChildMenu]="selectedChildMenu"
+        (menuOpened)="!isCanDeactivateProcess && setSelectedMenu($event)"
+        (menuItemClicked)="setSelectedChildMenu($event)"
+      ></app-three-level-menu>
+
+      <!-- INSIGHT -->
+      <app-three-level-menu
+        *ngIf="!menus.get(menuKeys.INSIGHT)?.hidden"
+        [parentMenuItem]="menus.get(menuKeys.INSIGHT)!"
+        [selectedMenu]="selectedMenu"
+        [selectedChildMenu]="selectedChildMenu"
+        (menuOpened)="!isCanDeactivateProcess && setSelectedMenu($event)"
+        (menuItemClicked)="setSelectedChildMenu($event)"
+      ></app-three-level-menu>
+
+      <!-- CLIENT SETUP -->
+      <app-three-level-menu
+        *ngIf="!menus.get(menuKeys.CLIENT_SETUP)?.hidden"
+        [parentMenuItem]="menus.get(menuKeys.CLIENT_SETUP)!"
+        [selectedMenu]="selectedMenu"
+        [selectedChildMenu]="selectedChildMenu"
+        (menuOpened)="!isCanDeactivateProcess && setSelectedMenu($event)"
+        (menuItemClicked)="setSelectedChildMenu($event)"
+      ></app-three-level-menu>
+
+      <!-- USER MANAGEMENT -->
+      <app-three-level-menu
+        *ngIf="!menus.get(menuKeys.USER_ADMIN)?.hidden"
+        [parentMenuItem]="menus.get(menuKeys.USER_ADMIN)!"
+        [selectedMenu]="selectedMenu"
+        [selectedChildMenu]="selectedChildMenu"
+        (menuOpened)="!isCanDeactivateProcess && setSelectedMenu($event)"
+        (menuItemClicked)="setSelectedChildMenu($event)"
+      ></app-three-level-menu>
+
+      <!-- BILLING -->
+      <app-two-level-menu
+        *ngIf="!menus.get(menuKeys.BILLING)?.hidden"
+        [parentMenuItem]="menus.get(menuKeys.BILLING)!"
+        [selectedMenu]="selectedMenu"
+        [selectedChildMenu]="selectedChildMenu"
+        (menuOpened)="
+          isCanDeactivateProcess
+            ? ''
+            : setSelectedMenu(menus.get(menuKeys.BILLING)?.menuId!)
+        "
+        (menuItemClicked)="setSelectedChildMenu($event)"
+      ></app-two-level-menu>
+
+      <!-- SYS ADMIN -->
+      <app-three-level-menu
+        *ngIf="!menus.get(menuKeys.SYSTEM_ADMIN)?.hidden"
+        [parentMenuItem]="menus.get(menuKeys.SYSTEM_ADMIN)!"
+        [selectedMenu]="selectedMenu"
+        [selectedChildMenu]="selectedChildMenu"
+        (menuOpened)="!isCanDeactivateProcess && setSelectedMenu($event)"
+        (menuItemClicked)="setSelectedChildMenu($event)"
+      ></app-three-level-menu>
+    </mat-accordion>
+  </mat-drawer>
+  <!-- 09032021 - Gaurav - Fixed the header extra-padding issue by changing the container class-name -->
+  <mat-drawer-content class="drawer-container">
+    <!-- 17022021 - Gaurav - send setDrawerPercent, drawerOpened & breakpoints to app-header -->
+    <!-- 21122020 - Abhishek - Added class for sticky heaader -->
+    <app-header
+      class="header"
+      [isLoading]="isLoading"
+      [menuLocked]="lockMenu"
+      [setDrawerPercent]="setDrawerPercent"
+      [drawerOpened]="drawer.opened"
+      [breakpoints]="breakpoints"
+      (toggleSideMenu)="onToggleSideMenu(drawer)"
+    ></app-header>
+
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-drawer-content>
+</mat-drawer-container>
