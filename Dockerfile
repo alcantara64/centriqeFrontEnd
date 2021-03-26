@@ -18,7 +18,6 @@ COPY . .
 
 # generate build
 # override default ANGULAR_CONFIG with docker build --build-arg ANGULAR_CONFIG=production .
-ARG ANGULAR_CONFIG=local
 
 RUN ./node_modules/.bin/ng build --output-path=dist --configuration=${ANGULAR_CONFIG}
 
