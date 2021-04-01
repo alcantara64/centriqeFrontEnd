@@ -19,8 +19,8 @@ COPY . .
 # generate build
 # override default ANGULAR_CONFIG with docker build --build-arg ANGULAR_CONFIG=production .
 
-#RUN ./node_modules/.bin/ng build --output-path=dist --configuration=${ANGULAR_CONFIG}
 RUN ./node_modules/.bin/ng build --output-path=dist --configuration=dev
+
 ## remove packages of devDependencies
 RUN npm prune --production
 
