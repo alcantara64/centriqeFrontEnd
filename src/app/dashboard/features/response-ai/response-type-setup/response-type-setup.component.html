@@ -96,7 +96,7 @@
           matColumnDef="action_buttons"
           stickyEnd
         >
-          <th mat-header-cell *matHeaderCellDef></th>
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let element">
             <div class="action-buttons-row">
               <button
@@ -216,7 +216,8 @@
       </table>
     </div>
     <mat-paginator
-      [pageSizeOptions]="[10, 20, 30]"
+      [pageSize]="appConfigService.systemMatTableProperties.pageSize"
+      [pageSizeOptions]="appConfigService.systemMatTableProperties.pageSizeOptions"
       showFirstLastButtons
     ></mat-paginator>
   </div>

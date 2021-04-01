@@ -1,11 +1,12 @@
 /** 02/12/2020 - Ramesh - Init version: Created separate versions for Email template setup*/
 /** 10122020 - Gaurav - Set isLoading on ngOnInit for local template use and to honour the template change to disable list filter input on loading
  * to avoid typing and subsequent error - TypeError: Cannot set property 'filter' of undefined
- * 08022021 - Gaurav - Added code for new progress-bar service */
+ * 08022021 - Gaurav - Added code for new progress-bar service
+ * 24032021 - Ramesh - JIRA CA-250: added app-config services*/
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, MatSortable } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Observable, Subscription, ObservableInput } from 'rxjs';
 import { concatMap, map, switchMap, take, tap } from 'rxjs/operators';
@@ -25,6 +26,7 @@ import { CommunicationAIService } from '../communication-ai.service';
 import { ClientSetupService } from '../../client-setup/client-setup.service';
 import { consoleLog } from 'src/app/shared/util/common.util';
 import { LoadingService } from 'src/app/shared/services/loading.service';
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 /** Created enum, instead of using boolean values, in case more than two filters condition are introduced */
 enum FilterBy {
   HOLDING_ORG,
@@ -55,6 +57,7 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
     'description',
     'subject',
     'status',
+    'updatedAt',
     'action_buttons',
   ];
   constructor(
@@ -65,7 +68,8 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
     private _clientSetupService: ClientSetupService,
     private _route: ActivatedRoute,
     private _router: Router,
-    private _loadingService: LoadingService
+    private _loadingService: LoadingService,
+    public appConfigService: AppConfigService
   ) {}
 
   ngOnInit() {
@@ -309,6 +313,7 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
       }
     }
     consoleLog({ valuesArr: ['change', filteredList] });
+    this.sort.sort(({ id: 'updatedAt', start: 'desc'}) as MatSortable);
     this.dataSource = await new MatTableDataSource(filteredList ?? []);
     this.dataSource.paginator = await this.paginator;
     this.dataSource.sort = await this.sort;

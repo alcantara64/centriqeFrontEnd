@@ -1,3 +1,12 @@
+@media screen and (max-width: 1020px) {
+  .filter-header {
+    flex-direction: column;
+  }
+  .filter {
+    padding-right: 0px;
+  }
+}
+
 @media screen and (min-width: 901px) {
   .login-container {
     width: 600px;
@@ -36,6 +45,12 @@
   mat-check-box {
     font-size: 12px;
   }
+  .member-org-selection {
+    padding-left: 70px;
+  }
+  .config-tab {
+    padding: 10px;
+  }
 }
 
 @media screen and (max-width: 600px) {
@@ -53,6 +68,12 @@
     h3 {
       font-size: 16px;
     }
+  }
+  .holding-org-selection {
+    padding-left: 40px;
+  }
+  .config-tab {
+    padding: 5px;
   }
 }
 
@@ -78,6 +99,22 @@
   }
 }
 
+@media screen and (max-width: 450px) {
+  .default-form{
+    flex-direction: column;
+  }
+  .default-field{
+    padding-right: 0px;
+    }
+    .holding-org-selection {
+      padding-left: 25px;
+    }
+
+    .member-org-selection {
+      padding-left: 45px;
+    }
+}
+
 @media screen and (max-width: 400px) {
   .login-container {
     width: 90%;
@@ -91,5 +128,22 @@
     h3 {
       font-size: 13px;
     }
+  }
+  .holding-org-selection {
+    padding-left: 20px;
+  }
+
+  .member-org-selection {
+    padding-left: 35px;
+  }
+}
+
+@media screen and (max-width: 350px) {
+  .holding-org-selection {
+    padding-left: 15px;
+  }
+
+  .member-org-selection {
+    padding-left: 25px;
   }
 }

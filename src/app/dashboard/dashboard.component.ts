@@ -91,7 +91,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .subscribe((userData: AuthStatusData) => {
         if (userData.isAuthenticated) {
           this.userInfo = userData.userInfo;
-
+          if(userData.userInfo?.resetPasswordNextLogon){
+            this._router.navigate(['/changePassword']);
+          }
           /** Get the applicable menus, pass the received privileges array after removing any dups */
           this.menus = this._menuService.getMenu(
             userData.userInfo?.privileges

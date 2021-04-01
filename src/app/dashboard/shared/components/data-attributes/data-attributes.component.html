@@ -2,7 +2,9 @@
 <!-- 22032021 - Gaurav - JIRA-CA-220: Org Config - UI for Data Attribute configuration -->
 <div class="main-container">
   <div class="card-container">
-    <mat-card>
+    <mat-card
+      *ngIf="attributesInstance && attributesInstance?.dataAttributeControls"
+    >
       <mat-card-header>
         <!-- Header -->
         <mat-card-title *ngIf="currentParent === parentList.SYSTEM_ADMIN">
@@ -62,7 +64,12 @@
       <mat-card-content *ngIf="attributesInstance">
         <form
           [formGroup]="attributesInstance?.form!"
-          style="width: 100% !important; overflow: auto !important"
+          style="
+            width: 100% !important;
+            overflow-x: scroll !important;
+            overflow-y: auto !important;
+          "
+          class="always-show-scrollbar"
         >
           <table
             class="table drag-table"
@@ -164,12 +171,85 @@
                     </mat-form-field>
                   </td>
 
+                  <td *ngIf="group.get('tableViewOrder')">
+                    <mat-form-field>
+                      <mat-label>Table View Order</mat-label>
+                      <input
+                        type="number"
+                        matInput
+                        formControlName="tableViewOrder"
+                        (change)="attributesInstance?.onChangeTableViewOrder(i)"
+                      />
+                    </mat-form-field>
+                  </td>
+
                   <td *ngIf="group.get('loadAttributeName')">
                     <mat-form-field>
                       <mat-label>Load Attribute Name</mat-label>
                       <input matInput formControlName="loadAttributeName" />
                       <mat-error
                         >Load Attribute Name is a required field</mat-error
+                      >
+                    </mat-form-field>
+                  </td>
+
+                  <td *ngIf="group.get('useInCampaignFilter')">
+                    <p
+                      class="text-muted"
+                      style="margin-bottom: 0; font-size: 9px"
+                    >
+                      Filter
+                    </p>
+                    <mat-slide-toggle formControlName="useInCampaignFilter">
+                    </mat-slide-toggle>
+                  </td>
+
+                  <td *ngIf="group.get('useInTableView')">
+                    <p
+                      class="text-muted"
+                      style="margin-bottom: 0; font-size: 9px"
+                    >
+                      Table
+                    </p>
+                    <mat-slide-toggle
+                      formControlName="useInTableView"
+                      (change)="attributesInstance?.onChangeUseInTableView(i)"
+                    >
+                    </mat-slide-toggle>
+                  </td>
+
+                  <td *ngIf="group.get('useInDetailView')">
+                    <p
+                      class="text-muted"
+                      style="margin-bottom: 0; font-size: 9px"
+                    >
+                      Detail
+                    </p>
+                    <mat-slide-toggle formControlName="useInDetailView">
+                    </mat-slide-toggle>
+                  </td>
+
+                  <td *ngIf="currentParent !== parentList.SYSTEM_ADMIN">
+                    <mat-form-field>
+                      <mat-label>Data Provider Type</mat-label>
+                      <mat-select
+                        formControlName="dataProviderType"
+                        (selectionChange)="
+                          attributesInstance?.onChangeDataProviderType(i)
+                        "
+                      >
+                        <mat-option></mat-option>
+                        <mat-option
+                          *ngFor="
+                            let dataType of attributesInstance?.dataProviderTypeList
+                          "
+                          [value]="dataType"
+                        >
+                          {{ dataType }}
+                        </mat-option>
+                      </mat-select>
+                      <mat-error
+                        >Data Provider Type is a required field</mat-error
                       >
                     </mat-form-field>
                   </td>
@@ -214,19 +294,6 @@
                     </mat-form-field>
                   </td>
 
-                  <td *ngIf="group.get('tableViewOrder')">
-                    <mat-form-field>
-                      <mat-label>Table View Order</mat-label>
-                      <input
-                        class="text-right"
-                        type="number"
-                        matInput
-                        formControlName="tableViewOrder"
-                        (change)="attributesInstance?.onChangeTableViewOrder(i)"
-                      />
-                    </mat-form-field>
-                  </td>
-
                   <td>
                     <mat-form-field>
                       <mat-label>Detail View Order</mat-label>
@@ -234,6 +301,9 @@
                         class="text-right"
                         matInput
                         formControlName="displayOrder"
+                        [ngStyle]="{
+                          color: group.value.detailViewOrder === -1 ? 'red' : ''
+                        }"
                       />
                     </mat-form-field>
                   </td>
@@ -272,7 +342,8 @@
                       </mat-select>
                     </mat-form-field>
                   </td>
-                  <td>
+
+                  <td *ngIf="currentParent === parentList.SYSTEM_ADMIN">
                     <mat-form-field>
                       <mat-label>Data Provider Type</mat-label>
                       <mat-select
@@ -296,6 +367,7 @@
                       >
                     </mat-form-field>
                   </td>
+
                   <td *ngIf="currentParent === parentList.SYSTEM_ADMIN">
                     <ng-container
                       *ngIf="
@@ -346,42 +418,6 @@
                         - NA -
                       </div>
                     </ng-template>
-                  </td>
-
-                  <td *ngIf="group.get('useInCampaignFilter')">
-                    <p
-                      class="text-muted"
-                      style="margin-bottom: 0; font-size: 9px"
-                    >
-                      Filter
-                    </p>
-                    <mat-slide-toggle formControlName="useInCampaignFilter">
-                    </mat-slide-toggle>
-                  </td>
-
-                  <td *ngIf="group.get('useInTableView')">
-                    <p
-                      class="text-muted"
-                      style="margin-bottom: 0; font-size: 9px"
-                    >
-                      Table
-                    </p>
-                    <mat-slide-toggle
-                      formControlName="useInTableView"
-                      (change)="attributesInstance?.onChangeUseInTableView(i)"
-                    >
-                    </mat-slide-toggle>
-                  </td>
-
-                  <td *ngIf="group.get('useInDetailView')">
-                    <p
-                      class="text-muted"
-                      style="margin-bottom: 0; font-size: 9px"
-                    >
-                      Detail
-                    </p>
-                    <mat-slide-toggle formControlName="useInDetailView">
-                    </mat-slide-toggle>
                   </td>
 
                   <td *ngIf="currentParent === parentList.SYSTEM_ADMIN">

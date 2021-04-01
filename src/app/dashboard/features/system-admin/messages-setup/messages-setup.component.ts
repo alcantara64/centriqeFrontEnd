@@ -11,6 +11,7 @@ import { MatSort } from '@angular/material/sort';
 import { DashboardService } from '../../../dashboard.service';
 import { SystemAdminService } from '../system-admin.service';
 import { LoadingService } from 'src/app/shared/services/loading.service';
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 import { consoleLog } from 'src/app/shared/util/common.util';
 import { AuthService } from 'src/app/auth/auth.service';
 
@@ -50,6 +51,7 @@ export class MessagesSetupComponent implements OnInit, AfterViewInit {
     private _dashboardService: DashboardService,
     private _systemAdminService: SystemAdminService,
     private _authService: AuthService,
+    public appConfigService: AppConfigService,
     private _loadingService: LoadingService
   ) {}
 
@@ -63,7 +65,7 @@ export class MessagesSetupComponent implements OnInit, AfterViewInit {
     this._dashboardService.defaultPaylod = {
       options: {
         offset: 0,
-        limit: 10,
+        limit: this.appConfigService.systemMatTableProperties.pageSizeOptions[2],
       },
       query: {}
     };
@@ -82,7 +84,7 @@ export class MessagesSetupComponent implements OnInit, AfterViewInit {
         ... this._searchPayload?.options,
             sort: {},
             offset: 0,
-            limit: 10,
+            limit: this.appConfigService.systemMatTableProperties.pageSizeOptions[2],
             globalSearch: {
               fieldNames: this.globalFilterColumns,
           searchValue: this.searchText,

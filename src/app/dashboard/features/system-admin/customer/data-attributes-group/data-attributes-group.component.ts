@@ -13,7 +13,7 @@ import {
   HoldingOrg,
 } from 'src/app/dashboard/dashboard.service';
 
-import { CustomerDataAttributeGroup } from '../../models/data-attributes.model';
+import { CustomerDataAttributeGroup } from '../../../../shared/models/data-attributes.model';
 import { SnackbarService } from 'src/app/shared/components/snackbar.service';
 import { SystemAdminService } from '../../system-admin.service';
 import { LoadingService } from 'src/app/shared/services/loading.service';

@@ -3,11 +3,12 @@
  * 09022021 - Gaurav - Redirect user to a new window to view the consolidated campgaign Survey response
  * 22022021 - Gaurav - JIRA task: CA-163
  * 05032021 - Gaurav - JIRA-CA-154
+ * 24032021 - Ramesh - JIRA CA-250: added app-config services
  */
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, MatSortable } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import {MatBottomSheet, MatBottomSheetRef} from '@angular/material/bottom-sheet';
 import { Observable, Subscription } from 'rxjs';
@@ -35,10 +36,8 @@ import {
 } from '../communication-ai.service';
 import { OrgDrDwEmitStruct } from 'src/app/dashboard/shared/components/org-dropdownlist/org-dropdownlist.component';
 import { LoadingService } from 'src/app/shared/services/loading.service';
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 import { consoleLog } from 'src/app/shared/util/common.util';
-import { BottomSheetDialog } from 'src/app/dashboard/shared/components/dialog/bottom-sheet-dialog/bottom-sheet-dialog';
-import {MatBottomSheetModule} from '@angular/material/bottom-sheet';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 /** Created enum, instead of using boolean values, in case more than two filters condition are introduced */
 enum FilterBy {
@@ -76,7 +75,7 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
     'code',
     'description',
     'status',
-    'createdAt',
+    'updatedAt',
     'action_buttons',
   ];
   constructor(
@@ -88,7 +87,8 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
     private _bottomSheet: MatBottomSheet,
     private _route: ActivatedRoute,
     private _router: Router,
-    private _loadingService: LoadingService
+    private _loadingService: LoadingService,
+    public appConfigService: AppConfigService
   ) {}
 
    ngOnInit() {
@@ -452,7 +452,7 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
            listItem[this.valuesFromOrgDrDw?.compareByKeyForFilter] ===
            this.valuesFromOrgDrDw?.selectedOrgInDrDw?._id
        );
-
+       this.sort.sort(({ id: 'updatedAt', start: 'desc'}) as MatSortable);
        this.dataSource = await new MatTableDataSource(filteredList ?? []);
        this.dataSource.paginator = await this.paginator;
        this.dataSource.sort = await this.sort;

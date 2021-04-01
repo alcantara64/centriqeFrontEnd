@@ -25,6 +25,7 @@ import { map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
 import { AuthService, AuthStatusData } from '../auth/auth.service';
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 
 const BACKEND_URL = `${environment.apiUrlV1}`;
 
@@ -85,7 +86,7 @@ export class DashboardService {
   defaultPaylod: any = {
     options: {
       offset: 0,
-      limit: 10,
+      limit: 30,
     },
   };
 

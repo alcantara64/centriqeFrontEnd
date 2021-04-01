@@ -2,6 +2,7 @@
  * 27112020 - Gaurav - Added prompt_discard_data_changes predefined dialog condition type
  * 11122020 - Gaurav - Added InfoDialogType
  * 05032021 - Gaurav - JIRA-CA-154: New interfaces for Shared date range dialog
+ * 24032021 - Gaurav - Added SystemDialogInput.body2
  */
 export enum SystemDialogType {
   info_alert_ok,
@@ -23,6 +24,7 @@ export interface SystemDialogInput {
   dialogConditionType: DialogConditionType;
   title?: string;
   body?: string;
+  body2?: string;
 }
 
 export enum SystemDialogReturnType {
@@ -61,12 +63,11 @@ export interface BottomSheetDialogInput {
   accessMode: string;
 }
 
-
 export enum BottomSheetDialogReturnType {
   launched_yes,
   draft_yes,
   terminate_yes,
   delete_yes,
   status,
-  title
+  title,
 }

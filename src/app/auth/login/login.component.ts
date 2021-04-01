@@ -37,7 +37,6 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.isLoading = false;
     this._authService.getAuthStatusListener().subscribe(res => {
-      this.isResetPasswordOnLogon = res.isResetPasswordOnLogon;
       this.isDisableLoginSubmitButton = false;
     });
   }
@@ -53,9 +52,10 @@ export class LoginComponent implements OnInit {
         (response) => {
           this.isDisableLoginSubmitButton = true;
           this.isResetPasswordOnLogon = response.isResetPasswordOnLogon;
-          if (!this.isResetPasswordOnLogon) {
-            this._router.navigate(['/dashboard']);
+          if (this.isResetPasswordOnLogon) {
+            this._router.navigate(['/changePassword']);
           }
+          this._router.navigate(['/dashboard']);
           this.isLoading = false;
         },
         (error) => {

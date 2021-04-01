@@ -3,13 +3,19 @@
 <!-- 29122020 - Gaurav - Added viewOnly -->
 <!-- 13012021 - Gaurav - Show current page number -->
 <!-- 22012021 - Gaurav - Pass saved question records and question types to sections -->
-<div class="col-xs-12 shadow-sm mt-2 mb-4 rounded bg-light">
+<!-- 25032021 - Gaurav - JIRA-CA-275: Tabbed page setup -->
+<!-- 25032021 - Gaurav - JIRA-CA-276: Tabbed section setup  -->
+<div
+  class="col-xs-12 shadow-sm mt-2 mb-4 rounded"
+  style="background-color: #d4edda1a"
+>
   <div
     class="d-flex flex-column flex-sm-row justify-content-between align-items-center"
   >
     <h4 class="h4 font-weight-bolder my-2 mt-xs-4 ml-sm-2">
       - Page {{ currentPageIndex + 1 }} -
-      <ng-container *ngIf="survey?.surveyPages?.length === 1"
+      <ng-container
+        *ngIf="survey?.surveyPages && survey?.surveyPages?.length! > 0"
         >(Sections {{ page?.pageSections?.length }}, Questions
         {{ totalQuestions }})</ng-container
       >
@@ -19,30 +25,41 @@
       <button
         style="outline: none"
         mat-icon-button
-        matTooltip="Move page a level-up"
-        matTooltipPosition="above"
-        [disabled]="isDisabledMovePageUp"
-        (click)="survey.onPageMoveUp(currentPageIndex)"
-      >
-        <mat-icon>arrow_upward</mat-icon>
-      </button>
-      <button
-        style="outline: none"
-        mat-icon-button
         matTooltip="Move page a level-down"
         matTooltipPosition="above"
         [disabled]="isDisabledMovePageDown"
-        (click)="survey.onPageMoveDown(currentPageIndex)"
+        (click)="
+          survey.onPageMoveDown(currentPageIndex);
+          onEmitPageMoveDown(currentPageIndex)
+        "
       >
-        <mat-icon>arrow_downward</mat-icon>
+        <mat-icon>arrow_forward</mat-icon>
       </button>
+
+      <button
+        style="outline: none"
+        mat-icon-button
+        matTooltip="Move page a level-up"
+        matTooltipPosition="above"
+        [disabled]="isDisabledMovePageUp"
+        (click)="
+          survey.onPageMoveUp(currentPageIndex);
+          onEmitPageMoveUp(currentPageIndex)
+        "
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+
       <button
         style="outline: none"
         mat-icon-button
         matTooltip="Delete current page"
         matTooltipPosition="above"
         [disabled]="viewOnly"
-        (click)="survey.onDeletePage(currentPageIndex)"
+        (click)="
+          survey.onDeletePage(currentPageIndex);
+          onEmitPageDelete(currentPageIndex)
+        "
       >
         <mat-icon>delete</mat-icon>
       </button>
@@ -52,7 +69,10 @@
         matTooltip="Duplicate this page"
         matTooltipPosition="above"
         [disabled]="viewOnly"
-        (click)="survey.onDuplicatePage(currentPageIndex)"
+        (click)="
+          survey.onDuplicatePage(currentPageIndex);
+          onEmitPageDuplicate(currentPageIndex)
+        "
       >
         <mat-icon>content_copy</mat-icon>
       </button>
@@ -136,29 +156,31 @@
     </ng-container>
 
     <ng-container *ngIf="page.pageSections && page.pageSections.length > 1">
-      <mat-vertical-stepper>
-        <mat-step
-          color="primary"
+      <mat-tab-group
+        color="accent"
+        mat-align-tabs="center"
+        [(selectedIndex)]="page.selectedSectionTabIndex"
+        *ngIf="survey?.surveyPages"
+      >
+        <ng-container
           *ngFor="
             let section of page.pageSections;
             let currentSectionIndex = index
           "
         >
-          <ng-template matStepLabel
-            >Section# {{ currentSectionIndex + 1 }} (Total Questions:
-            {{ section?.sectionQuestions?.length }})</ng-template
-          >
-          <app-survey-section
-            [page]="page"
-            [section]="section"
-            [currentSectionIndex]="currentSectionIndex"
-            [viewOnly]="viewOnly"
-            [currentFeature]="currentFeature"
-            [savedQuestionsStructs]="savedQuestionsStructs"
-            [questionTypes]="questionTypes"
-          ></app-survey-section>
-        </mat-step>
-      </mat-vertical-stepper>
+          <mat-tab label="Section {{ currentSectionIndex + 1 }}">
+            <app-survey-section
+              [page]="page"
+              [section]="section"
+              [currentSectionIndex]="currentSectionIndex"
+              [viewOnly]="viewOnly"
+              [currentFeature]="currentFeature"
+              [savedQuestionsStructs]="savedQuestionsStructs"
+              [questionTypes]="questionTypes"
+            ></app-survey-section>
+          </mat-tab>
+        </ng-container>
+      </mat-tab-group>
     </ng-container>
   </div>
   <!-- Section Ends -->

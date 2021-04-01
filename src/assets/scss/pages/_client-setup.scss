@@ -1,0 +1,99 @@
+//dashboard org configuratoin styles starts
+.client-setup-dashboard{
+  .filter-header {
+    display: flex;
+    flex-direction: row;
+    align-items: $align-center;
+  }
+  .filter {
+    padding-right: 1.5rem;
+  }
+  .default-form{
+    display: flex;
+    flex-direction: row;
+  }
+  .default-field{
+    padding-right: 30px;
+    }
+}
+//dashboard org configuratoin styles end
+
+.mat-radio-button.mat-accent .mat-radio-inner-circle,
+  .mat-radio-button.mat-accent
+  .mat-radio-ripple
+  .mat-ripple-element:not(.mat-radio-persistent-ripple),
+  .mat-radio-button.mat-accent.mat-radio-checked
+  .mat-radio-persistent-ripple,
+ .mat-radio-button.mat-accent:active .mat-radio-persistent-ripple,
+  .mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+  .mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+ .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
+ .mat-checkbox-checked.mat-accent .mat-checkbox-background {
+  background-color: var(--btn-bgcolor);
+}
+
+ .disable-bgColor.mat-radio-button.mat-accent .mat-radio-inner-circle,
+  .disable-bgColor.mat-radio-button.mat-accent
+  .mat-radio-ripple
+  .mat-ripple-element:not(.mat-radio-persistent-ripple),
+  .disable-bgColor.mat-radio-button.mat-accent.mat-radio-checked
+  .mat-radio-persistent-ripple,
+  .disable-bgColor.mat-radio-button.mat-accent:active
+  .mat-radio-persistent-ripple,
+  .disable-bgColor.mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+  .disable-bgColor.mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent
+  .mat-ripple-element,
+  .disable-bgColor.mat-checkbox-indeterminate.mat-accent
+  .mat-checkbox-background,
+  .disable-bgColor.mat-checkbox-checked.mat-accent
+  .mat-checkbox-background {
+  background-color: var(--disabled-selections);
+}
+
+  .mat-radio-button.mat-accent.mat-radio-checked
+  .mat-radio-outer-circle {
+  border-color: var(--btn-bgcolor);
+}
+
+  .disable-bgColor.mat-radio-button.mat-accent.mat-radio-checked
+  .mat-radio-outer-circle {
+  border-color: var(--disabled-selections);
+}
+
+.client-setup-container{
+  .config-tab {
+    padding: 20px;
+  }
+  table {
+    width: 100%;
+    padding: 10px;
+    th {
+      text-align: left;
+    }
+  }
+  .org-header th {
+    text-align: center;
+  }
+  .row-invalid-bgcolor{
+    background-color: $row-invalid-bgcolor;
+  }
+  mat-checkbox {
+    margin-left: 2px;
+    margin-right: 11px;
+  }
+  .holding-org-selection {
+    padding-left: 50px;
+  }
+  .member-org-selection {
+    padding-left: 90px;
+  }
+  .logo {
+    margin: 5px auto;
+    width: auto;
+    height: 150px;
+    object-fit: contain;
+  }
+}

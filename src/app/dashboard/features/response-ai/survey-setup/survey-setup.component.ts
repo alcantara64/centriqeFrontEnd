@@ -7,7 +7,7 @@
  */
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, MatSortable } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -37,6 +37,7 @@ import {
 } from 'src/app/dashboard/shared/components/org-dropdownlist/org-dropdownlist.component';
 import { ClientSetupService } from '../../client-setup/client-setup.service';
 import { LoadingService } from 'src/app/shared/services/loading.service';
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 
 @Component({
   selector: 'app-survey-setup',
@@ -64,6 +65,7 @@ export class SurveySetupComponent implements OnInit, OnDestroy {
     'org',
     'pages',
     'status',
+    'updatedAt',
     'action_buttons',
   ];
   dataSource!: MatTableDataSource<any>;
@@ -78,6 +80,7 @@ export class SurveySetupComponent implements OnInit, OnDestroy {
     private _dialogService: DialogService,
     private _snackbarService: SnackbarService,
     private _clientSetupService: ClientSetupService,
+    public appConfigService: AppConfigService,
     private _loadingService: LoadingService
   ) {
     /** Set current feature: nps OR response */
@@ -366,6 +369,7 @@ export class SurveySetupComponent implements OnInit, OnDestroy {
     this.dataSource = await new MatTableDataSource(filteredList ?? <any>[]);
     this.dataSource.paginator = await this.paginator;
     this.dataSource.sort = await this.sort;
+    await this.sort.sort(({ id: 'updatedAt', start: 'desc'}) as MatSortable);
   }
 
   private _setLoading(value: boolean): void {

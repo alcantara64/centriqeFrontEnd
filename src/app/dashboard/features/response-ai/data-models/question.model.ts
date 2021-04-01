@@ -195,7 +195,7 @@ export interface DropDownValuesStruct {
 // QuestionTypes.dropDownSelection - Ends
 
 export class Question implements SurveyQuestion {
-  private _questionFormValid: boolean = false;
+  private _questionFormInvalid: boolean = false;
 
   constructor(
     public questionNumber: number,
@@ -222,11 +222,11 @@ export class Question implements SurveyQuestion {
   ) {}
 
   /** 22122020 - Gaurav - Set the data validity at instance level */
-  get isQuestionFormValid() {
-    return this._questionFormValid;
+  get isQuestionFormInvalid(): boolean {
+    return this._questionFormInvalid;
   }
 
   public setQuestionFormValidity(value: boolean) {
-    this._questionFormValid = value;
+    this._questionFormInvalid = value;
   }
 }

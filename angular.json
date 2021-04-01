@@ -28,7 +28,7 @@
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "./node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css",
-              "src/assets/scss/main-styles.scss"
+              "src/assets/scss/styles.scss"
             ],
             "scripts": [],
             "allowedCommonJsDependencies": ["raf", "@babel/runtime-corejs3"]
@@ -203,7 +203,7 @@
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "./node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css",
-              "src/assets/scss/main-styles.scss"
+              "src/assets/scss/styles.scss"
             ],
             "scripts": []
           }

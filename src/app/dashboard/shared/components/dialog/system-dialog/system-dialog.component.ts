@@ -2,6 +2,7 @@
  * Use DialogConditionType.prompt_custom_data to send custome title and body
  * Use SystemDialogType to request the buttons to show on this dialog (check dialog.model.ts)
  * 27112020 - Gaurav - Added prompt_discard_data_changes predefined dialog condition type
+ * 24032021 - Gaurav - Added optional dialogBody2
  */
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -26,6 +27,7 @@ export class SystemDialogComponent {
   showButtons: SystemDialogType = SystemDialogType.info_alert_ok;
   dialogTitle = '';
   dialogBody = '';
+  dialogBody2!: string | undefined;
 
   constructor(
     public dialogRef: MatDialogRef<SystemDialogComponent>,
@@ -38,6 +40,7 @@ export class SystemDialogComponent {
       case DialogConditionType.prompt_custom_data:
         this.dialogTitle = data.title!;
         this.dialogBody = data.body!;
+        this.dialogBody2 = data?.body2;
         break;
 
       case DialogConditionType.prompt_save_data_changes:

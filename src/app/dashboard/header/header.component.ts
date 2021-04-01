@@ -13,7 +13,8 @@
  * 17022021 - Gaurav - JIRA CA-140: added new @Inputs()
  * 05032021 - Abhishek - Added new     dashboardRouteLinks.CLIENT_SETUP_DASHBOARD_ORG_CONFIGURATION
  * 09032021 - Gaurav - JIRA-CA-226: Adjust UI to work with new login and global selector routes
- * 16032021 - Gaurav - JIRA-CA-237: Persist selected global holding org on browser refresh */
+ * 16032021 - Gaurav - JIRA-CA-237: Persist selected global holding org on browser refresh
+ * 25032021 - Gaurav - JIRA-CA-305: Whitelist global org selector for analytics submenus */
 import {
   AfterViewInit,
   Component,
@@ -58,6 +59,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewInit {
   private _isEnabledHoldingOrgMenu = true;
   private _allowListRoutes = [
     { routerLink: '/dashboard' },
+    dashboardRouteLinks.ASK_BUDDY_PROGRESS_ANALYTICS,
     dashboardRouteLinks.BILLING_CURRENT_BALANCE,
     dashboardRouteLinks.BILLING_PAYMENT_HISTORY,
     dashboardRouteLinks.CLIENT_SETUP_CUSTOMERLIST_VIEW,
@@ -76,7 +78,9 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewInit {
     dashboardRouteLinks.COMMUNICATION_MANAGE_TEMPLATE,
     dashboardRouteLinks.COMMUNICATION_TEMPLATE_VIEW,
     dashboardRouteLinks.COMMUNICATION_UNSUBSCRIBED_VIEW,
+    dashboardRouteLinks.COMMUNICATION_PROGRESS_ANALYTICS,
     dashboardRouteLinks.INSIGHT_BUSINESS_ANALYTICS,
+    dashboardRouteLinks.INSIGHT_PROGRESS_ANALYTICS,
     dashboardRouteLinks.NPS_CUSTOMERLIST_VIEW,
     dashboardRouteLinks.NPS_MANAGE_NPS_CAMPAIGN,
     dashboardRouteLinks.NPS_MANAGE_NPS_MASTER,
@@ -86,6 +90,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewInit {
     dashboardRouteLinks.NPS_NPS_SETUP_VIEW,
     dashboardRouteLinks.NPS_PAST_CAMPAIGNS_VIEW,
     dashboardRouteLinks.NPS_UNSUBSCRIBED_VIEW,
+    dashboardRouteLinks.NPS_PROGRESS_ANALYTICS,
     dashboardRouteLinks.RESPONSE_CUSTOMERLIST_VIEW,
     dashboardRouteLinks.RESPONSE_FEEDBACK_CAMPAIGN_VIEW,
     dashboardRouteLinks.RESPONSE_FEEDBACK_SETUP_VIEW,
@@ -95,6 +100,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewInit {
     dashboardRouteLinks.RESPONSE_PAST_CAMPAIGNS_VIEW,
     dashboardRouteLinks.RESPONSE_RESPONSE_TYPES_VIEW,
     dashboardRouteLinks.RESPONSE_UNSUBSCRIBED_VIEW,
+    dashboardRouteLinks.RESPONSE_PROGRESS_ANALYTICS,
     dashboardRouteLinks.SYSTEM_ADMIN_MANAGE_MESSAGES,
     dashboardRouteLinks.SYSTEM_ADMIN_MANAGE_MESSAGE_EVENTS,
     dashboardRouteLinks.USER_MANAGEMENT_MANAGE_ROLES,

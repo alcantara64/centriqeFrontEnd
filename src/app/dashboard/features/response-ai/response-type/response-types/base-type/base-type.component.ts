@@ -247,7 +247,7 @@ export class BaseTypeComponent implements OnInit, OnDestroy {
     /** Set initial status for saved question-types load */
     this.surveyMode &&
       this.question &&
-      this.question.setQuestionFormValidity(this.form.valid);
+      this.question.setQuestionFormValidity(!this.form.valid);
 
     /** Emit form payload to the parent on certain conditions */
     this._formStatusSub$ = this.form.statusChanges.subscribe((formStatus) => {
@@ -262,7 +262,7 @@ export class BaseTypeComponent implements OnInit, OnDestroy {
       /** Set the validity of this form in the class instance, when in survey-mode */
       this.surveyMode &&
         this.question &&
-        this.question.setQuestionFormValidity(formStatus === 'VALID');
+        this.question.setQuestionFormValidity(formStatus !== 'VALID');
     });
   }
 

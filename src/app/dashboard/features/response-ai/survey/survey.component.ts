@@ -58,6 +58,11 @@ import {
 } from '../data-models/survey.model';
 import { ResponseAIService } from '../response-ai.service';
 
+interface InvalidPageIndexes {
+  pageTabIndex: number;
+  sectionTabIndex: number;
+}
+
 @Component({
   templateUrl: './survey.component.html',
   styleUrls: ['./survey.component.css'],
@@ -96,7 +101,6 @@ export class SurveyComponent implements OnInit, OnDestroy {
 
   accessMode: AccessModes = AccessModes.View; //default
   isLoading = false;
-  selectedIndex = 0;
   viewOnly = false;
 
   survey!: Survey;
@@ -110,6 +114,14 @@ export class SurveyComponent implements OnInit, OnDestroy {
   savedQuestionsStructs!: any[];
   questionTypes!: any[];
   private _orgDrDwData!: OrgDrDwEmitStruct;
+
+  tabIndex: { index: number; label: string }[] = [
+    { index: 0, label: 'Profile' },
+    { index: 1, label: 'Setup' },
+    { index: 2, label: 'Message Templates' },
+  ];
+  selectedTablIndex = this.tabIndex[0].index;
+  selectedPageTabIndex = 0;
 
   constructor(
     private _route: ActivatedRoute,
@@ -354,9 +366,19 @@ export class SurveyComponent implements OnInit, OnDestroy {
 
     if (this.viewOnly || !this.form) return;
 
-    if (this.isAnySurveyQuestionInvalid) {
+    const surveyQuestionInvalid = this.isAnySurveyQuestionInvalid;
+
+    if (surveyQuestionInvalid) {
+      this.selectedPageTabIndex = surveyQuestionInvalid.pageTabIndex;
+      this.survey.surveyPages[
+        surveyQuestionInvalid.pageTabIndex
+      ].selectedSectionTabIndex = surveyQuestionInvalid.sectionTabIndex;
+
       this._snackbarService.showError(
-        `Please resolve validation errors in Survey questions!`
+        `Please resolve validation errors in Survey questions on page ${
+          surveyQuestionInvalid.pageTabIndex + 1
+        } and section ${surveyQuestionInvalid.sectionTabIndex + 1}!`,
+        3000
       );
       return;
     }
@@ -492,20 +514,35 @@ export class SurveyComponent implements OnInit, OnDestroy {
 
   get isDisabledSubmitSurvey(): boolean {
     return (
-      this.survey.surveyPages.length === 0 || this.isAnySurveyQuestionInvalid
+      this.survey.surveyPages.length === 0 ||
+      (this.isAnySurveyQuestionInvalid ? true : false)
     );
   }
 
-  get isAnySurveyQuestionInvalid(): boolean {
-    if (!this.survey) return true;
+  get isAnySurveyQuestionInvalid(): InvalidPageIndexes | undefined {
+    if (!this.survey) return undefined;
+    let returnTabsInvalid: InvalidPageIndexes | undefined;
 
-    return this.survey.surveyPages.some((page: Page) =>
-      page.pageSections.some((section: Section) =>
-        section.sectionQuestions.some(
-          (question: Question) => !question.isQuestionFormValid
-        )
-      )
-    );
+    for (let i = 0; i < this.survey.surveyPages.length; i++) {
+      const page = this.survey.surveyPages[i];
+      for (let j = 0; j < page.pageSections.length; j++) {
+        const section = page.pageSections[j];
+        for (let k = 0; k < section.sectionQuestions.length; k++) {
+          const question = section.sectionQuestions[k];
+
+          if (question && question.isQuestionFormInvalid) {
+            returnTabsInvalid = {
+              pageTabIndex: i,
+              sectionTabIndex: j,
+            };
+
+            return returnTabsInvalid;
+          }
+        }
+      }
+    }
+
+    return returnTabsInvalid;
   }
 
   getTotalQuestions(page: Page): number {
@@ -516,5 +553,15 @@ export class SurveyComponent implements OnInit, OnDestroy {
     return totalLength.length > 0
       ? totalLength.reduce((total, num) => total + num)
       : 0;
+  }
+
+  onPageMove(setCurrentPageTabIndex: number): void {
+    this.selectedPageTabIndex = setCurrentPageTabIndex;
+  }
+
+  onPageAdd(): void {
+    if (this.survey?.surveyPages?.length > 0) {
+      this.selectedPageTabIndex = this.survey.surveyPages.length - 1;
+    }
   }
 }

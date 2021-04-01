@@ -10,6 +10,18 @@ button:focus {
 .delete-icon {
   color: $delete-icon;
 }
+.edit-icon {
+  color: $edit-icon;
+}
+.web-view-icon {
+  color: $web-view-icon;
+}
+.save-icon {
+  color: $save-icon;
+}
+.cancel-icon {
+  color: $cancel-icon;
+}
 
 .btn-action,
 .btn-cancel {
@@ -53,9 +65,47 @@ button:focus {
       background-color: $delete-icon-button-hover;
     }
   }
+  &.edit-button {
+    background-color: $edit-icon-button;
+    &:hover {
+      background-color: $edit-icon-button-hover;
+    }
+  }
+  &.web-view-button {
+    background-color: $web-view-icon-button;
+    &:hover {
+      background-color: $web-view-icon-button-hover;
+    }
+  }
+  &.save-button {
+    background-color: $save-icon-button;
+    &:hover {
+      background-color: $save-icon-button-hover;
+    }
+  }
+  &.cancel-button {
+    background-color: $cancel-icon-button;
+    &:hover {
+      background-color: $cancel-icon-button-hover;
+    }
+  }
 }
+
+
 .mat-mini-fab {
   .mat-button-wrapper{
     padding: 0 !important;
+  }
+}
+
+.table-top_row1 {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-top_row2  {
+  button{
+    background-color: $btn-bgcolor;
+    color: $btn-textColor;
   }
 }

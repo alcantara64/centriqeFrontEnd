@@ -52,7 +52,7 @@ import { AuthService, SelectedMenuLevels } from 'src/app/auth/auth.service';
 import {
   CustomerDataAttributes,
   OrgDataAttributesFormData,
-} from '../../system-admin/models/data-attributes.model';
+} from '../../../shared/models/data-attributes.model';
 import { DataAttributes } from 'src/app/dashboard/shared/components/data-attributes/classes/data-attributes';
 
 /** Combine dataDomains Statics and dataDomainConfig values */
@@ -67,8 +67,7 @@ interface DataBinding {
 
 @Component({
   selector: 'app-holding-org',
-  templateUrl: './holding-org.component.html',
-  styleUrls: ['./holding-org.component.css'],
+  templateUrl: './holding-org.component.html'
 })
 export class HoldingOrgComponent implements OnInit, OnDestroy {
   isLoading = false;
@@ -333,10 +332,10 @@ export class HoldingOrgComponent implements OnInit, OnDestroy {
             switchMap((createdHoldingOrg) => {
               /** 23032021 - Gaurav - Data Attributes tab is a lazy load module, only update if the instance is created */
               if (this.orgDataAttributeInstance) {
-                console.log(
-                  'CREATE PROCESS: inside another update for dataConfig',
-                  { createdHoldingOrg }
-                );
+                // console.log(
+                //   'CREATE PROCESS: inside another update for dataConfig',
+                //   { createdHoldingOrg }
+                // );
                 return this._clientSetupService.updateHoldingOrg(
                   createdHoldingOrg._id,
                   { ...this.orgDataAttributesFormData.formPayload }
@@ -350,10 +349,10 @@ export class HoldingOrgComponent implements OnInit, OnDestroy {
             switchMap((resultOfFirstUpdate) => {
               /** 23032021 - Gaurav - Data Attributes tab is a lazy load module, only update if the instance is created */
               if (this.orgDataAttributeInstance) {
-                console.log(
-                  'UPDATE PROCESS: inside another update for dataConfig',
-                  { resultOfFirstUpdate }
-                );
+                // console.log(
+                //   'UPDATE PROCESS: inside another update for dataConfig',
+                //   { resultOfFirstUpdate }
+                // );
                 return this._clientSetupService.updateHoldingOrg(this._id, {
                   ...this.orgDataAttributesFormData.formPayload,
                 });

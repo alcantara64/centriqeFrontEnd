@@ -24,6 +24,7 @@ import { UserManagementService } from '../user-management.service';
 import { ClientSetupService } from '../../client-setup/client-setup.service';
 import { mergeMap } from 'rxjs/operators';
 import { LoadingService } from 'src/app/shared/services/loading.service';
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -57,6 +58,7 @@ export class UsersSetupComponent implements OnInit {
     private _router: Router,
     private _snackbarService: SnackbarService,
     private _dialogService: DialogService,
+    public appConfigService: AppConfigService,
     private _loadingService: LoadingService
   ) {}
 

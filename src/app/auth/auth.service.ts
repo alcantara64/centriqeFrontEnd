@@ -78,6 +78,15 @@ export class AuthService {
     /** Return a copy of the observable to avoid any next() calls from outside here */
     return this._authStatusListener.asObservable();
   }
+  checkIfToResetPasswordOnNextLogon():boolean{
+    const localStorageItem =  localStorage.getItem('userInfo');
+    let isResetPasswordOnLogon = false;
+    if(localStorageItem){
+      const userInfo = JSON.parse(localStorageItem);
+      isResetPasswordOnLogon = userInfo.resetPasswordNextLogon;
+    }
+    return isResetPasswordOnLogon;
+  }
 
   isUserAuthenticated(): boolean {
     return this._isUserAuthenticated;

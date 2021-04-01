@@ -7,12 +7,19 @@
  * 22012021 - Gaurav - Added subQuestionText field */
 import { consoleLog, ConsoleTypes } from 'src/app/shared/util/common.util';
 import { Question } from './question.model';
-import { Section, SurveySection } from './section.model';
+import { Section } from './section.model';
 
 export interface SurveyPage {
   pageNumber: number;
   pageHeading: string;
   pageSections: Section[];
+}
+
+enum PageModelTabOptions {
+  increment,
+  decrement,
+  setFirst,
+  setLast,
 }
 
 export class Page implements SurveyPage {
@@ -21,6 +28,8 @@ export class Page implements SurveyPage {
     public pageHeading: string,
     public pageSections: Section[]
   ) {}
+
+  public selectedSectionTabIndex = 0;
 
   onAddSection(): void {
     const sectionNumber = this.pageSections.length + 1;
@@ -31,6 +40,8 @@ export class Page implements SurveyPage {
         <Question[]>[]
       )
     );
+
+    this._setSelectedSectionTabIndex(PageModelTabOptions.setLast);
 
     consoleLog({
       valuesArr: ['onAddSection pageSections', this.pageSections],
@@ -75,6 +86,8 @@ export class Page implements SurveyPage {
         })
       )
     );
+
+    this._setSelectedSectionTabIndex(PageModelTabOptions.setLast);
 
     consoleLog({
       valuesArr: ['onAddSavedSection pageSections', this.pageSections],
@@ -123,11 +136,21 @@ export class Page implements SurveyPage {
     );
 
     this._reorderSectionNumberValue();
+
+    this._setSelectedSectionTabIndex(
+      PageModelTabOptions.increment,
+      currentSectionIndex
+    );
   }
 
   onDeleteSection(currentSectionIndex: number): void {
     this.pageSections.splice(currentSectionIndex, 1);
     this._reorderSectionNumberValue();
+
+    this._setSelectedSectionTabIndex(
+      PageModelTabOptions.decrement,
+      currentSectionIndex
+    );
 
     consoleLog({
       consoleType: ConsoleTypes.warn,
@@ -140,6 +163,8 @@ export class Page implements SurveyPage {
     this.pageSections[indexDown] = this.pageSections[indexDown + 1];
     this.pageSections[indexDown + 1] = sectionToMoveDownData;
     this._reorderSectionNumberValue();
+
+    this._setSelectedSectionTabIndex(PageModelTabOptions.increment, indexDown);
   }
 
   onSectionMoveUp(indexUp: number): void {
@@ -147,6 +172,8 @@ export class Page implements SurveyPage {
     this.pageSections[indexUp] = this.pageSections[indexUp - 1];
     this.pageSections[indexUp - 1] = sectionToMoveUpData;
     this._reorderSectionNumberValue();
+
+    this._setSelectedSectionTabIndex(PageModelTabOptions.decrement, indexUp);
   }
 
   private _reorderSectionNumberValue(): void {
@@ -156,5 +183,44 @@ export class Page implements SurveyPage {
           ...section.sectionQuestions,
         ])
     );
+  }
+
+  private _setSelectedSectionTabIndex(
+    option: PageModelTabOptions,
+    currentIndex?: number
+  ): void {
+    switch (option) {
+      case PageModelTabOptions.increment:
+        if (
+          typeof currentIndex === 'number' &&
+          currentIndex < this.pageSections.length
+        )
+          this.selectedSectionTabIndex = currentIndex + 1;
+
+        break;
+
+      case PageModelTabOptions.decrement:
+        if (typeof currentIndex === 'number' && currentIndex > 0)
+          this.selectedSectionTabIndex = currentIndex - 1;
+
+        break;
+
+      case PageModelTabOptions.setFirst:
+        if (this.pageSections.length > 0) {
+          this.selectedSectionTabIndex = 0;
+        }
+
+        break;
+
+      case PageModelTabOptions.setLast:
+        if (this.pageSections.length > 0) {
+          this.selectedSectionTabIndex = this.pageSections.length - 1;
+        }
+
+        break;
+
+      default:
+        break;
+    }
   }
 }

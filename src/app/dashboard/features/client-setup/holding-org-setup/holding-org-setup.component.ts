@@ -30,6 +30,7 @@ import {
 } from 'src/app/dashboard/shared/components/dialog/dialog.model';
 import { consoleLog, ConsoleTypes } from 'src/app/shared/util/common.util';
 import { LoadingService } from 'src/app/shared/services/loading.service';
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 
 @Component({
   selector: 'app-holding-org-setup',
@@ -60,6 +61,7 @@ export class HoldingOrgSetupComponent implements OnInit, OnDestroy {
     private _route: ActivatedRoute,
     private _router: Router,
     private _snackbarService: SnackbarService,
+    public appConfigService: AppConfigService,
     private _loadingService: LoadingService
   ) {}
 

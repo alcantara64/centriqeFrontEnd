@@ -40,6 +40,7 @@ import {
   OrgIdentifier,
 } from 'src/app/dashboard/shared/components/org-dropdownlist/org-dropdownlist.component';
 import { LoadingService } from 'src/app/shared/services/loading.service';
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 
 @Component({
   selector: 'app-response-type-setup',
@@ -78,7 +79,8 @@ export class ResponseTypeSetupComponent implements OnInit, OnDestroy {
     private _dialogService: DialogService,
     private _snackbarService: SnackbarService,
     private _clientSetupService: ClientSetupService,
-    private _loadingService: LoadingService
+    private _loadingService: LoadingService,
+    public appConfigService: AppConfigService
   ) {
     /** Set current feature: nps OR response */
     switch (this._route.snapshot.routeConfig?.path) {

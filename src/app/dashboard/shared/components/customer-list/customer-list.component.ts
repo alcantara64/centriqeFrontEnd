@@ -65,7 +65,7 @@ import {
   SystemDialogType,
 } from '../dialog/dialog.model';
 import { LoadingService } from 'src/app/shared/services/loading.service';
-
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 
 /** Created enum, instead of using boolean values, in case more than two filters condition are introduced */
 enum FilterBy {
@@ -140,6 +140,7 @@ export class CustomerListComponent implements OnInit, OnDestroy, AfterViewInit {
     private _dialogService: DialogService,
     private _route: ActivatedRoute,
     private _router: Router,
+    public appConfigService: AppConfigService,
     private _loadingService: LoadingService
   ) {}
 
@@ -196,7 +197,7 @@ export class CustomerListComponent implements OnInit, OnDestroy, AfterViewInit {
           this._dashboardService.defaultPaylod = {
             options: {
               offset: 0,
-              limit: 10,
+              limit: this.appConfigService.systemMatTableProperties.pageSizeOptions[2],
             },
           };
         }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MyErrorStateMatcher } from 'src/app/core/external/error-state-macher';
+import { PasswordValidator } from 'src/app/core/models/password.validate';
 import { SnackbarService } from 'src/app/shared/components/snackbar.service';
 import { AuthService } from '../auth.service';
 
@@ -23,7 +24,7 @@ export class ResetPasswordComponent implements OnInit {
     public _snackbarService: SnackbarService
     ) {
     this.resetPasswordForm = this.formBuilder.group({
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [Validators.required, Validators.minLength(8), PasswordValidator.strong]],
       confirmPassword: ['']
     }, { validator: this.checkPasswords });
    }

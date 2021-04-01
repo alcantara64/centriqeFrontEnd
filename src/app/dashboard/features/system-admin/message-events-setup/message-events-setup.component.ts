@@ -12,6 +12,7 @@ import { SystemAdminService } from '../system-admin.service';
 import { CommunicationAIService } from '../../communication-ai/communication-ai.service';
 import { LoadingService } from 'src/app/shared/services/loading.service';
 import { dashboardRouteLinks, DataDomainConfig } from 'src/app/dashboard/shared/components/menu/constants.routes';
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 
 @Component({
   selector: 'app-message-events-setup',
@@ -47,6 +48,7 @@ export class MessageEventsSetupComponent implements OnInit {
     private _communicationAIService: CommunicationAIService,
     private _route: ActivatedRoute,
     private _router: Router,
+    public appConfigService: AppConfigService,
     private _loadingService: LoadingService
   ) {}
 
@@ -55,7 +57,7 @@ export class MessageEventsSetupComponent implements OnInit {
     this._dashboardService.defaultPaylod = {
       options: {
         offset: 0,
-        limit: 10,
+        limit: this.appConfigService.systemMatTableProperties.pageSizeOptions[2],
       },
       query: {}
     };
@@ -69,7 +71,7 @@ export class MessageEventsSetupComponent implements OnInit {
       options: {
             sort: {},
             offset: 0,
-            limit: 10,
+            limit: this.appConfigService.systemMatTableProperties.pageSizeOptions[2],
             globalSearch: {
               fieldNames: this.displayedColumns,
           searchValue: this.searchText,

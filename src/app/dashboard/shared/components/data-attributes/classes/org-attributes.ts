@@ -5,7 +5,7 @@ import {
   CustomerDataAttributeDataType,
   CustomerDataAttributes,
   DataAttributeClassParams,
-} from 'src/app/dashboard/features/system-admin/models/data-attributes.model';
+} from 'src/app/dashboard/shared/models/data-attributes.model';
 import { DataAttributes } from './data-attributes';
 
 export class OrgAttributes extends DataAttributes {
@@ -15,16 +15,15 @@ export class OrgAttributes extends DataAttributes {
       'Code',
       'Name',
       'Short Name',
-      'Load Attribute Name',
-      'Group',
       'Table View Order',
-      'Groupwise Display Order',
-      'Data Type',
-      'Provider Type',
-      'Enum Type',
+      'Load Attribute Name',
       'Use In Campaign Filter',
       'Use In Table View',
       'Use In Detail View',
+      'Provider Type',
+      'Group',
+      'Groupwise Display Order',
+      'Data Type',
     ];
     this._setDefaultGroupCodeDrDwFilter(true);
   }
@@ -67,6 +66,15 @@ export class OrgAttributes extends DataAttributes {
         'dataAttributes',
         new FormArray([], Validators.required)
       );
+    }
+
+    if (this._dataAttributesList.length > 0) {
+      this.form.setControl(
+        'dataAttributes',
+        new FormArray([], Validators.required)
+      );
+    } else {
+      this.form.setControl('dataAttributes', new FormArray([]));
     }
 
     this._dataAttributesList.forEach((row: CustomerDataAttributes) => {

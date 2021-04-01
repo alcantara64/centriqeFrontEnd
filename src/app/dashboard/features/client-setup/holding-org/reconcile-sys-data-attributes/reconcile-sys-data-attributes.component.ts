@@ -4,7 +4,13 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { DataAttributes } from 'src/app/dashboard/shared/components/data-attributes/classes/data-attributes';
-import { CustomerDataAttributes } from '../../../system-admin/models/data-attributes.model';
+import { CustomerDataAttributes } from '../../../../shared/models/data-attributes.model';
+import { DialogService } from 'src/app/dashboard/shared/components/dialog/dialog.service';
+import {
+  DialogConditionType,
+  SystemDialogReturnType,
+  SystemDialogType,
+} from 'src/app/dashboard/shared/components/dialog/dialog.model';
 
 @Component({
   selector: 'app-reconcile-sys-data-attributes',
@@ -34,7 +40,7 @@ export class ReconcileSysDataAttributesComponent implements OnInit {
   dataSource!: MatTableDataSource<CustomerDataAttributes>;
   selection!: SelectionModel<CustomerDataAttributes>;
 
-  constructor() {}
+  constructor(private _dialogService: DialogService) {}
 
   ngOnInit(): void {
     console.log('this.dataAttributesInstance', this.dataAttributesInstance);
@@ -71,20 +77,72 @@ export class ReconcileSysDataAttributesComponent implements OnInit {
     });
   }
 
+  /** This condition may required to be handled in future. Some selected rows have a Display Order of -1 i.e. hidden from display!
   private _isHiddenDetailViewOrderSelected(): boolean {
     return this.selection.selected.some((row) => row.detailViewOrder === -1);
   }
+  */
 
-  onReconcile(readonly: boolean = false): void {
-    // if (this._isHiddenDetailViewOrderSelected()) {
-    //   this._snackbarService.showError(
-    //     'Some selected rows have a Display Order of -1 i.e. hidden from display!'
-    //   );
-    //  // return from here for user to force uncheck it? ?
-    // }
+  private _doesDataDifferAtAll(
+    oldList: CustomerDataAttributes[],
+    newList: CustomerDataAttributes[]
+  ): boolean {
+    return newList.some((newRow) =>
+      oldList.some(
+        (oldRow) =>
+          oldRow.code === newRow.code &&
+          (oldRow.name !== newRow.name ||
+            oldRow.shortName !== newRow.shortName ||
+            oldRow.dataProviderType !== newRow.dataProviderType)
+      )
+    );
+  }
 
+  async onReconcile(readonly: boolean = false): Promise<void> {
     let finalDataAttributesList: CustomerDataAttributes[] =
       this.selection.selected ?? <CustomerDataAttributes[]>[];
+
+    if (
+      this.dataAttributesInstance?.dataAttributesList?.length > 0 &&
+      finalDataAttributesList.length === 0
+    ) {
+      const response: SystemDialogReturnType = await this._dialogService.openSystemDialog(
+        {
+          alertType: SystemDialogType.warning_alert_yes_no,
+          dialogConditionType: DialogConditionType.prompt_custom_data,
+          title: 'Confirm delete of records',
+          body: `This will clear all the Org level data attribute fields!`,
+          body2: `Do you wish to continue?`,
+        }
+      );
+
+      if (response === SystemDialogReturnType.continue_no) return;
+    }
+
+    if (
+      !readonly &&
+      finalDataAttributesList.length > 0 &&
+      this.dataAttributesInstance?.dataAttributesList?.length > 0
+    ) {
+      if (
+        this._doesDataDifferAtAll(
+          this.dataAttributesInstance?.dataAttributesList,
+          finalDataAttributesList
+        )
+      ) {
+        const response: SystemDialogReturnType = await this._dialogService.openSystemDialog(
+          {
+            alertType: SystemDialogType.warning_alert_yes_no,
+            dialogConditionType: DialogConditionType.prompt_custom_data,
+            title: 'Confirm overwrite common editable fields',
+            body: `This will overwrite all the common editable fields between System and Org level data attributes with System level values!`,
+            body2: `Do you wish to continue using this option instead of 'Reconcile read-only' fields?`,
+          }
+        );
+
+        if (response === SystemDialogReturnType.continue_no) return;
+      }
+    }
 
     if (
       finalDataAttributesList.length > 0 &&
@@ -141,15 +199,20 @@ export class ReconcileSysDataAttributesComponent implements OnInit {
     }
 
     // console.log('this.selection.selected', this.selection.selected);
-    console.log(
-      'this.dataAttributesInstance?.dataAttributesList',
-      this.dataAttributesInstance?.dataAttributesList
-    );
-    console.log({ finalDataAttributesList });
+    // console.log(
+    //   'this.dataAttributesInstance?.dataAttributesList',
+    //   this.dataAttributesInstance?.dataAttributesList
+    // );
+    // console.log({ finalDataAttributesList });
 
     this.dataAttributesInstance.reInitializeDataAttributes(
       finalDataAttributesList
     );
+
+    this.dataAttributesInstance.form.markAsTouched();
+    this.dataAttributesInstance.form.markAsDirty();
+
+    // console.log(this.dataAttributesInstance);
 
     this.whenSwitchCurrentTab.emit(true);
   }

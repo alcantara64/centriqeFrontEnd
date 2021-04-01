@@ -5,7 +5,7 @@ import {
   CustomerDataAttributeDataType,
   CustomerDataAttributes,
   DataAttributeClassParams,
-} from 'src/app/dashboard/features/system-admin/models/data-attributes.model';
+} from 'src/app/dashboard/shared/models/data-attributes.model';
 import { DataAttributes } from './data-attributes';
 
 export class SystemAttributes extends DataAttributes {

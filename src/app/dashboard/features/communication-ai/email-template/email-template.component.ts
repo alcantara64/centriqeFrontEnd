@@ -37,6 +37,7 @@ import {
 import { LoadingService } from 'src/app/shared/services/loading.service';
 import { AuthService, SelectedMenuLevels } from 'src/app/auth/auth.service';
 import { unsubscribeContent } from './email-template-content';
+import { Channel } from 'src/app/core/enums/template-channel-enum';
 /** Created enum, instead of using boolean values, in case more than two filters condition are introduced */
 
 @Component({
@@ -72,19 +73,19 @@ export class EmailTemplateComponent implements OnInit, OnDestroy {
   templateList: any;
   selectedIndex = 0;
   options = {};
+  enableEmail = true;
+  enableWhatsApp = false;
+  enableSMS = false;
 
 
   //to set initial form
-  private _initForm() {
+  private _initForm() { 
 
     let tempBody: any;
     tempBody =
       this._currentTempData != undefined
-        ? JSON.parse(this._currentTempData?.channel.email.templateData)
+        ? JSON.parse(this._currentTempData?.channel?.email?.templateData)
         : '';
-    if (this.accessMode === this.accessModes.Copy) {
-      this._currentTempData = '';
-    }
     //Template formgroup declaraton
     this.templateFG = new FormGroup({
       memberOrg: new FormControl(
@@ -122,6 +123,9 @@ export class EmailTemplateComponent implements OnInit, OnDestroy {
     if (this.accessMode === this.accessModes.Edit) {
       this.templateFG.controls.tempCode.disable();
     }
+    this.enableEmail = this._currentTempData?.isEmailEnabled;
+    this.enableSMS = this._currentTempData?.isSMSEnabled;
+    this.enableWhatsApp = this._currentTempData?.isWhatsAppEnabled;
 
     if (this.accessMode === this.accessModes.View) {
       this.templateFG.disable();
@@ -129,7 +133,7 @@ export class EmailTemplateComponent implements OnInit, OnDestroy {
 
     setTimeout(() => {
       if (tempBody != '') {
-        this.editor.loadDesign(tempBody);
+        this.editor?.loadDesign(tempBody);
       }
       this._setLoading(false);
     }, 300);
@@ -142,7 +146,7 @@ export class EmailTemplateComponent implements OnInit, OnDestroy {
     private _dialogService: DialogService,
     private _loadingService: LoadingService,
     private _authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this._setLoading(true);
@@ -206,7 +210,17 @@ export class EmailTemplateComponent implements OnInit, OnDestroy {
         this._selectedMenuLevels = value;
       });
   }
-
+  updateVisibility(type:string ) {
+    if (type === Channel.SMS) {
+      this.enableSMS = !this.enableSMS
+    }
+    if (type === Channel.EMAIL) {
+      this.enableEmail = !this.enableEmail
+    }
+    if (type === Channel.WHATSAPP) {
+      this.enableWhatsApp = !this.enableWhatsApp
+    }
+  }
   ngOnDestroy(): void {
     this._observableSub$.unsubscribe();
   }
@@ -318,10 +332,13 @@ export class EmailTemplateComponent implements OnInit, OnDestroy {
             text: this.templateWhatsAppFG.controls['whatsAppText'].value,
           },
         },
+        isEmailEnabled: this.enableEmail,
+        isWhatsAppEnabled: this.enableWhatsApp,
+        isSMSEnabled: this.enableSMS,
       };
       const addOrEdit: Observable<any> =
         this.accessMode === this.accessModes.Add ||
-        this.accessMode === this.accessModes.Copy
+          this.accessMode === this.accessModes.Copy
           ? this._communicationAIService.createTemplate(postData)
           : this._communicationAIService.updateTemplate(postData, this._id);
 
@@ -329,11 +346,10 @@ export class EmailTemplateComponent implements OnInit, OnDestroy {
         (result) => {
           this.templateFG.reset();
           this._snackbarService.showSuccess(
-            `${postData.name} is ${
-              this.accessMode === this.accessModes.Add ||
+            `${postData.name} is ${this.accessMode === this.accessModes.Add ||
               this.accessMode === this.accessModes.Copy
-                ? 'added'
-                : 'updated'
+              ? 'added'
+              : 'updated'
             } successfully!`
           );
 
@@ -365,12 +381,12 @@ export class EmailTemplateComponent implements OnInit, OnDestroy {
   _editorLoaded(evt: any) {
     let tempBody: any;
     tempBody =
-      this._currentTempData != undefined
-        ? JSON.parse(this._currentTempData?.channel.email.templateData)
+      this._currentTempData != undefined && this._currentTempData?.channel?.email?.templateData
+        ? JSON.parse(this._currentTempData?.channel?.email?.templateData)
         : unsubscribeContent;
-        setTimeout(()=>{
-         this.editor.loadDesign(tempBody);
-        }, 400);
+    setTimeout(() => {
+      this.editor.loadDesign(tempBody);
+    }, 400);
   }
 
   //Tab change function

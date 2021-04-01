@@ -12,7 +12,7 @@ import {
   CustomerDataAttributeEnums,
   CustomerDataAttributeGroup,
   CustomerDataAttributes,
-} from './models/data-attributes.model';
+} from '../../shared/models/data-attributes.model';
 
 const BACKEND_URL = `${environment.apiUrlV1}`;
 

@@ -46,8 +46,7 @@ import { AuthService, SelectedMenuLevels } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-member-org',
-  templateUrl: './member-org.component.html',
-  styleUrls: ['../holding-org/holding-org.component.css'],
+  templateUrl: './member-org.component.html'
 })
 export class MemberOrgComponent implements OnInit, OnDestroy {
   isLoading = false;

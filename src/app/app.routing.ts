@@ -1,3 +1,4 @@
+import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
 /** 18112020 - Gaurav - Init version: App routing module with useHash set to true. Show Login page, by default
  * 19112020 - Gaurav - Added lazy-load dash feature module route */
 /** 20112020 - Gaurav - Auth guard to prevent unauthenticated access to dashboard routes.
@@ -8,12 +9,18 @@ import { Routes, RouterModule } from '@angular/router';
 import { AuthGuardService } from './auth/auth-guard.service';
 import { LoginGuardService } from './auth/login/login-guard.service';
 import { LoginComponent } from './auth/login/login.component';
+import { ResetPasswordGuard } from './auth/reset-password/reset-password.guard';
 
 const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
     canActivate: [LoginGuardService],
+  },
+  {
+    path: 'changePassword',
+    component: ResetPasswordComponent,
+    canActivate: [ResetPasswordGuard],
   },
   {
     path: 'dashboard',

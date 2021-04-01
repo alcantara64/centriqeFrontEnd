@@ -153,7 +153,8 @@
     </div>
 
     <mat-paginator
-      [pageSizeOptions]="[10, 20, 30]"
+      [pageSize]="appConfigService.systemMatTableProperties.pageSize"
+      [pageSizeOptions]="appConfigService.systemMatTableProperties.pageSizeOptions"
       showFirstLastButtons
     ></mat-paginator>
   </div>

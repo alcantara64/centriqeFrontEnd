@@ -13,6 +13,7 @@ import { AuthService } from './auth.service';
 @Injectable({ providedIn: 'root' })
 export class AuthGuardService implements CanActivate {
   private _isUserAuthenticated = false;
+  private _isResetPasswordOnNextLogon: boolean = false;
 
   constructor(private _authService: AuthService, private _router: Router) {}
 
@@ -25,8 +26,10 @@ export class AuthGuardService implements CanActivate {
      */
 
     this._isUserAuthenticated = this._authService.isUserAuthenticated();
-    (!this._isUserAuthenticated || this._authService.isResetPasswordOnLogon) &&
-      this._router.navigate(['/login']);
+    this._isResetPasswordOnNextLogon = this._authService.checkIfToResetPasswordOnNextLogon();
+    (!this._isUserAuthenticated) &&
+    this._router.navigate(['/login']);
+    ( this._isResetPasswordOnNextLogon && this._router.navigate(['/changePassword']));
     return this._isUserAuthenticated;
   }
 }

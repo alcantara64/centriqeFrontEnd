@@ -27,6 +27,7 @@ import {
   SystemDialogType,
 } from 'src/app/dashboard/shared/components/dialog/dialog.model';
 import { LoadingService } from 'src/app/shared/services/loading.service';
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 
 @Component({
   selector: 'app-member-org-setup',
@@ -59,6 +60,7 @@ export class MemberOrgSetupComponent implements OnInit, OnDestroy {
     private _router: Router,
     private _snackbarService: SnackbarService,
     private _dialogService: DialogService,
+    public appConfigService: AppConfigService,
     private _loadingService: LoadingService
   ) {}
 
@@ -240,7 +242,7 @@ export class MemberOrgSetupComponent implements OnInit, OnDestroy {
   }
 }
 
-/** 
+/**
  * addressLine1: "no 35 sholake lagos"
 addressLine2: ""
 askBuddy: 0

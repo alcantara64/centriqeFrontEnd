@@ -10,7 +10,7 @@ import {
   CustomerDataAttributeGroup,
   CustomerDataAttributes,
   DataAttributeClassParams,
-} from 'src/app/dashboard/features/system-admin/models/data-attributes.model';
+} from 'src/app/dashboard/shared/models/data-attributes.model';
 import { TemplateFieldValidationService } from '../../../services/template-field-validation.service';
 
 export abstract class DataAttributes {
@@ -246,7 +246,7 @@ export abstract class DataAttributes {
   onChangeUseInTableView(_: number): void {}
 
   isEmptyEnumType(): AbstractControl | undefined {
-    return this.dataAttributeControls.find(
+    return this.dataAttributeControls?.find(
       (ctrl) =>
         ctrl.value.dataProviderType === this.dataProviderTypes.enum &&
         (!ctrl.value.data ||

@@ -13,6 +13,7 @@ import { DialogConditionType, SystemDialogReturnType, SystemDialogType } from '.
 import { DialogService } from '../../../../dashboard/shared/components/dialog/dialog.service';
 import { LoadingService } from '../../../../shared/services/loading.service';
 import { ClientSetupService } from '../client-setup.service';
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 
 export interface DashboardModule {
   code: string,
@@ -30,8 +31,7 @@ export interface DashboardModule {
 
 @Component({
   selector: 'app-dashboard-org-configuration',
-  templateUrl: './dashboard-org-configuration.component.html',
-  styleUrls: ['./dashboard-org-configuration.component.css', '../../../shared/styling/setup-table-list.shared.css']
+  templateUrl: './dashboard-org-configuration.component.html'
 })
 export class DashboardOrgConfigurationComponent implements OnInit {
 
@@ -65,7 +65,9 @@ export class DashboardOrgConfigurationComponent implements OnInit {
 
   constructor(_formBuilder: FormBuilder, private _clientSetupService: ClientSetupService,
     private _loadingService: LoadingService,
-    private _dialogService: DialogService,) {
+    private _dialogService: DialogService,
+    public appConfigService: AppConfigService,
+    ) {
     this.dashboardConfigForm = _formBuilder.group({
       module: [''],
       dashboardName: [''],
@@ -108,26 +110,55 @@ export class DashboardOrgConfigurationComponent implements OnInit {
       modules: this.selectedModule.map((x) => x.code)
     }
     this._setLoading(true);
-    this.dashboardConfigList = [];
-    this._loadingService
-      .showProgressBarUntilCompleted(
-        this._clientSetupService.getFilteredDashboardConfig(filterQuery)).subscribe(async (response: any) => {
-          response?.map((data: any) => {
-            data = data?.dashboardConfig?.map((element: any) => {
-              let data1 = {
-                ...data,
-                module: element.module,
-                dashboardLink: element.dashboardLink ? element.dashboardLink : null,
-                dashboardName: element.dashboardName ? element.dashboardName : null,
-                isEdit: false
-              }
-              this.dashboardConfigList.push(data1);
-            })
-          });
-          this.dataSource = new MatTableDataSource(this.dashboardConfigList)
-          this._setLoading(false);
-        }, () => this._setLoading(false))
+    console.log('filterQuery ==>', filterQuery);
+    let filteredConfig = []
+
+    if(filterQuery.memberOrg && filterQuery.holdingOrg && filterQuery.modules?.length > 0){
+      filteredConfig =  this.dashboardConfigList.filter((x) =>{
+       return( x.holdingOrgId === filterQuery.holdingOrg && x.memberOrgId === filterQuery.memberOrg && filterQuery.modules.includes(x.module) )
+      })
+    }
+    if (filterQuery.memberOrg && filterQuery.holdingOrg && filterQuery.modules?.length < 1) {
+      filteredConfig = this.dashboardConfigList.filter((x) => {
+        return (x.holdingOrgId === filterQuery.holdingOrg && x.memberOrgId === filterQuery.memberOrg)
+      })
+    }
+    if (filterQuery.memberOrg && !filterQuery.holdingOrg && filterQuery.modules?.length < 1) {
+      filteredConfig = this.dashboardConfigList.filter((x) => {
+        return (x.memberOrgId === filterQuery.memberOrg)
+      })
+    }
+    if (!filterQuery.memberOrg && filterQuery.holdingOrg && filterQuery.modules?.length < 1) {
+      console.log('')
+      filteredConfig = this.dashboardConfigList.filter((x) => {
+
+        return (x.holdingOrgId === filterQuery.holdingOrg)
+      })
+    }
+    if (!filterQuery.memberOrg && !filterQuery.holdingOrg && filterQuery.modules?.length > 0) {
+      filteredConfig = this.dashboardConfigList.filter((x) => {
+        return (filterQuery.modules.includes(x.module))
+      })
+    }
+
+    if (filterQuery.memberOrg && !filterQuery.holdingOrg && filterQuery.modules?.length > 0) {
+      filteredConfig = this.dashboardConfigList.filter((x) => {
+        return (x.memberOrgId === filterQuery.memberOrg && filterQuery.modules.includes(x.module))
+      })
+    }
+    if (!filterQuery.memberOrg && filterQuery.holdingOrg && filterQuery.modules?.length > 0) {
+      filteredConfig = this.dashboardConfigList.filter((x) => {
+        return (x.holdingOrgId === filterQuery.holdingOrg && filterQuery.modules.includes(x.module))
+      })
+    }
+    if (!filterQuery.memberOrg && !filterQuery.holdingOrg && filterQuery.modules?.length < 1) {
+      filteredConfig = this.dashboardConfigList;
+    }
+
+
+    this.dataSource = new MatTableDataSource(filteredConfig)
   }
+
 
   onHoldingOrgChange() {
     this.selectedMemberOrg = 'all';
@@ -183,8 +214,6 @@ export class DashboardOrgConfigurationComponent implements OnInit {
 
   onCancelDefaultConfig() {
     this.isDefaultEdit = false;
-    this.dashboardConfigForm.get('defaultName')?.reset();
-    this.dashboardConfigForm.get('defaultLink')?.reset();
     this.dashboardConfigForm.get('defaultName')?.disable();
     this.dashboardConfigForm.get('defaultLink')?.disable();
   }
@@ -234,7 +263,11 @@ export class DashboardOrgConfigurationComponent implements OnInit {
         }
         return config;
       });
-      this.dataSource = new MatTableDataSource(this.dashboardConfigList);
+      if (this.selectedMemberOrg._id || this.selectedHoldingOrg?._id || this.selectedModule?.length > 0) {
+        this.searchConfig();
+      } else {
+        this.dataSource = new MatTableDataSource(this.dashboardConfigList);
+      }
     }
 
   }
@@ -337,7 +370,11 @@ export class DashboardOrgConfigurationComponent implements OnInit {
               this.dashboardConfigList.push(data1);
             }
           });
-          this.dataSource = new MatTableDataSource(this.dashboardConfigList);
+          if (this.selectedMemberOrg._id || this.selectedHoldingOrg?._id || this.selectedModule?.length > 0) {
+            this.searchConfig();
+          } else {
+            this.dataSource = new MatTableDataSource(this.dashboardConfigList);
+          }
           //this.dataSource.paginator = await this.paginator;
           this.dataSource.sort = await this.sort;
           this._setLoading(false);

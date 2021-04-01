@@ -31,6 +31,7 @@ import {
   DataDomainConfig,
 } from '../../../../shared/components/menu/constants.routes';
 import { LoadingService } from 'src/app/shared/services/loading.service';
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 import { SystemAdminService } from 'src/app/dashboard/features/system-admin/system-admin.service';
 import { consoleLog } from 'src/app/shared/util/common.util';
 import { AuthService } from 'src/app/auth/auth.service';
@@ -130,6 +131,7 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
     private _systemAdminService: SystemAdminService,
     private _authService: AuthService,
     private _loadingService: LoadingService,
+    public appConfigService: AppConfigService,
     private _router: Router
   ) {}
   ngOnInit() {
@@ -141,8 +143,10 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
     this._dashboardService.defaultPaylod = {
       options: {
         offset: 0,
-        limit: 10,
-        sort: {},
+        limit: this.appConfigService.systemMatTableProperties.pageSizeOptions[2],
+        sort: {
+          date: -1
+        },
         globalSearch: {},
       },
       query: {},

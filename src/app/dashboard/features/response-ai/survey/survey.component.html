@@ -7,8 +7,10 @@
 <!-- 15012021 - Gaurav - Added Update & Close button in EDIT mode, not in ADD mode for now because that needs some impact analysis -->
 <!-- 22012021 - Gaurav - Pass saved section records, question records and question types to sections -->
 <!-- 08022021 - Gaurav - Aesthetic bug fix: Load controls only when loading is off and survey object is valid -->
-<div class="main-container">
-  <div class="card-container">
+<!-- 25032021 - Gaurav - JIRA-CA-274: Change survey setup to tabbed format -->
+<!-- 25032021 - Gaurav - JIRA-CA-275: Tabbed page setup -->
+<div class="survey-main-container">
+  <div class="survey-card-container">
     <mat-card>
       <mat-card-header>
         <!-- Header -->
@@ -22,156 +24,211 @@
       <mat-divider></mat-divider>
       <mat-card-content *ngIf="!isLoading && this.survey">
         <form [formGroup]="form" *ngIf="form">
-          <div class="page-add-container">
-            <mat-form-field appearance="outline" style="width: 100%">
-              <mat-label
-                >Survey Code <span class="field-required">*</span></mat-label
-              >
-              <input
-                matInput
-                formControlName="code"
-                placeholder="Ex. AB001"
-                [maxlength]="surveyFieldLengthConfig.code"
-                (keypress)="
-                  templateFieldValidationService.allowNoSpaceAndSpecialChars(
-                    $event,
-                    { anyCASE: true }
-                  )
-                "
-              />
-              <mat-hint align="end"
-                >{{ form?.get("code")?.value?.length || 0 }}/{{
-                  surveyFieldLengthConfig.code
-                }}</mat-hint
-              >
-              <mat-error *ngIf="form?.controls?.code?.errors?.required"
-                >Survey Code is a required field</mat-error
-              >
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" style="width: 100%">
-              <mat-label
-                >Survey Name <span class="field-required">*</span></mat-label
-              >
-              <input
-                matInput
-                formControlName="name"
-                placeholder="Ex. Customer Feedback Survey"
-                [maxlength]="surveyFieldLengthConfig.name"
-              />
-              <mat-hint align="end"
-                >{{ form?.get("name")?.value?.length || 0 }}/{{
-                  surveyFieldLengthConfig.name
-                }}</mat-hint
-              >
-              <mat-error *ngIf="form?.controls?.name?.errors?.required"
-                >Survey Name is a required field</mat-error
-              >
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" style="width: 100%">
-              <mat-label>Survey Title</mat-label>
-              <input
-                matInput
-                formControlName="title"
-                placeholder="Ex. ABC Corp"
-                [maxlength]="surveyFieldLengthConfig.title"
-              />
-              <mat-hint align="end"
-                >{{ form?.get("title")?.value?.length || 0 }}/{{
-                  surveyFieldLengthConfig.title
-                }}</mat-hint
-              >
-            </mat-form-field>
-
-            <div class="col-sm-12 my-xs-3">
-              <mat-slide-toggle formControlName="showLogo"
-                >Show Organization Logo</mat-slide-toggle
-              >
-            </div>
-
-            <mat-form-field appearance="outline" style="width: 100%">
-              <mat-label>Survey Introductory HTML</mat-label>
-              <textarea
-                matInput
-                rows="9"
-                formControlName="introText"
-                maxLength="1000"
-                placeholder="Ex. <p>Introductory Text ...</p>"
-              ></textarea>
-            </mat-form-field>
-          </div>
-
-          <div
-            class="d-flex flex-column flex-sm-row justify-content-between align-items-center"
+          <mat-tab-group
+            animationDuration="0ms"
+            [(selectedIndex)]="selectedTablIndex"
+            class="survey-tabs-group"
           >
-            <h2 class="h2 font-weight-light my-2 mt-xs-4 ml-sm-2">
-              <em></em>Total Pages: {{ survey?.surveyPages?.length }}
-            </h2>
-            <button
-              class="align-self-sm-end align-self-stretch badge-blue"
-              mat-raised-button
-              matBadgePosition="after"
-              type="button"
-              (click)="survey?.onAddPage()"
-              *ngIf="!viewOnly"
-              [matBadge]="survey?.surveyPages?.length"
-            >
-              Add Page
-            </button>
-          </div>
-          <!-- 14012021 - Gaurav - Add stepper for pages only when page count is more than 1 -->
-          <ng-container
-            *ngIf="survey?.surveyPages && survey?.surveyPages?.length! === 1"
-          >
-            <ng-container
-              *ngFor="
-                let page of survey?.surveyPages;
-                let currentPageIndex = index
-              "
-            >
-              <app-survey-page
-                [currentPageIndex]="currentPageIndex"
-                [survey]="survey"
-                [page]="page"
-                [viewOnly]="viewOnly"
-                [currentFeature]="currentFeature"
-                [savedSectionStructs]="savedSectionStructs"
-                [savedQuestionsStructs]="savedQuestionsStructs"
-                [questionTypes]="questionTypes"
-              ></app-survey-page>
-            </ng-container>
-          </ng-container>
+            <mat-tab [label]="tabIndex[0].label">
+              <div class="survey-page-add-container">
+                <mat-form-field appearance="outline" style="width: 100%">
+                  <mat-label
+                    >Survey Code
+                    <span class="field-required">*</span></mat-label
+                  >
+                  <input
+                    matInput
+                    formControlName="code"
+                    placeholder="Ex. AB001"
+                    [maxlength]="surveyFieldLengthConfig.code"
+                    (keypress)="
+                      templateFieldValidationService.allowNoSpaceAndSpecialChars(
+                        $event,
+                        { anyCASE: true }
+                      )
+                    "
+                  />
+                  <mat-hint align="start">Survey Code e.g. AB001</mat-hint>
+                  <mat-hint align="end"
+                    >{{ form?.get("code")?.value?.length || 0 }}/{{
+                      surveyFieldLengthConfig.code
+                    }}</mat-hint
+                  >
+                  <mat-error *ngIf="form?.controls?.code?.errors?.required"
+                    >Survey Code is a required field</mat-error
+                  >
+                </mat-form-field>
 
-          <ng-container
-            *ngIf="survey?.surveyPages && survey?.surveyPages?.length! > 1"
-          >
-            <mat-vertical-stepper #pageStepper>
-              <mat-step
-                [aria-labelledby]="'page-stepper'"
-                *ngFor="
-                  let page of survey?.surveyPages;
-                  let currentPageIndex = index
-                "
-              >
-                <ng-template matStepLabel
-                  >Page# {{ currentPageIndex + 1 }} (Total Sections:
-                  {{ page?.pageSections?.length }}, Questions:
-                  {{ getTotalQuestions(page) }})</ng-template
+                <mat-form-field appearance="outline" style="width: 100%">
+                  <mat-label
+                    >Survey Name
+                    <span class="field-required">*</span></mat-label
+                  >
+                  <input
+                    matInput
+                    formControlName="name"
+                    placeholder="Ex. Customer Feedback Survey"
+                    [maxlength]="surveyFieldLengthConfig.name"
+                  />
+                  <mat-hint align="start"
+                    >Survey Name e.g. Customer Feedback Survey</mat-hint
+                  >
+                  <mat-hint align="end"
+                    >{{ form?.get("name")?.value?.length || 0 }}/{{
+                      surveyFieldLengthConfig.name
+                    }}</mat-hint
+                  >
+                  <mat-error *ngIf="form?.controls?.name?.errors?.required"
+                    >Survey Name is a required field</mat-error
+                  >
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" style="width: 100%">
+                  <mat-label>Survey Title</mat-label>
+                  <input
+                    matInput
+                    formControlName="title"
+                    placeholder="Ex. ABC Corp"
+                    [maxlength]="surveyFieldLengthConfig.title"
+                  />
+                  <mat-hint align="start"
+                    >Title would be displayed on the right portion of survey
+                    header e.g. ABC Corp</mat-hint
+                  >
+                  <mat-hint align="end"
+                    >{{ form?.get("title")?.value?.length || 0 }}/{{
+                      surveyFieldLengthConfig.title
+                    }}</mat-hint
+                  >
+                </mat-form-field>
+
+                <div class="col-sm-12 my-3 mt-4">
+                  <mat-slide-toggle formControlName="showLogo"
+                    >Show Organization Logo</mat-slide-toggle
+                  >
+                  <p class="text-muted">
+                    <small
+                      >Logo would be displayed on the left portion of survey
+                      header, if selected and available</small
+                    >
+                  </p>
+                </div>
+
+                <mat-form-field
+                  appearance="outline"
+                  style="width: 100%"
+                  class="mb-2"
                 >
-                <app-survey-page
-                  [currentPageIndex]="currentPageIndex"
-                  [survey]="survey"
-                  [page]="page"
-                  [viewOnly]="viewOnly"
-                  [currentFeature]="currentFeature"
-                  [savedSectionStructs]="savedSectionStructs"
-                  [savedQuestionsStructs]="savedQuestionsStructs"
-                  [questionTypes]="questionTypes"
-                ></app-survey-page>
-              </mat-step>
-            </mat-vertical-stepper>
-          </ng-container>
+                  <mat-label>Survey Introductory HTML</mat-label>
+                  <textarea
+                    matInput
+                    rows="9"
+                    formControlName="introText"
+                    maxLength="1000"
+                    placeholder="Ex. <p>Introductory Text ...</p>"
+                  ></textarea>
+                  <mat-hint align="start"
+                    >An optional survey introduction displayed after the Page
+                    title and stored in HTML format e.g. "&lt;p class="lead"&gt;
+                    Introductory text which can be shown after the Page Heading
+                    and can be &lt;i&gt;preformatted&lt;/i&gt; from
+                    &lt;b&gt;Centriqe&lt;/b&gt; app &lt;u&gt;Survey
+                    &lt;b&gt;configuration&lt;/b&gt;&lt;/u&gt; itself.
+                    &lt;/p&gt;"
+                  </mat-hint>
+                </mat-form-field>
+              </div>
+            </mat-tab>
+
+            <mat-tab [label]="tabIndex[1].label">
+              <ng-template matTabContent>
+                <div class="m-1">
+                  <div
+                    class="d-flex flex-column flex-sm-row justify-content-between align-items-center"
+                  >
+                    <h2 class="h2 font-weight-light my-2 mt-xs-4 ml-sm-2">
+                      <em></em>Total Survey Pages:
+                      {{ survey?.surveyPages?.length }}
+                    </h2>
+                    <button
+                      class="align-self-sm-end align-self-stretch badge-blue"
+                      mat-raised-button
+                      matBadgePosition="before"
+                      type="button"
+                      (click)="survey?.onAddPage(); onPageAdd()"
+                      *ngIf="!viewOnly"
+                      [matBadge]="survey?.surveyPages?.length"
+                    >
+                      Add Page
+                    </button>
+                  </div>
+
+                  <ng-container
+                    *ngIf="
+                      survey?.surveyPages && survey?.surveyPages?.length! === 1
+                    "
+                  >
+                    <ng-container
+                      *ngFor="
+                        let page of survey?.surveyPages;
+                        let currentPageIndex = index
+                      "
+                    >
+                      <app-survey-page
+                        [currentPageIndex]="currentPageIndex"
+                        [survey]="survey"
+                        [page]="page"
+                        [viewOnly]="viewOnly"
+                        [currentFeature]="currentFeature"
+                        [savedSectionStructs]="savedSectionStructs"
+                        [savedQuestionsStructs]="savedQuestionsStructs"
+                        [questionTypes]="questionTypes"
+                      ></app-survey-page>
+                    </ng-container>
+                  </ng-container>
+
+                  <ng-container
+                    *ngIf="
+                      survey?.surveyPages && survey?.surveyPages?.length! > 1
+                    "
+                  >
+                    <mat-tab-group
+                      mat-align-tabs="center"
+                      [(selectedIndex)]="selectedPageTabIndex"
+                      *ngIf="survey?.surveyPages"
+                      class="survey-pages-tabs-group"
+                    >
+                      <ng-container
+                        *ngFor="
+                          let page of survey?.surveyPages;
+                          let currentPageIndex = index
+                        "
+                      >
+                        <mat-tab label="Page {{ currentPageIndex + 1 }}">
+                          <ng-template matTabContent>
+                            <app-survey-page
+                              [currentPageIndex]="currentPageIndex"
+                              [survey]="survey"
+                              [page]="page"
+                              [viewOnly]="viewOnly"
+                              [currentFeature]="currentFeature"
+                              [savedSectionStructs]="savedSectionStructs"
+                              [savedQuestionsStructs]="savedQuestionsStructs"
+                              [questionTypes]="questionTypes"
+                              (pageMoveEmitter)="onPageMove($event)"
+                            ></app-survey-page>
+                          </ng-template>
+                        </mat-tab>
+                      </ng-container>
+                    </mat-tab-group>
+                  </ng-container>
+                </div>
+              </ng-template>
+            </mat-tab>
+
+            <!-- TODO Add message templates tab -->
+            <mat-tab [label]="tabIndex[2].label" disabled>Content 3</mat-tab>
+          </mat-tab-group>
         </form>
       </mat-card-content>
       <mat-divider></mat-divider>

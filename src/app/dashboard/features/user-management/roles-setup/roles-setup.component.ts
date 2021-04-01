@@ -20,6 +20,7 @@ import {
 } from 'src/app/dashboard/shared/components/dialog/dialog.model';
 import { UserManagementService } from '../user-management.service';
 import { LoadingService } from 'src/app/shared/services/loading.service';
+import {AppConfigService} from 'src/app/shared/services/app-config.service';
 
 @Component({
   selector: 'app-roles-setup',
@@ -43,6 +44,7 @@ export class RolesSetupComponent implements OnInit {
     private _router: Router,
     private _snackbarService: SnackbarService,
     private _dialogService: DialogService,
+    public appConfigService: AppConfigService,
     private _loadingService: LoadingService
   ) {}
 

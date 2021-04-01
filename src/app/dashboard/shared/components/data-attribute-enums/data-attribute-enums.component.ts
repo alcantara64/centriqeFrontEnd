@@ -16,7 +16,7 @@ import {
 import {
   CustomerDataAttributes,
   CustomerDataAttributeEnums,
-} from 'src/app/dashboard/features/system-admin/models/data-attributes.model';
+} from 'src/app/dashboard/shared/models/data-attributes.model';
 import { SystemAdminService } from 'src/app/dashboard/features/system-admin/system-admin.service';
 import { SnackbarService } from 'src/app/shared/components/snackbar.service';
 import { LoadingService } from 'src/app/shared/services/loading.service';

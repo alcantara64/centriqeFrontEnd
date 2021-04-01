@@ -217,8 +217,8 @@
     </div>
     <mat-paginator
       [length]="totalRecords"
-      [pageSize]="10"
-      [pageSizeOptions]="[10, 25, 50, 100]"
+      [pageSize]="appConfigService.systemMatTableProperties.pageSize"
+      [pageSizeOptions]="appConfigService.systemMatTableProperties.pageSizeOptions"
       (page)="onPageChange($event)"
       showFirstLastButtons
     ></mat-paginator>
