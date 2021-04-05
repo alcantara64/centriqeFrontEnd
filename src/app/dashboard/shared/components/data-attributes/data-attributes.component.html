@@ -1,5 +1,6 @@
 <!-- 10032021 - Gaurav - JIRA-CA-218: System Config - UI for Customer Attribute configuration -->
 <!-- 22032021 - Gaurav - JIRA-CA-220: Org Config - UI for Data Attribute configuration -->
+<!-- 05042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons -->
 <div class="main-container">
   <div class="card-container">
     <mat-card
@@ -9,31 +10,18 @@
         <!-- Header -->
         <mat-card-title *ngIf="currentParent === parentList.SYSTEM_ADMIN">
           Customer Data Attributes ({{ currentParentName }})
-          <button
-            mat-mini-fab
-            type="button"
-            matTooltip="Add"
-            matTooltipPosition="above"
-            color="none"
-            [ngClass]="[
-              'mat-elevation-z0',
-              isViewOnly || !attributesInstance
-                ? 'disable-bgColor'
-                : 'action-buttons',
-              isViewOnly || !attributesInstance
-                ? 'disable-bgColor'
-                : 'add-button'
-            ]"
-            (click)="attributesInstance?.onAddElement()"
-            [disabled]="isDisableButton"
+          <app-add-fab-button
+            (clicked)="attributesInstance?.onAddElement()"
+            [isDisabled]="isDisableButton"
           >
             <mat-icon
               matBadgeSize="small"
               [matBadge]="attributesInstance?.dataAttributeControls?.length"
+              [matBadgeDisabled]="isDisableButton"
               [ngClass]="['add-icon']"
               >playlist_add</mat-icon
             >
-          </button>
+          </app-add-fab-button>
         </mat-card-title>
         <mat-card-subtitle *ngIf="attributesInstance">
           <div class="d-flex flex-row">
@@ -434,21 +422,10 @@
                   </td>
                   <td *ngIf="currentParent === parentList.SYSTEM_ADMIN">
                     <div style="margin-top: 12px">
-                      <button
-                        mat-mini-fab
-                        matTooltip="Delete"
-                        matTooltipPosition="above"
-                        color="none"
-                        [ngClass]="[
-                          'mat-elevation-z0',
-                          isViewOnly ? 'disable-bgColor' : 'action-buttons',
-                          isViewOnly ? 'disable-bgColor' : 'delete-button'
-                        ]"
-                        (click)="attributesInstance?.onDeleteElement(i)"
-                        [disabled]="isLoading || isViewOnly"
-                      >
-                        <mat-icon [ngClass]="['delete-icon']">delete</mat-icon>
-                      </button>
+                      <app-delete-fab-button
+                        [isDisabled]="isLoading || isViewOnly"
+                        (clicked)="attributesInstance?.onDeleteElement(i)"
+                      ></app-delete-fab-button>
                     </div>
                   </td>
                 </tr>

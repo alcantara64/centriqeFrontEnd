@@ -1,5 +1,6 @@
 <!-- 10122020 - Gaurav - Fix to always show required asterik in red -->
 <!-- 09022021 - Abhishek - Added new checkbox on user edit screen with Label: AllowGlobalOrgSelector and added its control in form. -->
+<!-- 05042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons -->
 <div class="main-container">
   <div class="card-container user-management-container">
     <mat-card>
@@ -168,12 +169,20 @@
               </div>
               <!-- Added new checkbox on user edit screen with Label: AllowGlobalOrgSelector and added its control in form. -->
               <div class="form-group checkbox-admin">
-                <mat-label class="disable-color">Allow Global Org Selector: </mat-label>
+                <mat-label class="disable-color"
+                  >Allow Global Org Selector:
+                </mat-label>
                 <mat-checkbox
-                  [ngClass]="[(!isCanDo() || this.userProfileForm?.controls?.isAdmin?.value) ? 'disable-bgColor' : '']"
+                  [ngClass]="[
+                    !isCanDo() || this.userProfileForm?.controls?.isAdmin?.value
+                      ? 'disable-bgColor'
+                      : ''
+                  ]"
                   formControlName="canUseGlobalOrgSelector"
                   [checked]="userProfileForm?.controls?.isAdmin?.value"
-                  [value]="userProfileForm?.controls?.canUseGlobalOrgSelector?.value"
+                  [value]="
+                    userProfileForm?.controls?.canUseGlobalOrgSelector?.value
+                  "
                 ></mat-checkbox>
               </div>
             </form>
@@ -355,23 +364,12 @@
             <div class="cda-main">
               <h3 [ngClass]="[!isCanDo() ? 'disable-bgColor' : '']">
                 Client Data Access (Row level Security)
-                <!-- [ngClass]="]" -->
-                <button
-                  mat-mini-fab
-                  type="button"
-                  matTooltip="Add"
-                  matTooltipPosition="above"
-                  color="none"
-                  [ngClass]="[
-                    'mat-elevation-z0',
-                    !isCanDo() ? 'disable-bgColor' : 'action-buttons',
-                    !isCanDo() ? 'disable-bgColor' : 'add-button'
-                  ]"
-                  (click)="onAddRowLevelSecurity()"
-                  [disabled]="!isCanDo()"
+                <app-add-fab-button
+                  (clicked)="onAddRowLevelSecurity()"
+                  [isDisabled]="!isCanDo()"
                 >
                   <mat-icon [ngClass]="['add-icon']">playlist_add</mat-icon>
-                </button>
+                </app-add-fab-button>
               </h3>
               <form
                 class="cda-form"
@@ -527,26 +525,10 @@
                             </div>
                           </td>
                           <td>
-                            <button
-                              mat-mini-fab
-                              type="button"
-                              color="none"
-                              matTooltip="Delete"
-                              matTooltipPosition="above"
-                              [ngClass]="[
-                                'mat-elevation-z0',
-                                !isCanDo()
-                                  ? 'disable-bgColor'
-                                  : 'action-buttons',
-                                !isCanDo() ? 'disable-bgColor' : 'delete-button'
-                              ]"
-                              (click)="onDeleteRowLevelSecurity(i)"
-                              [disabled]="!isCanDo()"
-                            >
-                              <mat-icon [ngClass]="['delete-icon']"
-                                >delete</mat-icon
-                              >
-                            </button>
+                            <app-delete-fab-button
+                              [isDisabled]="!isCanDo()"
+                              (clicked)="onDeleteRowLevelSecurity(i)"
+                            ></app-delete-fab-button>
                           </td>
                         </tr>
                       </ng-container>

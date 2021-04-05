@@ -10,5 +10,6 @@ import { BaseButtonComponent } from '../base-button/base-button.component';
 export class AddFabButtonComponent extends BaseButtonComponent {
   constructor() {
     super();
+    if (!this.matTooltipText) this.matTooltipText = 'Add';
   }
 }

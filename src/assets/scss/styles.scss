@@ -1,24 +1,25 @@
 // 12012021 - Gaurav - Organized common components in diff scss files and added response type CSS
 //CSS import
-@import '../../app/dashboard/shared/styling/setup-table-list.shared.css';
+@import "../../app/dashboard/shared/styling/setup-table-list.shared.css";
 
 //Abstracts
 @import "./abstracts/variables";
-@import './abstracts/media';
+@import "./abstracts/mixins";
+@import "./abstracts/media";
 
 //Components
-@import './components/dialogs';
+@import "./components/dialogs";
 
 //Features
-@import './features/response';
+@import "./features/response";
 
 //Layout
-@import './layout/header-footer';
-@import './layout/common';
-@import './layout/buttons';
+@import "./layout/header-footer";
+@import "./layout/common";
+@import "./layout/buttons";
 
 //Pages
-@import './pages/login';
-@import './pages/campaign';
-@import './pages/user-management';
-@import './pages/client-setup';
+@import "./pages/login";
+@import "./pages/campaign";
+@import "./pages/user-management";
+@import "./pages/client-setup";

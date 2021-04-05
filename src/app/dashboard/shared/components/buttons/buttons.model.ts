@@ -1,5 +1,7 @@
 /** 26032021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons */
 
+import { MatBadgePosition, MatBadgeSize } from '@angular/material/badge';
+
 export enum AppButtonTypes {
   add = 'add',
   edit = 'edit',

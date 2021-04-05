@@ -1,5 +1,6 @@
 /** 26032021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons */
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { MatBadgePosition, MatBadgeSize } from '@angular/material/badge';
 
 @Component({
   template: '',
