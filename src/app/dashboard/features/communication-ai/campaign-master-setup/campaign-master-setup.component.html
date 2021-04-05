@@ -52,15 +52,41 @@
           <td
             mat-cell
             *matCellDef="let element"
-            [ngClass]="[element?.status === 1 ? 'active' : element?.status === 2 ? 'text-warning' : 'inactive']"
+            [ngClass]="[
+              element?.status === 1
+                ? 'active'
+                : element?.status === 2
+                ? 'text-warning'
+                : 'inactive'
+            ]"
           >
-            {{ element?.status === 1 ? "Launched" : element?.status === 2 ? "Draft" : "Terminated" }}
+            {{
+              element?.status === 1
+                ? "Launched"
+                : element?.status === 2
+                ? "Draft"
+                : "Terminated"
+            }}
           </td>
         </ng-container>
         <ng-container matColumnDef="updatedAt">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Updated</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Last Updated
+          </th>
           <td mat-cell *matCellDef="let element">
-            {{ element?.updatedAt | date:'YYYY-MM-dd HH:MM' }}
+            {{ element?.updatedAt | date: "YYYY-MM-dd HH:MM" }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="totalEvents">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Total Events</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element?.totalEvents }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="lastEventDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>End Date</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element?.lastEventDate | date:'YYYY-MM-dd HH:MM' }}
           </td>
         </ng-container>
         <ng-container
@@ -72,86 +98,43 @@
             Actions
           </th>
           <td mat-cell *matCellDef="let element">
-            <div class="action-buttons-row">
-              <!-- 05032021 - Gaurav - JIRA-CA-154: Pass additional params to onViewCampaignSurveyResponse() -->
-              <!-- 09022021 - Gaurav - New icon to view consolidated campaign survey response -->
-              <button
-                *ngIf="isShowSurveyResponse()"
-                mat-mini-fab
-                matTooltip="View Survey Response"
-                matTooltipPosition="above"
-                color="none"
-                [ngClass]="[
-                  'mat-elevation-z0',
-                  'action-buttons',
-                  'web-view-button'
-                ]"
-                (click)="
-                  onViewCampaignSurveyResponse(
-                    element?._id,
-                    element?.name,
-                    element?.code
-                  )
-                "
-              >
-                <mat-icon [ngClass]="['web-view-icon']">preview</mat-icon>
-              </button>
-              <button
-              *ngIf="isShowEditComponents()"
-              mat-mini-fab
-              matTooltip="Copy"
-              matTooltipPosition="above"
-              color="none"
-              [ngClass]="[
-                'mat-elevation-z0',
-                'action-buttons',
-                'copy-button'
-              ]"
-              (click)="onDuplicate(element?._id, element?.name)"
-            >
-              <mat-icon [ngClass]="['copy-icon']">library_books</mat-icon>
-            </button>
-              <button
-                mat-mini-fab
-                matTooltip="View"
-                matTooltipPosition="above"
-                color="none"
-                [ngClass]="[
-                  'mat-elevation-z0',
-                  'action-buttons',
-                  'view-button'
-                ]"
-                (click)="onViewTemplate(element?._id)"
-              >
-                <mat-icon [ngClass]="['view-icon']">visibility</mat-icon>
-              </button>
-              <button
-              *ngIf="isShowEditComponents() && element?.status === 2"
-              mat-mini-fab
-              matTooltip="Edit"
-              matTooltipPosition="above"
-              color="none"
-              [ngClass]="[
-                'mat-elevation-z0',
-                'action-buttons',
-                'edit-button'
-              ]"
-              (click)="onEditTemplate(element?._id, 'edit')"
-            >
-              <mat-icon [ngClass]="['edit-icon']">edit</mat-icon>
-            </button>
-              <button
-              *ngIf="isShowEditComponents() && element?.status === 1"
-              mat-mini-fab
-              matTooltip="Terminate Launched Campaign"
-              matTooltipPosition="above"
-              color="none"
-              class="mat-elevation-z0 action-buttons delete-button"
-              (click)="openBottomSheet(element?._id, element?.name, element?.status)"
-            >
-              <mat-icon [ngClass]="['delete-icon']">close</mat-icon>
-            </button>
-            </div>
+            <app-fab-button-row
+              [buttonRowProps]="{
+                rowButtons: [
+                  {
+                    appButtonType: appButtonType.preview,
+                    isRender: isShowSurveyResponse(),
+                    matTooltipText: 'View Survey Response'
+                  },
+                  {
+                    appButtonType: appButtonType.copy,
+                    isRender: isShowEditComponents()
+                  },
+                  {
+                    appButtonType: appButtonType.view,
+                    isRender: true
+                  },
+                  {
+                    appButtonType: appButtonType.edit,
+                    isRender: isShowEditComponents() && element?.status === 2
+                  },
+                  {
+                    appButtonType: appButtonType.terminate,
+                    isRender: isShowEditComponents() && element?.status === 1,
+                    matTooltipText: 'Terminate Launched Campaign'
+                  }
+                ]
+              }"
+              (clicked)="
+                onButtonRowClicked({
+                  appButtonType: $event,
+                  _id: element?._id,
+                  name: element?.name,
+                  status: element?.status,
+                  code: element?.code
+                })
+              "
+            ></app-fab-button-row>
           </td>
         </ng-container>
         <tr
@@ -168,7 +151,9 @@
     </div>
     <mat-paginator
       [pageSize]="appConfigService.systemMatTableProperties.pageSize"
-      [pageSizeOptions]="appConfigService.systemMatTableProperties.pageSizeOptions"
+      [pageSizeOptions]="
+        appConfigService.systemMatTableProperties.pageSizeOptions
+      "
       showFirstLastButtons
     ></mat-paginator>
   </div>

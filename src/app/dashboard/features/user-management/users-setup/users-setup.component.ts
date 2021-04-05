@@ -2,6 +2,7 @@
  * 02122020 - Gaurav - Injected client service to fetch and update listeners to be used by User CRUD operations
  * 10122020 - Gaurav - Fix to show 'Name (Code)' and removed 'UserId' column from display
  * 08022021 - Gaurav - Added code for new progress-bar service
+ * 31032021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons
  */
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
@@ -12,7 +13,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { dashboardRouteLinks } from 'src/app/dashboard/shared/components/menu/constants.routes';
 
 /** Services */
-import { DashboardService } from 'src/app/dashboard/dashboard.service';
 import { SnackbarService } from 'src/app/shared/components/snackbar.service';
 import { DialogService } from 'src/app/dashboard/shared/components/dialog/dialog.service';
 import {
@@ -24,16 +24,20 @@ import { UserManagementService } from '../user-management.service';
 import { ClientSetupService } from '../../client-setup/client-setup.service';
 import { mergeMap } from 'rxjs/operators';
 import { LoadingService } from 'src/app/shared/services/loading.service';
-import {AppConfigService} from 'src/app/shared/services/app-config.service';
+import { AppConfigService } from 'src/app/shared/services/app-config.service';
 import { Observable } from 'rxjs';
+import {
+  AppButtonTypes,
+  ButtonRowClickedParams,
+} from 'src/app/dashboard/shared/components/buttons/buttons.model';
 
 @Component({
   selector: 'app-users-setup',
   templateUrl: './users-setup.component.html',
-  styleUrls: ['../../../shared/styling/setup-table-list.shared.css'],
 })
 export class UsersSetupComponent implements OnInit {
   isLoading = false;
+  readonly appButtonType = AppButtonTypes;
   private _showEditComponents = false;
   _usersList: any[] = [];
 
@@ -51,7 +55,6 @@ export class UsersSetupComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
-    private _dashboardService: DashboardService,
     private _userManagementService: UserManagementService,
     private _clientSetupService: ClientSetupService,
     private _route: ActivatedRoute,
@@ -87,6 +90,21 @@ export class UsersSetupComponent implements OnInit {
   }
 
   /** Action buttons */
+  onButtonRowClicked(args: ButtonRowClickedParams) {
+    console.log({ args });
+
+    switch (args.appButtonType) {
+      case AppButtonTypes.edit:
+        return this.onEditUser(args._id);
+      case AppButtonTypes.status:
+        return this.onStatusChange(args?.status!, args._id, args?.name!);
+      case AppButtonTypes.view:
+        return this.onViewUser(args._id);
+      case AppButtonTypes.delete:
+        return this.onDeleteUser(args._id, args?.name!);
+    }
+  }
+
   onAddUser(): void {
     this._router.navigate(['add'], { relativeTo: this._route });
   }

@@ -30,6 +30,7 @@
  * 17032021 - Gaurav - JIRA-CA-234: Reverted last UI for CRUD and will create per the backend API given
  * 17032021 - Gaurav - JIRA-CA-234: Rework per new API
  * 18022021 - Abhishek - JIRA-CA-167: Render dashboards on UI ->  Added routes for analytics
+ * 01042021 - Abhishek - CA-334: Implement Frontend "load file".
  */
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
@@ -70,6 +71,7 @@ import { DashboardOrgConfigurationComponent } from './features/client-setup/dash
 import { DataAttributesGroupComponent } from './features/system-admin/customer/data-attributes-group/data-attributes-group.component';
 import { DataAttributesComponent } from './shared/components/data-attributes/data-attributes.component';
 import { DataAttributeEnumsComponent } from './shared/components/data-attribute-enums/data-attribute-enums.component';
+import { LoadCustomerDataComponent } from './features/client-setup/load-customer-data/load-customer-data.component';
 
 /** Placeholder Routes */
 const childUnderProgressRoutes: Routes = [
@@ -599,7 +601,7 @@ const clientSetupRoutes: Routes = [
   },
   {
     path: r.CLIENT_SETUP_MANAGE_LOAD_CUSTOMERDATA.routerLink,
-    component: UnderProgressComponent,
+    component: LoadCustomerDataComponent,
     canActivate: [DashboardRouteGuard],
   },
   /** View */

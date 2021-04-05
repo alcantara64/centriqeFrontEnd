@@ -1,0 +1,11 @@
+<button
+  mat-mini-fab
+  [matTooltip]="matTooltipText!"
+  matTooltipPosition="above"
+  color="none"
+  [ngClass]="['mat-elevation-z0', 'action-buttons', 'cancel-button']"
+  [disabled]="isDisabled"
+  (click)="onClick()"
+>
+  <mat-icon [ngClass]="['cancel-icon']">cancel</mat-icon>
+</button>

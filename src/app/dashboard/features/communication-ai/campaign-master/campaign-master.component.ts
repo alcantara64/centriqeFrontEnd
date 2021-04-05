@@ -64,8 +64,7 @@ interface RespSurveyType {
 }
 
 @Component({
-  templateUrl: './campaign-master.component.html',
-  styleUrls: ['../../../shared/styling/setup-table-list.shared.css'],
+  templateUrl: './campaign-master.component.html'
 })
 export class CampaignMasterComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;

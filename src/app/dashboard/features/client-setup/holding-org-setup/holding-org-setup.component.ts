@@ -4,6 +4,7 @@
  * 28112020 - Updated CSS path file to shared one
  * 10122020 - Gaurav - Fix to show 'Name (Code)', removed 'Code' column from display and introduced 'Business Vertical' column
  * 08022021 - Gaurav - Added code for new progress-bar service
+ * 31032021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons
  */
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -19,7 +20,6 @@ import { MatTableDataSource } from '@angular/material/table';
 /** Services */
 import { ClientSetupService } from '../client-setup.service';
 import { DialogService } from 'src/app/dashboard/shared/components/dialog/dialog.service';
-import { DashboardService } from 'src/app/dashboard/dashboard.service';
 import { SnackbarService } from 'src/app/shared/components/snackbar.service';
 
 /** System Dialog related interfaces/enums */
@@ -30,14 +30,18 @@ import {
 } from 'src/app/dashboard/shared/components/dialog/dialog.model';
 import { consoleLog, ConsoleTypes } from 'src/app/shared/util/common.util';
 import { LoadingService } from 'src/app/shared/services/loading.service';
-import {AppConfigService} from 'src/app/shared/services/app-config.service';
+import { AppConfigService } from 'src/app/shared/services/app-config.service';
+import {
+  AppButtonTypes,
+  ButtonRowClickedParams,
+} from 'src/app/dashboard/shared/components/buttons/buttons.model';
 
 @Component({
   selector: 'app-holding-org-setup',
   templateUrl: './holding-org-setup.component.html',
-  styleUrls: ['../../../shared/styling/setup-table-list.shared.css'],
 })
 export class HoldingOrgSetupComponent implements OnInit, OnDestroy {
+  readonly appButtonType = AppButtonTypes;
   isLoading = false;
   private _showEditComponents = false;
   private _getOrgSub$!: Subscription;
@@ -95,6 +99,19 @@ export class HoldingOrgSetupComponent implements OnInit, OnDestroy {
   }
 
   /** Action buttons */
+  onButtonRowClicked(args: ButtonRowClickedParams) {
+    console.log({ args });
+
+    switch (args.appButtonType) {
+      case AppButtonTypes.edit:
+        return this.onEditOrg(args._id);
+      case AppButtonTypes.status:
+        return this.onStatusChange(args?.status!, args._id, args?.name!);
+      case AppButtonTypes.view:
+        return this.onViewOrg(args._id);
+    }
+  }
+
   onAddHoldingOrg(): void {
     this._router.navigate(['add'], { relativeTo: this._route });
   }

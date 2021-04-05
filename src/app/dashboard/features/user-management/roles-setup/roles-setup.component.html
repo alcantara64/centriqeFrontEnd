@@ -1,6 +1,7 @@
 <!-- 26112020 - Gaurav - Init version -->
 <!-- 10122020 - Gaurav - Fix to show 'Name (Code)' and removed 'Code' column from display -->
 <!-- 10122020 - Gaurav - Disabled list filter input on loading to avoid typing and subsequent error - TypeError: Cannot set property 'filter' of undefined -->
+<!-- 31032021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons -->
 <div class="main-container">
   <div class="table-container mat-elevation-z8">
     <div class="table-top">
@@ -58,80 +59,37 @@
         >
           <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let element">
-            <div class="action-buttons-row">
-              <button
-                *ngIf="isShowEditComponents()"
-                mat-mini-fab
-                matTooltip="Edit"
-                matTooltipPosition="above"
-                color="none"
-                [ngClass]="[
-                  'mat-elevation-z0',
-                  'action-buttons',
-                  'edit-button'
-                ]"
-                (click)="onEditRole(element?._id)"
-              >
-                <mat-icon [ngClass]="['edit-icon']">edit</mat-icon>
-              </button>
-              <button
-                *ngIf="isShowEditComponents()"
-                mat-mini-fab
-                [matTooltip]="element?.status === 1 ? 'Inactivate' : 'Activate'"
-                matTooltipPosition="above"
-                color="none"
-                [ngClass]="[
-                  'mat-elevation-z0',
-                  'action-buttons',
-                  element?.status === 1
-                    ? 'status-button'
-                    : 'status-button-inactive'
-                ]"
-                (click)="
-                  onStatusChange(element?.status, element?._id, element?.name)
-                "
-              >
-                <mat-icon
-                  [ngClass]="[
-                    element?.status === 1
-                      ? 'status-icon'
-                      : 'status-icon-inactive'
-                  ]"
-                  >{{
-                    element?.status === 1 ? "toggle_on" : "toggle_off"
-                  }}</mat-icon
-                >
-              </button>
-              <button
-                mat-mini-fab
-                matTooltip="View"
-                matTooltipPosition="above"
-                color="none"
-                [ngClass]="[
-                  'mat-elevation-z0',
-                  'action-buttons',
-                  'view-button'
-                ]"
-                (click)="onViewRole(element?._id)"
-              >
-                <mat-icon [ngClass]="['view-icon']">visibility</mat-icon>
-              </button>
-              <button
-                *ngIf="isShowEditComponents()"
-                mat-mini-fab
-                matTooltip="Delete"
-                matTooltipPosition="above"
-                color="none"
-                [ngClass]="[
-                  'mat-elevation-z0',
-                  'action-buttons',
-                  'delete-button'
-                ]"
-                (click)="onDeleteRole(element?._id, element?.name)"
-              >
-                <mat-icon [ngClass]="['delete-icon']">delete</mat-icon>
-              </button>
-            </div>
+            <app-fab-button-row
+              [buttonRowProps]="{
+                rowButtons: [
+                  {
+                    appButtonType: appButtonType.edit,
+                    isRender: isShowEditComponents()
+                  },
+                  {
+                    appButtonType: appButtonType.status,
+                    isRender: isShowEditComponents(),
+                    status: element?.status
+                  },
+                  {
+                    appButtonType: appButtonType.view,
+                    isRender: true
+                  },
+                  {
+                    appButtonType: appButtonType.delete,
+                    isRender: isShowEditComponents()
+                  }
+                ]
+              }"
+              (clicked)="
+                onButtonRowClicked({
+                  appButtonType: $event,
+                  _id: element?._id,
+                  name: element?.name,
+                  status: element?.status
+                })
+              "
+            ></app-fab-button-row>
           </td>
         </ng-container>
 
@@ -153,7 +111,9 @@
     </div>
     <mat-paginator
       [pageSize]="appConfigService.systemMatTableProperties.pageSize"
-      [pageSizeOptions]="appConfigService.systemMatTableProperties.pageSizeOptions"
+      [pageSizeOptions]="
+        appConfigService.systemMatTableProperties.pageSizeOptions
+      "
       showFirstLastButtons
     ></mat-paginator>
   </div>

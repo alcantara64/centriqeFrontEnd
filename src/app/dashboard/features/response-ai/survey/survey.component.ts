@@ -13,9 +13,13 @@
  * 22012021 - Gaurav - For new surveys, set holdingOrg or memberOrg based on the Org DrDw on Survey Setup page
  * 08022021 - Gaurav - Aesthetic bug fix: Load controls only when loading is off and survey object is valid. Added await for new Survey class instance
  * 08022021 - Gaurav - Added code for new progress-bar service
- * 15032021 - Gaurav - Use enum AccessModes from constants file instead of local one */
-import { Component, OnDestroy, OnInit } from '@angular/core';
+ * 15032021 - Gaurav - Use enum AccessModes from constants file instead of local one
+ * 30032021 - Gaurav - JIRA-CA-277: Add message templates to survey setup
+ * 31032021 - Gaurav - JIRA-CA-326: Increase survey title from 50 to 100
+ * 01042021 - Gaurav - JIRA-CA-277: Fixed email editor issue with lazy-load child tabs */
+import { Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 import {
   ActivatedRoute,
   ActivatedRouteSnapshot,
@@ -47,6 +51,12 @@ import {
   consoleLog,
   generateNameAndCodeString,
 } from 'src/app/shared/util/common.util';
+import {
+  kEmailSubjectMaxLength,
+  kSmsTextMaxLength,
+  kWhatsAppTextMaxLength,
+  MessageType,
+} from '../../communication-ai/communication-ai.service';
 import { Page, SurveyPage } from '../data-models/page.model';
 import { Question, SurveyQuestion } from '../data-models/question.model';
 import { Section, SurveySection } from '../data-models/section.model';
@@ -55,12 +65,24 @@ import {
   SurveyType,
   SurveyStruct,
   SurveyHoldingOrgData,
+  SurveyEmailTemplate,
+  SurveySmsTemplate,
+  SurveyWhatsAppTemplate,
 } from '../data-models/survey.model';
 import { ResponseAIService } from '../response-ai.service';
+
+import { EmailEditorComponent } from 'angular-email-editor';
+import { unsubscribeContent } from '../../communication-ai/email-template/email-template-content';
 
 interface InvalidPageIndexes {
   pageTabIndex: number;
   sectionTabIndex: number;
+}
+
+interface ChannelConfig {
+  enableEmail: boolean;
+  enableSms: boolean;
+  enableWhatsApp: boolean;
 }
 
 @Component({
@@ -68,12 +90,16 @@ interface InvalidPageIndexes {
   styleUrls: ['./survey.component.css'],
 })
 export class SurveyComponent implements OnInit, OnDestroy {
+  @ViewChild('editor') editor!: EmailEditorComponent;
+  readonly smsTextMaxLength = kSmsTextMaxLength;
+  readonly whatsAppTextMaxLength = kWhatsAppTextMaxLength;
+  readonly emailSubjectMaxLength = kEmailSubjectMaxLength;
   readonly accessModes = AccessModes;
   readonly dataDomainList = DataDomainConfig;
   readonly surveyFieldLengthConfig = {
     code: 10,
     name: 50,
-    title: 50,
+    title: 100,
   };
 
   private _id!: string;
@@ -97,6 +123,19 @@ export class SurveyComponent implements OnInit, OnDestroy {
     status: new FormControl(1, Validators.required),
     title: new FormControl(null),
     showLogo: new FormControl(false),
+    channel: new FormGroup({
+      email: new FormGroup({
+        subject: new FormControl(null),
+        body: new FormControl(null),
+        templateData: new FormControl(null),
+      }),
+      sms: new FormGroup({
+        text: new FormControl(null),
+      }),
+      whatsApp: new FormGroup({
+        text: new FormControl(null),
+      }),
+    }),
   });
 
   accessMode: AccessModes = AccessModes.View; //default
@@ -122,6 +161,14 @@ export class SurveyComponent implements OnInit, OnDestroy {
   ];
   selectedTablIndex = this.tabIndex[0].index;
   selectedPageTabIndex = 0;
+  selectedMessageTemplateTabIndex = 0;
+
+  options = {};
+  channelConfig: ChannelConfig = {
+    enableEmail: false,
+    enableSms: false,
+    enableWhatsApp: false,
+  };
 
   constructor(
     private _route: ActivatedRoute,
@@ -131,7 +178,8 @@ export class SurveyComponent implements OnInit, OnDestroy {
     private _snackbarService: SnackbarService,
     private _dialogService: DialogService,
     private _loadingService: LoadingService,
-    private _authService: AuthService
+    private _authService: AuthService,
+    private _zone: NgZone
   ) {
     /** Set current feature: nps OR response */
     switch (this._route.snapshot.routeConfig?.path) {
@@ -260,6 +308,13 @@ export class SurveyComponent implements OnInit, OnDestroy {
       .showProgressBarUntilCompleted(initSurveyObs, 'query')
       .subscribe(
         async () => {
+          this.channelConfig.enableEmail = !!this.currentSurveyData?.channel
+            ?.email?.subject;
+          this.channelConfig.enableSms = !!this.currentSurveyData?.channel?.sms
+            ?.text;
+          this.channelConfig.enableWhatsApp = !!this.currentSurveyData?.channel
+            ?.whatsApp?.text;
+
           await this._loadFormControls();
 
           this.survey = await new Survey(
@@ -308,6 +363,10 @@ export class SurveyComponent implements OnInit, OnDestroy {
     return false;
   }
 
+  // isDisableUpdateOnlyButton(): boolean {
+  //   return (this.channelConfig.enableEmail && this.form.get('channel.email').)
+  // }
+
   getActionButtonText(): string {
     if (
       this.accessMode === AccessModes.Add ||
@@ -321,6 +380,54 @@ export class SurveyComponent implements OnInit, OnDestroy {
   /** To be called by the CanDeactivate service */
   isSubMitMode(): boolean {
     return this._submitMode;
+  }
+
+  async onToggleMessageTemplateConfig(
+    elHandle: MatSlideToggle,
+    messageType: MessageType
+  ) {
+    if (this.viewOnly) return;
+    const currentValueTo = elHandle.checked;
+
+    if (currentValueTo) {
+      const response = await this._dialogService.openSystemDialog({
+        alertType: SystemDialogType.warning_alert_yes_no,
+        dialogConditionType: DialogConditionType.prompt_custom_data,
+        title: `Confirm Clear Message Template (${messageType})`,
+        body: `Do you want to clear message template setup for ${messageType}?`,
+      });
+
+      if (response === SystemDialogReturnType.continue_no) return;
+    }
+
+    elHandle.checked = !currentValueTo;
+    switch (messageType) {
+      case 'email':
+        this.channelConfig.enableEmail = !currentValueTo;
+        this._setRequiredForMessageTemplate(
+          'email',
+          this.channelConfig.enableEmail
+        );
+        break;
+
+      case 'sms':
+        this.channelConfig.enableSms = !currentValueTo;
+        this._setRequiredForMessageTemplate(
+          'sms',
+          this.channelConfig.enableSms
+        );
+        break;
+
+      case 'whatsApp':
+        this.channelConfig.enableWhatsApp = !currentValueTo;
+        this._setRequiredForMessageTemplate(
+          'whatsApp',
+          this.channelConfig.enableWhatsApp
+        );
+        break;
+    }
+
+    this.selectedMessageTemplateTabIndex = 0;
   }
 
   onUserNavigation(
@@ -360,10 +467,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSubmit(closeSurveyWindow = false): void {
-    // consoleLog({ valuesArr: ['onSubmit this.form', this.form] });
-    // consoleLog({ valuesArr: ['onSubmit this.survey', this.survey] });
-
+  onPreSubmit(closeSurveyWindow = false): void {
     if (this.viewOnly || !this.form) return;
 
     const surveyQuestionInvalid = this.isAnySurveyQuestionInvalid;
@@ -383,10 +487,59 @@ export class SurveyComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this._setLoading(true);
+    if (this.channelConfig.enableEmail) {
+      /** Since unlayer email component methods uses a callback  */
+      this._setFieldValuesFromEditor(closeSurveyWindow);
+    } else {
+      this._onSubmit(closeSurveyWindow);
+    }
+  }
 
-    let payload = {
+  private _setFieldValuesFromEditor(closeSurveyWindow = false): void {
+    let tempJsonData: any;
+    let tempHtmlData: any;
+
+    this.editor.saveDesign((data) => {
+      tempJsonData = JSON.stringify(data);
+      this.editor.exportHtml((data) => {
+        tempHtmlData = data;
+
+        this.form.get('channel.email.templateData')?.setValue(tempJsonData);
+        this.form.get('channel.email.body')?.setValue(tempHtmlData.html);
+        console.log({ tempJsonData }, { tempHtmlData });
+
+        this._zone.run(() => this._onSubmit(closeSurveyWindow));
+      });
+    });
+  }
+
+  private _onSubmit(closeSurveyWindow = false): void {
+    this._setLoading(true);
+    let payload: any = {};
+
+    let channel = {};
+    if (this.channelConfig.enableEmail) {
+      channel = {
+        email: this.form.get('channel.email')?.value,
+      };
+    }
+
+    if (this.channelConfig.enableSms) {
+      channel = {
+        ...channel,
+        sms: this.form.get('channel.sms')?.value,
+      };
+    }
+    if (this.channelConfig.enableWhatsApp) {
+      channel = {
+        ...channel,
+        whatsApp: this.form.get('channel.whatsApp')?.value,
+      };
+    }
+
+    payload = {
       ...this.form.value,
+      channel,
       ...this.survey,
       surveyType:
         this.survey.surveyPages.length > 1
@@ -399,6 +552,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
         'survey onSubmit()',
         'this.accessMode',
         this.accessMode,
+
         'payload',
         payload,
       ],
@@ -418,8 +572,13 @@ export class SurveyComponent implements OnInit, OnDestroy {
       .subscribe(
         (response) => {
           this._setLoading(false);
-
           this.form.markAsPristine();
+
+          this._snackbarService.showSuccess(
+            `Survey '${payload?.name}(${payload?.code})' ${
+              this.accessMode === AccessModes.Edit ? 'updated' : 'created'
+            } successfully!`
+          );
 
           if (
             this.accessMode === AccessModes.Add ||
@@ -481,6 +640,8 @@ export class SurveyComponent implements OnInit, OnDestroy {
   }
 
   private _loadFormControls(): void {
+    console.log('_loadFormControls');
+
     this.form.patchValue({
       dataDomain: this.currentSurveyData?.dataDomain ?? this.currentFeature,
       holdingOrg: this._currentHoldingOrg,
@@ -496,9 +657,44 @@ export class SurveyComponent implements OnInit, OnDestroy {
           : this.currentSurveyData?.showLogo,
     });
 
+    this._setRequiredForMessageTemplate(
+      'email',
+      this.channelConfig.enableEmail
+    );
+    this._setRequiredForMessageTemplate('sms', this.channelConfig.enableSms);
+    this._setRequiredForMessageTemplate(
+      'whatsApp',
+      this.channelConfig.enableWhatsApp
+    );
+
+    this.form.get('channel.email')?.patchValue(<SurveyEmailTemplate>{
+      subject: this.currentSurveyData?.channel?.email?.subject,
+      body: this.currentSurveyData?.channel?.email?.body,
+      templateData: this.currentSurveyData?.channel?.email?.templateData,
+    });
+
+    this.form.get('channel.sms')?.patchValue(<SurveySmsTemplate>{
+      text: this.currentSurveyData?.channel?.sms?.text,
+    });
+
+    this.form.get('channel.whatsApp')?.patchValue(<SurveyWhatsAppTemplate>{
+      text: this.currentSurveyData?.channel?.whatsApp?.text,
+    });
+
+    let tempBody: any;
+    tempBody = this.currentSurveyData?.channel?.email?.templateData
+      ? JSON.parse(this.currentSurveyData?.channel?.email?.templateData)
+      : undefined;
+
     if (this.viewOnly) {
       this.form.disable();
     }
+
+    setTimeout(() => {
+      if (tempBody) {
+        this.editor?.loadDesign(tempBody);
+      }
+    }, 300);
 
     this.surveyOrgData = {
       currentOrgIdentifier: this._currentOrgIdentifier,
@@ -543,6 +739,67 @@ export class SurveyComponent implements OnInit, OnDestroy {
     }
 
     return returnTabsInvalid;
+  }
+
+  private _setRequiredForMessageTemplate(
+    messageType: MessageType,
+    isRequired: boolean
+  ): void {
+    Promise.resolve().then(() => {
+      switch (messageType) {
+        case 'email':
+          if (isRequired) {
+            this.form
+              .get('channel.email.subject')
+              ?.setValidators(Validators.required);
+          } else {
+            this.form.get('channel.email.subject')?.clearValidators();
+          }
+
+          this.form.get('channel.email.subject')?.updateValueAndValidity();
+          return;
+
+        case 'sms':
+          if (isRequired) {
+            this.form
+              .get('channel.sms.text')
+              ?.setValidators(Validators.required);
+          } else {
+            this.form.get('channel.sms.text')?.clearValidators();
+          }
+
+          this.form.get('channel.sms.text')?.updateValueAndValidity();
+          return;
+
+        case 'whatsApp':
+          if (isRequired) {
+            this.form
+              .get('channel.whatsApp.text')
+              ?.setValidators(Validators.required);
+          } else {
+            this.form.get('channel.whatsApp.text')?.clearValidators();
+          }
+
+          this.form.get('channel.whatsApp.text')?.updateValueAndValidity();
+          return;
+      }
+    });
+  }
+
+  loadEditor(evt: any): void {
+    console.log(
+      'loadEditor',
+      !!this.form.get('channel.email.templateData')?.value
+    );
+
+    let tempBody: any;
+    tempBody = this.form.get('channel.email.templateData')?.value
+      ? JSON.parse(this.form.get('channel.email.templateData')?.value)
+      : unsubscribeContent;
+
+    setTimeout(() => {
+      this.editor.loadDesign(tempBody);
+    }, 500);
   }
 
   getTotalQuestions(page: Page): number {

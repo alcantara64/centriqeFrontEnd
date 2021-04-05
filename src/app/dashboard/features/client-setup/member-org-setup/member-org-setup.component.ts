@@ -2,6 +2,7 @@
  * 28112020 - Updated CSS path file to shared one
  * 10122020 - Gaurav - Fix to show 'Name (Code)', removed 'Code' column from display and introduced 'City', 'Country' columns
  * 08022021 - Gaurav - Added code for new progress-bar service
+ * 31032021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons
  */
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
@@ -9,7 +10,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
-import { map, switchMap, take } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 import { dashboardRouteLinks } from 'src/app/dashboard/shared/components/menu/constants.routes';
 
@@ -27,14 +28,18 @@ import {
   SystemDialogType,
 } from 'src/app/dashboard/shared/components/dialog/dialog.model';
 import { LoadingService } from 'src/app/shared/services/loading.service';
-import {AppConfigService} from 'src/app/shared/services/app-config.service';
+import { AppConfigService } from 'src/app/shared/services/app-config.service';
+import {
+  AppButtonTypes,
+  ButtonRowClickedParams,
+} from 'src/app/dashboard/shared/components/buttons/buttons.model';
 
 @Component({
   selector: 'app-member-org-setup',
   templateUrl: './member-org-setup.component.html',
-  styleUrls: ['../../../shared/styling/setup-table-list.shared.css'],
 })
 export class MemberOrgSetupComponent implements OnInit, OnDestroy {
+  readonly appButtonType = AppButtonTypes;
   isLoading = false;
   private _memberOrgListSub$!: Subscription;
   selectedHoldingOrgId = '';
@@ -93,6 +98,21 @@ export class MemberOrgSetupComponent implements OnInit, OnDestroy {
   }
 
   /** Action buttons */
+  onButtonRowClicked(args: ButtonRowClickedParams) {
+    console.log({ args });
+
+    switch (args.appButtonType) {
+      case AppButtonTypes.edit:
+        return this.onEditOrg(args._id);
+      case AppButtonTypes.status:
+        return this.onStatusChange(args?.status!, args._id, args?.name!);
+      case AppButtonTypes.view:
+        return this.onViewOrg(args._id);
+      case AppButtonTypes.delete:
+        return this.onDeleteOrg(args._id, args?.name!);
+    }
+  }
+
   onAddMemberOrg(): void {
     this._router.navigate(['add'], { relativeTo: this._route });
   }

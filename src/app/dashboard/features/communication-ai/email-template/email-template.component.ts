@@ -42,8 +42,7 @@ import { Channel } from 'src/app/core/enums/template-channel-enum';
 
 @Component({
   selector: 'app-email-template',
-  templateUrl: './email-template.component.html',
-  styleUrls: ['../../../shared/styling/setup-table-list.shared.css'],
+  templateUrl: './email-template.component.html'
 })
 export class EmailTemplateComponent implements OnInit, OnDestroy {
   isLoading = false;
@@ -79,7 +78,7 @@ export class EmailTemplateComponent implements OnInit, OnDestroy {
 
 
   //to set initial form
-  private _initForm() { 
+  private _initForm() {
 
     let tempBody: any;
     tempBody =
@@ -103,7 +102,7 @@ export class EmailTemplateComponent implements OnInit, OnDestroy {
       description: new FormControl(
         this._currentTempData?.description,
         Validators.required
-      ),
+      )
     });
     //Template Email formgroup declaration
     this.templateEmailFG = new FormGroup({
@@ -177,7 +176,7 @@ export class EmailTemplateComponent implements OnInit, OnDestroy {
     this._id = this._route.snapshot.params['id'];
 
     const initEmailTemplateObs: Observable<any> = this._communicationAIService
-      .getTemplates()
+      .getTemplateList(this.userAccessOrgData?.searchString)
       .pipe(
         map((temp) => {
           if (this._id) {

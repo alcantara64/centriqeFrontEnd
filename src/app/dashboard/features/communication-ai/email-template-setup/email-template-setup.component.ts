@@ -2,14 +2,15 @@
 /** 10122020 - Gaurav - Set isLoading on ngOnInit for local template use and to honour the template change to disable list filter input on loading
  * to avoid typing and subsequent error - TypeError: Cannot set property 'filter' of undefined
  * 08022021 - Gaurav - Added code for new progress-bar service
- * 24032021 - Ramesh - JIRA CA-250: added app-config services*/
+ * 24032021 - Ramesh - JIRA CA-250: added app-config services
+ * 31032021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons */
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortable } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { Observable, Subscription, ObservableInput } from 'rxjs';
-import { concatMap, map, switchMap, take, tap } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import {
   DashboardService,
   HoldingOrg,
@@ -26,7 +27,11 @@ import { CommunicationAIService } from '../communication-ai.service';
 import { ClientSetupService } from '../../client-setup/client-setup.service';
 import { consoleLog } from 'src/app/shared/util/common.util';
 import { LoadingService } from 'src/app/shared/services/loading.service';
-import {AppConfigService} from 'src/app/shared/services/app-config.service';
+import { AppConfigService } from 'src/app/shared/services/app-config.service';
+import {
+  AppButtonTypes,
+  ButtonRowClickedParams,
+} from 'src/app/dashboard/shared/components/buttons/buttons.model';
 /** Created enum, instead of using boolean values, in case more than two filters condition are introduced */
 enum FilterBy {
   HOLDING_ORG,
@@ -36,12 +41,11 @@ enum FilterBy {
 @Component({
   selector: 'app-email-template-setup',
   templateUrl: './email-template-setup.component.html',
-  styleUrls: ['../../../shared/styling/setup-table-list.shared.css'],
 })
 export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
+  readonly appButtonType = AppButtonTypes;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  private _observableSub$!: Subscription;
   private _templateListSub$!: Subscription;
   private _showEditComponents = false;
   private _searchString = '';
@@ -152,7 +156,7 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
               this._searchString = this._searchString.slice(0, -1);
             }
           }
-          return this._communicationAIService.getTemplates();
+          return this._communicationAIService.getTemplateList(this._searchString);
         })
       );
 
@@ -186,6 +190,7 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
     let selOrgInfo = {
       selOrgInfo: this.selectedHoldingOrgData,
       selMemberOrg: this.selectedMemberOrg,
+      searchString: this._searchString,
       orgType:
         this._filterTemplateListBy === 0
           ? 'Holding Org'
@@ -203,6 +208,24 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
       this.dataSource.paginator.firstPage();
     }
   }
+
+  onButtonRowClicked(args: ButtonRowClickedParams) {
+    console.log({ args });
+
+    switch (args.appButtonType) {
+      case AppButtonTypes.edit:
+        return this.onEditTemplate(args._id, 'edit');
+      case AppButtonTypes.copy:
+        return this.onEditTemplate(args._id, 'copy');
+      case AppButtonTypes.status:
+        return this.onStatusChange(args?.status!, args._id, args?.name!);
+      case AppButtonTypes.view:
+        return this.onViewTemplate(args._id);
+      case AppButtonTypes.delete:
+        return this.onDeleteTemplate(args._id, args?.name!);
+    }
+  }
+
   //Navigating to email-template.component.ts for add new template
   onAddNewTemplate() {
     this._router.navigate(['add'], { relativeTo: this._route });
@@ -313,7 +336,7 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
       }
     }
     consoleLog({ valuesArr: ['change', filteredList] });
-    this.sort.sort(({ id: 'updatedAt', start: 'desc'}) as MatSortable);
+    this.sort.sort({ id: 'updatedAt', start: 'desc' } as MatSortable);
     this.dataSource = await new MatTableDataSource(filteredList ?? []);
     this.dataSource.paginator = await this.paginator;
     this.dataSource.sort = await this.sort;
@@ -346,7 +369,7 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
                 /* 21122020 - Abhishek - remove splice fuction from template list */
                 // this.templateList.splice(index, 1);
                 this.dataSource._updateChangeSubscription();
-                this._communicationAIService.getTemplates();
+                this._communicationAIService.getTemplateList(this._searchString);
                 this._setLoading(false);
               },
               (error) => {

@@ -1,0 +1,12 @@
+<a rel="noopener noreferrer" [href]="hrefURI" target="_blank">
+  <button
+    mat-mini-fab
+    [matTooltip]="matTooltipText!"
+    matTooltipPosition="above"
+    color="none"
+    [ngClass]="['mat-elevation-z0', 'action-buttons', 'web-view-button']"
+    [disabled]="isDisabled"
+  >
+    <mat-icon [ngClass]="['web-view-icon']">preview</mat-icon>
+  </button>
+</a>

@@ -21,6 +21,8 @@ import { LoadingComponent } from './components/loading/loading.component';
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import { TrustResourceUrlPipe } from './pipes/trust-resource-url.pipe';
 import { FilterFormControlArrayPipe } from './pipes/filter-form-control-array.pipe';
+import { BaseComponent } from './base/base.component';
+import { FileSizePipe } from './pipes/file-size.pipe';
 
 @NgModule({
   declarations: [
@@ -29,6 +31,8 @@ import { FilterFormControlArrayPipe } from './pipes/filter-form-control-array.pi
     SpinnerComponent,
     TrustResourceUrlPipe,
     FilterFormControlArrayPipe,
+    BaseComponent,
+    FileSizePipe,
   ],
   imports: [
     CommonModule,
@@ -59,6 +63,7 @@ import { FilterFormControlArrayPipe } from './pipes/filter-form-control-array.pi
     /** Pipes */
     TrustResourceUrlPipe,
     FilterFormControlArrayPipe,
+    FileSizePipe,
   ],
 })
 export class SharedModule {}

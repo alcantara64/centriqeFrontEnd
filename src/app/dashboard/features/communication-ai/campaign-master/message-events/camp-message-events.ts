@@ -1,6 +1,7 @@
 /** 08022021 - Gaurav - Added code for new progress-bar service
- *  05032021 - Gaurav - JIRA-CA-154: View Survey Response icon button for campaign survey results and its processing */
- import {
+ *  05032021 - Gaurav - JIRA-CA-154: View Survey Response icon button for campaign survey results and its processing
+ * 05042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons */
+import {
   Component,
   OnDestroy,
   OnInit,
@@ -31,14 +32,17 @@ import {
   DataDomainConfig,
 } from '../../../../shared/components/menu/constants.routes';
 import { LoadingService } from 'src/app/shared/services/loading.service';
-import {AppConfigService} from 'src/app/shared/services/app-config.service';
+import { AppConfigService } from 'src/app/shared/services/app-config.service';
 import { SystemAdminService } from 'src/app/dashboard/features/system-admin/system-admin.service';
 import { consoleLog } from 'src/app/shared/util/common.util';
 import { AuthService } from 'src/app/auth/auth.service';
+import {
+  AppButtonTypes,
+  ButtonRowClickedParams,
+} from 'src/app/dashboard/shared/components/buttons/buttons.model';
 @Component({
   selector: 'camp-message-event',
   templateUrl: './camp-message-events.html',
-  styleUrls: ['../../../../shared/styling/setup-table-list.shared.css'],
   animations: [
     trigger('detailExpand', [
       state('collapsed', style({ height: '0px', minHeight: '0' })),
@@ -54,6 +58,7 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
   @ViewChildren(MatPaginator) paginator = new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort = new QueryList<MatSort>();
   @ViewChild('bodyframe', { static: false }) bodyframe!: ElementRef;
+  readonly appButtonType = AppButtonTypes;
   expandedElement: any | null;
   isLoading = false;
   checked = false;
@@ -143,9 +148,10 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
     this._dashboardService.defaultPaylod = {
       options: {
         offset: 0,
-        limit: this.appConfigService.systemMatTableProperties.pageSizeOptions[2],
+        limit: this.appConfigService.systemMatTableProperties
+          .pageSizeOptions[2],
         sort: {
-          date: -1
+          date: -1,
         },
         globalSearch: {},
       },
@@ -178,49 +184,60 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
     this.messageViewData = this._communicationAIService.getSelOrgData();
     if (this.messageViewData?.from == 'messageEvents') {
       this.onViewCammpMessage(this.messageViewData?.messageData);
-         this.messageViewMode = true;
-    }else{
+      this.messageViewMode = true;
+    } else {
       let routerPath = this._route.snapshot.routeConfig?.path;
-      if(routerPath == dashboardRouteLinks.COMMUNICATION_LAUNCHED_CAMPAIGNS_VIEW.routerLink ||
-        routerPath == dashboardRouteLinks.RESPONSE_PAST_CAMPAIGNS_VIEW.routerLink ||
-        routerPath == dashboardRouteLinks.NPS_PAST_CAMPAIGNS_VIEW.routerLink){
-          this.viewLaunchedPage = true;
-      }else {
+      if (
+        routerPath ==
+          dashboardRouteLinks.COMMUNICATION_LAUNCHED_CAMPAIGNS_VIEW
+            .routerLink ||
+        routerPath ==
+          dashboardRouteLinks.RESPONSE_PAST_CAMPAIGNS_VIEW.routerLink ||
+        routerPath == dashboardRouteLinks.NPS_PAST_CAMPAIGNS_VIEW.routerLink
+      ) {
+        this.viewLaunchedPage = true;
+      } else {
         this._id = this._route.snapshot.params?.id;
       }
       //Search function calling from global
       this.subscription$ = this._communicationAIService
-      .getReceivedTimeZone()
-      .subscribe((res) => {
-    //Getting user time zone
-    this.timeZone = res;
-    if (!this.messageViewMode) {
-      this.getCampMessageEvents();
-    }
-    });
-    }
-    this.displayedColumns = this.viewLaunchedPage ? this.campDisplayedColumns : this.displayedColumns;
-   this.subscription$ = this._communicationAIService.getSelOrgDataObservable().subscribe(
-        res=>{
-          if(this.viewLaunchedPage){
-            this.messageViewData = res;
-            let orgType = this.messageViewData?.orgType?.selectedOrgInDrDw?.holOrMol;
-
-            this._searchMessageEventsPayload = {
-              ... this._searchMessageEventsPayload,
-              query: {
-                "$or":[
-                  {[orgType]: this.messageViewData?.orgType?.selectedOrgInDrDw?._id}
-                ]
-              }
-            }
+        .getReceivedTimeZone()
+        .subscribe((res) => {
+          //Getting user time zone
+          this.timeZone = res;
+          if (!this.messageViewMode) {
             this.getCampMessageEvents();
           }
-        }
-      )
+        });
+    }
+    this.displayedColumns = this.viewLaunchedPage
+      ? this.campDisplayedColumns
+      : this.displayedColumns;
+    this.subscription$ = this._communicationAIService
+      .getSelOrgDataObservable()
+      .subscribe((res) => {
+        if (this.viewLaunchedPage) {
+          this.messageViewData = res;
+          let orgType = this.messageViewData?.orgType?.selectedOrgInDrDw
+            ?.holOrMol;
 
-      //set timer for to get message events
-        this.setTimer();
+          this._searchMessageEventsPayload = {
+            ...this._searchMessageEventsPayload,
+            query: {
+              $or: [
+                {
+                  [orgType]: this.messageViewData?.orgType?.selectedOrgInDrDw
+                    ?._id,
+                },
+              ],
+            },
+          };
+          this.getCampMessageEvents();
+        }
+      });
+
+    //set timer for to get message events
+    this.setTimer();
   }
 
   ngOnDestroy() {
@@ -251,6 +268,17 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
     });
   }
   /** 05032021 - Gaurav - JIRA-CA-154 - Ends */
+
+  onMessageButtonRowClicked(args: ButtonRowClickedParams) {
+    console.log({ args });
+
+    switch (args.appButtonType) {
+      case AppButtonTypes.preview:
+        return this.onViewCampaignSurveyResponse(args?._id, args?.code!);
+      case AppButtonTypes.showMoreRight:
+        return this.onViewCammpMessage(args?.data);
+    }
+  }
 
   //get message events list by its source page
   getCampMessageEvents() {
@@ -465,21 +493,21 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
 
   //start timer to call get message event list
   startTimer() {
-    if(!this.checked){
+    if (!this.checked) {
       this.timeLeft = 10;
     }
   }
   //set the timer
-  setTimer(){
+  setTimer() {
     this.interval = setInterval(() => {
-      if(this.timeLeft > 0 && this.eventMode == 'eventMode' && this.checked) {
+      if (this.timeLeft > 0 && this.eventMode == 'eventMode' && this.checked) {
         this.timeLeft--;
       } else {
-        if(this.checked && this.eventMode == 'eventMode'){
+        if (this.checked && this.eventMode == 'eventMode') {
           this.getCampMessageEvents();
         }
       }
-    },1000)
+    }, 1000);
   }
   //pause timer to call get message event list
   pauseTimer() {

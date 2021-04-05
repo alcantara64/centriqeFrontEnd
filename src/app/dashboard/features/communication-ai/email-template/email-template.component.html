@@ -81,7 +81,6 @@
                 <mat-slide-toggle
                 (change) = "updateVisibility('email')"
                  [checked]="enableEmail"
-                  formControlName="addAdditionalTextField"
                   >Enable Email</mat-slide-toggle
                 >
               </div>
@@ -89,9 +88,7 @@
             <div class="">
               <div class="col-sm-6 my-xs-3 my-sm-4">
                 <mat-slide-toggle
-
                 (change) = "updateVisibility('sms')"
-                  formControlName="addAdditionalTextField"
                   [checked]="enableSMS"
                   >Enable SMS</mat-slide-toggle
                 >
@@ -102,7 +99,6 @@
                 <mat-slide-toggle
                 (change) = "updateVisibility('whatsApp')"
                 [checked]="enableWhatsApp"
-                  formControlName="addAdditionalTextField"
                   >Enable WhatsApp</mat-slide-toggle
                 >
               </div>

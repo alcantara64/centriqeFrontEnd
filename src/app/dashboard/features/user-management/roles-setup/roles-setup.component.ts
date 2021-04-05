@@ -1,6 +1,7 @@
 /** 30112020 - Gaurav - Init version
  * 10122020 - Gaurav - Fix to show 'Name (Code)' and removed 'Code' column from display
  * 08022021 - Gaurav - Added code for new progress-bar service
+ * 31032021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons
  */
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
@@ -20,15 +21,19 @@ import {
 } from 'src/app/dashboard/shared/components/dialog/dialog.model';
 import { UserManagementService } from '../user-management.service';
 import { LoadingService } from 'src/app/shared/services/loading.service';
-import {AppConfigService} from 'src/app/shared/services/app-config.service';
+import { AppConfigService } from 'src/app/shared/services/app-config.service';
+import {
+  AppButtonTypes,
+  ButtonRowClickedParams,
+} from 'src/app/dashboard/shared/components/buttons/buttons.model';
 
 @Component({
   selector: 'app-roles-setup',
   templateUrl: './roles-setup.component.html',
-  styleUrls: ['../../../shared/styling/setup-table-list.shared.css'],
 })
 export class RolesSetupComponent implements OnInit {
   isLoading = false;
+  readonly appButtonType = AppButtonTypes;
   private _showEditComponents = false;
   _rolesList: any[] = [];
 
@@ -73,6 +78,21 @@ export class RolesSetupComponent implements OnInit {
   }
 
   /** Action buttons */
+  onButtonRowClicked(args: ButtonRowClickedParams) {
+    console.log({ args });
+
+    switch (args.appButtonType) {
+      case AppButtonTypes.edit:
+        return this.onEditRole(args._id);
+      case AppButtonTypes.status:
+        return this.onStatusChange(args?.status!, args._id, args?.name!);
+      case AppButtonTypes.view:
+        return this.onViewRole(args._id);
+      case AppButtonTypes.delete:
+        return this.onDeleteRole(args._id, args?.name!);
+    }
+  }
+
   onAddRole(): void {
     this._router.navigate(['add'], { relativeTo: this._route });
   }

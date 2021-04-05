@@ -11,7 +11,8 @@
  * 22012021 - Gaurav - Added title and showLogo fields to SurveyStruct
  * 12022021 - Gaurav - Added Campaign Survey Response related interfaces
  * 25022021 - Gaurav - JIRA-CA-152: Added TextHitsResponse
- * 02032021 - Gaurav - JIRA-CA-195: totalHitsByResponseId */
+ * 02032021 - Gaurav - JIRA-CA-195: totalHitsByResponseId
+ * 30032021 - Gaurav - JIRA-CA-277: Added interfaces for message templates into Survey struct interface */
 
 import { OrgIdentifier } from 'src/app/dashboard/shared/components/org-dropdownlist/org-dropdownlist.component';
 import { consoleLog, ConsoleTypes } from 'src/app/shared/util/common.util';
@@ -126,6 +127,20 @@ export enum ComponentCategory {
   section = 'section',
 }
 
+export interface SurveyEmailTemplate {
+  subject: string;
+  body: string;
+  templateData: string;
+}
+
+export interface SurveySmsTemplate {
+  text: string;
+}
+
+export interface SurveyWhatsAppTemplate {
+  text: string;
+}
+
 export interface SurveyStruct extends SurveyInstance {
   _id: string;
   dataDomain: string;
@@ -138,6 +153,11 @@ export interface SurveyStruct extends SurveyInstance {
   status: number;
   userId?: string;
   introText?: string;
+  channel: {
+    email?: SurveyEmailTemplate;
+    sms?: SurveySmsTemplate;
+    whatsApp?: SurveyWhatsAppTemplate;
+  };
 }
 
 export interface SurveyHoldingOrgData {

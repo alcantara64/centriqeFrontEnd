@@ -9,6 +9,8 @@
 <!-- 08022021 - Gaurav - Aesthetic bug fix: Load controls only when loading is off and survey object is valid -->
 <!-- 25032021 - Gaurav - JIRA-CA-274: Change survey setup to tabbed format -->
 <!-- 25032021 - Gaurav - JIRA-CA-275: Tabbed page setup -->
+<!-- 30032021 - Gaurav - JIRA-CA-277: Add message templates to survey setup -->
+<!-- 01042021 - Gaurav - JIRA-CA-277: Fixed email editor issue with lazy-load child tabs -->
 <div class="survey-main-container">
   <div class="survey-card-container">
     <mat-card>
@@ -137,6 +139,54 @@
                     &lt;/p&gt;"
                   </mat-hint>
                 </mat-form-field>
+
+                <h4 class="h4 text-secondary col-12 mt-4 mb-0">
+                  Configure {{ tabIndex[2].label }}
+                </h4>
+                <hr class="my-1" style="width: 100%; height: 5px" />
+                <div class="row mb-1" style="width: 100%">
+                  <div class="col-12">
+                    <mat-slide-toggle
+                      [checked]="this.channelConfig.enableEmail"
+                      (click)="
+                        $event.preventDefault();
+                        onToggleMessageTemplateConfig(emailToggle, 'email')
+                      "
+                      [disabled]="viewOnly"
+                      #emailToggle
+                      >Email</mat-slide-toggle
+                    >
+                  </div>
+
+                  <div class="col-12 my-2">
+                    <mat-slide-toggle
+                      [checked]="this.channelConfig.enableSms"
+                      (click)="
+                        $event.preventDefault();
+                        onToggleMessageTemplateConfig(smsToggle, 'sms')
+                      "
+                      [disabled]="viewOnly"
+                      #smsToggle
+                      >SMS</mat-slide-toggle
+                    >
+                  </div>
+
+                  <div class="col-12">
+                    <mat-slide-toggle
+                      [checked]="this.channelConfig.enableWhatsApp"
+                      (click)="
+                        $event.preventDefault();
+                        onToggleMessageTemplateConfig(
+                          whatsappToggle,
+                          'whatsApp'
+                        )
+                      "
+                      [disabled]="viewOnly"
+                      #whatsappToggle
+                      >WhatsApp</mat-slide-toggle
+                    >
+                  </div>
+                </div>
               </div>
             </mat-tab>
 
@@ -226,16 +276,117 @@
               </ng-template>
             </mat-tab>
 
-            <!-- TODO Add message templates tab -->
-            <mat-tab [label]="tabIndex[2].label" disabled>Content 3</mat-tab>
+            <mat-tab
+              [label]="tabIndex[2].label"
+              *ngIf="
+                this.channelConfig.enableEmail ||
+                this.channelConfig.enableSms ||
+                this.channelConfig.enableWhatsApp
+              "
+            >
+              <ng-template matTabContent>
+                <mat-tab-group
+                  mat-align-tabs="end"
+                  color="accent"
+                  [(selectedIndex)]="selectedMessageTemplateTabIndex"
+                  formGroupName="channel"
+                >
+                  <mat-tab
+                    label="Email"
+                    *ngIf="this.channelConfig.enableEmail"
+                    formGroupName="email"
+                  >
+                    <ng-template matTabContent>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Email Subject *</mat-label>
+                        <textarea
+                          matInput
+                          formControlName="subject"
+                          [maxlength]="emailSubjectMaxLength"
+                          rows="1"
+                          #subjectText
+                        ></textarea>
+                        <mat-error>Email Subject is a required field</mat-error>
+                        <mat-hint align="end"
+                          >{{ subjectText.value.length }} /
+                          {{ emailSubjectMaxLength }}</mat-hint
+                        >
+                      </mat-form-field>
+                      <hr />
+                    </ng-template>
+                  </mat-tab>
+                  <mat-tab
+                    label="SMS"
+                    *ngIf="this.channelConfig.enableSms"
+                    formGroupName="sms"
+                  >
+                    <ng-template matTabContent>
+                      <mat-form-field appearance="outline">
+                        <mat-label>SMS Text *</mat-label>
+                        <textarea
+                          matInput
+                          formControlName="text"
+                          [maxlength]="smsTextMaxLength"
+                          rows="1"
+                          #smsText
+                        ></textarea>
+                        <mat-error>SMS Text is a required field</mat-error>
+                        <mat-hint align="end"
+                          >{{ smsText.value.length }} /
+                          {{ smsTextMaxLength }}</mat-hint
+                        >
+                      </mat-form-field>
+                    </ng-template>
+                  </mat-tab>
+                  <mat-tab
+                    label="WhatsApp"
+                    *ngIf="this.channelConfig.enableWhatsApp"
+                    formGroupName="whatsApp"
+                  >
+                    <ng-template matTabContent>
+                      <mat-form-field appearance="outline">
+                        <mat-label>WhatsApp Text *</mat-label>
+                        <textarea
+                          matInput
+                          formControlName="text"
+                          [maxlength]="whatsAppTextMaxLength"
+                          rows="2"
+                          #whatsAppText
+                        ></textarea>
+                        <mat-error>WhatsApp Text is a required field</mat-error>
+                        <mat-hint align="end"
+                          >{{ whatsAppText.value.length }} /
+                          {{ whatsAppTextMaxLength }}</mat-hint
+                        >
+                      </mat-form-field>
+                    </ng-template>
+                  </mat-tab>
+                </mat-tab-group>
+              </ng-template>
+            </mat-tab>
           </mat-tab-group>
+
+          <div
+            [hidden]="
+              !this.channelConfig.enableEmail ||
+              selectedTablIndex !== 2 ||
+              selectedMessageTemplateTabIndex !== 0
+            "
+          >
+            <email-editor
+              [options]="options"
+              (loaded)="loadEditor($event)"
+              #editor
+            >
+            </email-editor>
+          </div>
         </form>
       </mat-card-content>
       <mat-divider></mat-divider>
       <mat-card-actions>
         <!-- Buttons -->
         <button
-          (click)="onSubmit()"
+          (click)="onPreSubmit()"
           mat-raised-button
           class="btn-action"
           *ngIf="isCanDo()"
@@ -245,7 +396,7 @@
         </button>
         <ng-container *ngIf="accessMode === accessModes.Edit">
           <button
-            (click)="onSubmit(true)"
+            (click)="onPreSubmit(true)"
             mat-raised-button
             class="btn-action"
             *ngIf="isCanDo()"

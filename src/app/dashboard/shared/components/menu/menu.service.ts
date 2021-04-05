@@ -8,6 +8,7 @@
  * 12082021 - Gaurav - JIRA-CA-234: System Config - UI for Customer Attribute Enum
  * 17032021 - Gaurav - JIRA-CA-234: Reverted last UI for CRUD and will create per the backend API given
  * 18022021 - Abhishek - JIRA-CA-167: Render dashboards on UI -> Added analytics routes and make analytics as menu itself removed sub menus.
+ * 01042021 - Abhishek - CA-334: Implement Frontend "load file".
  */
 import { Injectable } from '@angular/core';
 import {
@@ -683,7 +684,7 @@ export class MenuService {
                 routerLink: r.CLIENT_SETUP_MANAGE_LOAD_CUSTOMERDATA.routerLink,
                 menuItemIcon: '',
                 menuItemName: r.CLIENT_SETUP_MANAGE_LOAD_CUSTOMERDATA.linkName,
-                disabled: true,
+                // disabled: true,
               },
             ],
           },

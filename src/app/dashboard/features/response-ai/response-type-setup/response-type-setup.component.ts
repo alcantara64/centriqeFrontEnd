@@ -3,6 +3,7 @@
  * 19012021 - Gaurav - Added code and removed displayName
  * 21012021 - Gaurav - Modified for the Org DrDw
  * 08022021 - Gaurav - Added code for new progress-bar service
+ * 31032021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons
  */
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -37,18 +38,21 @@ import { ClientSetupService } from '../../client-setup/client-setup.service';
 import {
   CanFilterByOrg,
   OrgDrDwEmitStruct,
-  OrgIdentifier,
 } from 'src/app/dashboard/shared/components/org-dropdownlist/org-dropdownlist.component';
 import { LoadingService } from 'src/app/shared/services/loading.service';
-import {AppConfigService} from 'src/app/shared/services/app-config.service';
+import { AppConfigService } from 'src/app/shared/services/app-config.service';
+import {
+  AppButtonTypes,
+  ButtonRowClickedParams,
+} from 'src/app/dashboard/shared/components/buttons/buttons.model';
 
 @Component({
   selector: 'app-response-type-setup',
   templateUrl: './response-type-setup.component.html',
-  styleUrls: ['../../../shared/styling/setup-table-list.shared.css'],
 })
 export class ResponseTypeSetupComponent implements OnInit, OnDestroy {
   isLoading = false;
+  readonly appButtonType = AppButtonTypes;
   readonly dataDomainList = DataDomainConfig;
   private _showEditComponents = false;
   private _responseTypes: any[] = <any[]>[];
@@ -116,6 +120,23 @@ export class ResponseTypeSetupComponent implements OnInit, OnDestroy {
   }
 
   /** Action buttons */
+  onButtonRowClicked(args: ButtonRowClickedParams) {
+    console.log({ args });
+
+    switch (args.appButtonType) {
+      case AppButtonTypes.edit:
+        return this.onEdit(args._id);
+      case AppButtonTypes.copy:
+        return this.onDuplicate(args._id, args?.name!, '');
+      case AppButtonTypes.status:
+        return this.onStatusChange(args?.status!, args._id, args?.name!, '');
+      case AppButtonTypes.view:
+        return this.onView(args._id);
+      case AppButtonTypes.delete:
+        return this.onDelete(args._id, args?.name!, '');
+    }
+  }
+
   onAdd(): void {
     this._router.navigate(['add'], {
       relativeTo: this._route,

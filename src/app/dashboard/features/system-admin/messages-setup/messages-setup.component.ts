@@ -1,8 +1,21 @@
 /** 23122020 - Abhishek - Init version
  * 08022021 - Gaurav - Added code for new progress-bar service
+
  */
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import {animate, state, style, transition, trigger} from '@angular/animations';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+} from '@angular/core';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -11,19 +24,21 @@ import { MatSort } from '@angular/material/sort';
 import { DashboardService } from '../../../dashboard.service';
 import { SystemAdminService } from '../system-admin.service';
 import { LoadingService } from 'src/app/shared/services/loading.service';
-import {AppConfigService} from 'src/app/shared/services/app-config.service';
+import { AppConfigService } from 'src/app/shared/services/app-config.service';
 import { consoleLog } from 'src/app/shared/util/common.util';
 import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-messages-setup',
   templateUrl: './messages-setup.component.html',
-  styleUrls: ['../../../shared/styling/setup-table-list.shared.css'],
   animations: [
     trigger('detailExpand', [
-      state('collapsed', style({height: '0px', minHeight: '0'})),
-      state('expanded', style({height: '*'})),
-      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition(
+        'expanded <=> collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
+      ),
     ]),
   ],
 })
@@ -40,8 +55,22 @@ export class MessagesSetupComponent implements OnInit, AfterViewInit {
   externalDataSource!: MatTableDataSource<any>;
   private _searchPayload: any = {};
   /** Cols chosen to be displayed on the table */
-  displayedColumns: string[] = ['createdAt','channel', 'status','event','from','to','action_buttons'];
-  globalFilterColumns: string[] = ['channel','status', 'provider.eventType','from','to'];
+  displayedColumns: string[] = [
+    'createdAt',
+    'channel',
+    'status',
+    'event',
+    'from',
+    'to',
+    'action_buttons',
+  ];
+  globalFilterColumns: string[] = [
+    'channel',
+    'status',
+    'provider.eventType',
+    'from',
+    'to',
+  ];
   externalDataColumns: string[] = ['eventId', 'timestamp', 'event', 'actions'];
   dataSource!: MatTableDataSource<any>;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -58,16 +87,17 @@ export class MessagesSetupComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this._setLoading(true);
     //to get login user info
-    this._authService.getAuthStatusListener().subscribe(res => {
+    this._authService.getAuthStatusListener().subscribe((res) => {
       this.isUserAdmin = res.userInfo.isAdmin;
     });
     //to set pagination payload
     this._dashboardService.defaultPaylod = {
       options: {
         offset: 0,
-        limit: this.appConfigService.systemMatTableProperties.pageSizeOptions[2],
+        limit: this.appConfigService.systemMatTableProperties
+          .pageSizeOptions[2],
       },
-      query: {}
+      query: {},
     };
     // this._showEditComponents =
     //   this._route.snapshot.routeConfig?.path ===
@@ -75,30 +105,29 @@ export class MessagesSetupComponent implements OnInit, AfterViewInit {
 
     this._getMessages();
   }
-  ngAfterViewInit(){
-
-  }
+  ngAfterViewInit() {}
   private _getMessages(): void {
     this._searchPayload = {
       options: {
-        ... this._searchPayload?.options,
-            sort: {},
-            offset: 0,
-            limit: this.appConfigService.systemMatTableProperties.pageSizeOptions[2],
-            globalSearch: {
-              fieldNames: this.globalFilterColumns,
+        ...this._searchPayload?.options,
+        sort: {},
+        offset: 0,
+        limit: this.appConfigService.systemMatTableProperties
+          .pageSizeOptions[2],
+        globalSearch: {
+          fieldNames: this.globalFilterColumns,
           searchValue: this.searchText,
-            }
-          },
-      query: { }
-     };
-      this.getMessagesBySearch(this._searchPayload);
-     }
-     applyFilter(e: any){
-      this.searchText = e.target.value;
-      this._getMessages();
-    }
-//11022021 - Ramesh - on paginator change load data
+        },
+      },
+      query: {},
+    };
+    this.getMessagesBySearch(this._searchPayload);
+  }
+  applyFilter(e: any) {
+    this.searchText = e.target.value;
+    this._getMessages();
+  }
+  //11022021 - Ramesh - on paginator change load data
   onPageChange(e: any) {
     this._setLoading(true);
     this._searchPayload = this._dashboardService.defaultPaylod;
@@ -110,32 +139,31 @@ export class MessagesSetupComponent implements OnInit, AfterViewInit {
         offset: e.pageIndex ? e.pageSize * e.pageIndex : 0,
         limit: e.pageSize,
       },
-      "query": { }
+      query: {},
     };
     this.getMessagesBySearch(this._searchPayload);
   }
   //11022021 - ramesh - load message list by search
-  getMessagesBySearch(data:object){
+  getMessagesBySearch(data: object) {
     this._loadingService
-    .showProgressBarUntilCompleted(
-      this._systemAdminService.getMessagesListBySearch(this._searchPayload),
-      'query'
-    )
-    .subscribe(
-      async (response) => {
-        this.totalRecords = response?.info?.totalCount;
-        this._messagesList = response?.results;
-        this.dataSource = await new MatTableDataSource(this._messagesList);
-        //this.dataSource.paginator = await this.paginator;
-        this.dataSource.sort = await this.sort;
-        this._setLoading(false);
-      },
-      (error) => {
-        // shall be handled by Http Interceptor
-        this._setLoading(false);
-      }
-    );
-
+      .showProgressBarUntilCompleted(
+        this._systemAdminService.getMessagesListBySearch(this._searchPayload),
+        'query'
+      )
+      .subscribe(
+        async (response) => {
+          this.totalRecords = response?.info?.totalCount;
+          this._messagesList = response?.results;
+          this.dataSource = await new MatTableDataSource(this._messagesList);
+          //this.dataSource.paginator = await this.paginator;
+          this.dataSource.sort = await this.sort;
+          this._setLoading(false);
+        },
+        (error) => {
+          // shall be handled by Http Interceptor
+          this._setLoading(false);
+        }
+      );
   }
   // to view message info
   onMessage(id: string) {
@@ -143,9 +171,13 @@ export class MessagesSetupComponent implements OnInit, AfterViewInit {
     this._systemAdminService.getMessageViewData(id).subscribe(
       async (res) => {
         this.messageEventList = res;
-        this.externalDataSource = await new MatTableDataSource(res?.externalData?.events ?? []);
-        let y = (this.bodyframe.nativeElement.contentWindow || this.bodyframe.nativeElement.contentDocument);
-        if (y.document)y = y.document;
+        this.externalDataSource = await new MatTableDataSource(
+          res?.externalData?.events ?? []
+        );
+        let y =
+          this.bodyframe.nativeElement.contentWindow ||
+          this.bodyframe.nativeElement.contentDocument;
+        if (y.document) y = y.document;
         y.body.innerHTML = res?.body;
         setTimeout(() => {
           this.bodyframe.nativeElement.style.height =
@@ -168,10 +200,10 @@ export class MessagesSetupComponent implements OnInit, AfterViewInit {
     order
       ? (sortObj = { [e.active]: order })
       : delete this._searchPayload?.options?.sort[e.active];
-      this.filterColumns = {
-        ... this.filterColumns,
-        [e.active]: order
-      }
+    this.filterColumns = {
+      ...this.filterColumns,
+      [e.active]: order,
+    };
     this._searchPayload = this._dashboardService.defaultPaylod;
     this._searchPayload = {
       ...this._searchPayload,
@@ -180,7 +212,7 @@ export class MessagesSetupComponent implements OnInit, AfterViewInit {
         offset: this._searchPayload?.options?.offset,
         limit: this._searchPayload?.options?.limit,
         //sort: { ...this._searchPayload?.options?.sort, ...sortObj }
-        sort: this.filterColumns
+        sort: this.filterColumns,
       },
     };
 

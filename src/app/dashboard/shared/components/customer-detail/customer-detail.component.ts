@@ -16,7 +16,7 @@ import { DashboardService, HoldingOrg } from '../../../dashboard.service';
 @Component({
   selector: 'app-customer-detail',
   templateUrl: './customer-detail.component.html',
-  styleUrls: ['./customer-detail.component.css', '../../../shared/styling/setup-table-list.shared.css']
+  styleUrls: ['./customer-detail.component.css']
 })
 export class CustomerDetailComponent implements OnInit {
   isLoading = false;

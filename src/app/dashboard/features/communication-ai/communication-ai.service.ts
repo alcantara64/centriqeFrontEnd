@@ -33,7 +33,12 @@ export enum CampaignSurveyResponseMode {
   messageEvent = 'message-event',
 }
 
-export type CampaignType = "comm" | "resp" | "nps"
+export type CampaignType = 'comm' | 'resp' | 'nps';
+export type MessageType = 'email' | 'sms' | 'whatsApp';
+
+export const kSmsTextMaxLength = 160;
+export const kWhatsAppTextMaxLength = 2000;
+export const kEmailSubjectMaxLength = 200;
 
 @Injectable()
 export class CommunicationAIService {
@@ -107,8 +112,8 @@ export class CommunicationAIService {
     return this._http.delete(`${BACKEND_URL}/emailTemplates/${tempId}`);
   }
   //Get campaign master list
-  getCampaignList() {
-    return this._http.get<any>(`${BACKEND_URL}/commCampaigns`);
+  getCampaignList(dataDomain: string, search: object) {
+    return this._http.post<any>(`${BACKEND_URL}/${dataDomain}/search`, search);
   }
   //Get campaign master item by id
   getCampaignById(campId: string) {
@@ -128,8 +133,13 @@ export class CommunicationAIService {
     return this._http.delete(`${BACKEND_URL}/commCampaigns/${campaignId}`);
   }
   //Delete campaign mster item
-  deleteCampaignWithCampaignType(campaignId: string, campaignType: CampaignType): Observable<any> {
-    return this._http.delete(`${BACKEND_URL}/${campaignType}Campaigns/${campaignId}`);
+  deleteCampaignWithCampaignType(
+    campaignId: string,
+    campaignType: CampaignType
+  ): Observable<any> {
+    return this._http.delete(
+      `${BACKEND_URL}/${campaignType}Campaigns/${campaignId}`
+    );
   }
   //Check criteria
   checkCriteria(payload: any) {

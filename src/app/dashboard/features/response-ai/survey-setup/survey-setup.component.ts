@@ -4,6 +4,7 @@
  * 12012021 - Gaurav - Modified to use new Survey APIs
  * 22012021 - Gaurav - Modified for the Org DrDw
  * 08022021 - Gaurav - Added code for new progress-bar service
+ * 31032021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons
  */
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
@@ -37,15 +38,19 @@ import {
 } from 'src/app/dashboard/shared/components/org-dropdownlist/org-dropdownlist.component';
 import { ClientSetupService } from '../../client-setup/client-setup.service';
 import { LoadingService } from 'src/app/shared/services/loading.service';
-import {AppConfigService} from 'src/app/shared/services/app-config.service';
+import { AppConfigService } from 'src/app/shared/services/app-config.service';
+import {
+  AppButtonTypes,
+  ButtonRowClickedParams,
+} from 'src/app/dashboard/shared/components/buttons/buttons.model';
 
 @Component({
   selector: 'app-survey-setup',
   templateUrl: './survey-setup.component.html',
-  styleUrls: ['../../../shared/styling/setup-table-list.shared.css'],
 })
 export class SurveySetupComponent implements OnInit, OnDestroy {
   isLoading = false;
+  readonly appButtonType = AppButtonTypes;
   readonly dataDomainList = DataDomainConfig;
   readonly ngMultiPurposeAppUrl =
     'ngMultiPurposeAppUrl' in environment
@@ -116,6 +121,23 @@ export class SurveySetupComponent implements OnInit, OnDestroy {
   }
 
   /** Action buttons */
+  onButtonRowClicked(args: ButtonRowClickedParams) {
+    console.log({ args });
+
+    switch (args.appButtonType) {
+      case AppButtonTypes.edit:
+        return this.onEdit(args._id);
+      case AppButtonTypes.copy:
+        return this.onDuplicate(args._id, args?.name!);
+      case AppButtonTypes.status:
+        return this.onStatusChange(args?.status!, args._id, args?.name!);
+      case AppButtonTypes.view:
+        return this.onView(args._id);
+      case AppButtonTypes.delete:
+        return this.onDelete(args._id, args?.name!);
+    }
+  }
+
   onAdd(): void {
     this._router.navigate(['add'], {
       relativeTo: this._route,
@@ -318,6 +340,7 @@ export class SurveySetupComponent implements OnInit, OnDestroy {
 
           this._surveys = surveys ?? <any[]>[];
           await this._filterSurveysList();
+          await this.sort.sort(({ id: 'updatedAt', start: 'desc'}) as MatSortable);
           this._setLoading(false);
         },
         (error) => {
@@ -369,7 +392,6 @@ export class SurveySetupComponent implements OnInit, OnDestroy {
     this.dataSource = await new MatTableDataSource(filteredList ?? <any>[]);
     this.dataSource.paginator = await this.paginator;
     this.dataSource.sort = await this.sort;
-    await this.sort.sort(({ id: 'updatedAt', start: 'desc'}) as MatSortable);
   }
 
   private _setLoading(value: boolean): void {

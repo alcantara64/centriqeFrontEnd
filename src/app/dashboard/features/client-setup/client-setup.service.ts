@@ -10,13 +10,14 @@
  * 18022021 - Abhishek - JIRA-CA-167: Render dashboards on UI -> Added update dashboard Org HTTP PUT call.
  */
 import { Injectable } from '@angular/core';
-import { HttpClient} from '@angular/common/http';
+import { HttpClient, HttpParams} from '@angular/common/http';
 import { map, tap } from 'rxjs/operators';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { OrgAccessInformationResponse } from '../../dashboard.service';
 import { FilterParams } from 'src/app/core/models/dashboardCofig';
+import { CustomerUpload } from 'src/app/core/models/customerUploads';
 const BACKEND_URL = `${environment.apiUrlV1}`;
 
 @Injectable()
@@ -159,4 +160,15 @@ export class ClientSetupService {
       // get:/orgs/dashboard
       return this._http.get<any>(`${BACKEND_URL}/systemConfig`);
     }
+    //#region customer uploads
+    getCustomerUploads(holdingOrg:string):Observable<CustomerUpload[]>{
+      // const uploadsParams = new HttpParams()
+      // uploadsParams.append('holdingOrg', holdingOrg);
+     return this._http.get<CustomerUpload[]>(`${BACKEND_URL}/customerFileUpload/uploads`,{params:{holdingOrg}});
+    }
+    uploadCustomerData(payload:FormData):Observable<string>{
+     return this._http.post<string>(`${BACKEND_URL}/customerFileUpload/upload`,payload);
+    }
+    
+    //#endregion
 }

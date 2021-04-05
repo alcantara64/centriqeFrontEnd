@@ -76,6 +76,11 @@
     padding: 5px;
   }
 }
+@media screen and (max-width: 550px) {
+  .main-container {
+    padding: 10px;
+  }
+}
 
 @media screen and (max-width: 500px) {
   .login-container {
@@ -113,6 +118,46 @@
     .member-org-selection {
       padding-left: 45px;
     }
+    .action-buttons {
+      width: 25px;
+      height: 25px;
+      mat-icon {
+        font-size: 14px;
+      }
+    }
+        .mat-form-field {
+      font-size: 12px;
+      width: $hundred-percent;
+    }
+
+    .mat-header-cell {
+      font-size: 12px;
+    }
+
+    .mat-cell {
+      font-size: 12px;
+    }
+
+    th.mat-header-cell:first-of-type,
+    td.mat-cell:first-of-type,
+    td.mat-footer-cell:first-of-type {
+      padding-left: 10px;
+    }
+
+    .table-top {
+      flex-direction: column;
+    }
+
+    .table-top_row1,
+    .table-top_row2,
+    .table-add-btn {
+      width: $hundred-percent;
+      text-align: $align-center;
+    }
+    /* 05012021 - Abhishek - Set css to set header design */
+    .col {
+      padding: 0px;
+    }
 }
 
 @media screen and (max-width: 400px) {
@@ -135,6 +180,9 @@
 
   .member-org-selection {
     padding-left: 35px;
+  }
+  .hide-small-screen {
+    display: none;
   }
 }
 

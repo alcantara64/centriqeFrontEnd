@@ -5,19 +5,18 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { ActivatedRoute, Router } from '@angular/router';
+
 /** Services */
 import { DashboardService } from '../../../dashboard.service';
 import { SystemAdminService } from '../system-admin.service';
 import { CommunicationAIService } from '../../communication-ai/communication-ai.service';
 import { LoadingService } from 'src/app/shared/services/loading.service';
-import { dashboardRouteLinks, DataDomainConfig } from 'src/app/dashboard/shared/components/menu/constants.routes';
-import {AppConfigService} from 'src/app/shared/services/app-config.service';
+import { DataDomainConfig } from 'src/app/dashboard/shared/components/menu/constants.routes';
+import { AppConfigService } from 'src/app/shared/services/app-config.service';
 
 @Component({
   selector: 'app-message-events-setup',
   templateUrl: './message-events-setup.component.html',
-  styleUrls: ['../../../shared/styling/setup-table-list.shared.css'],
 })
 export class MessageEventsSetupComponent implements OnInit {
   isLoading = false;
@@ -46,8 +45,6 @@ export class MessageEventsSetupComponent implements OnInit {
     private _dashboardService: DashboardService,
     private _systemAdminService: SystemAdminService,
     private _communicationAIService: CommunicationAIService,
-    private _route: ActivatedRoute,
-    private _router: Router,
     public appConfigService: AppConfigService,
     private _loadingService: LoadingService
   ) {}
@@ -57,9 +54,10 @@ export class MessageEventsSetupComponent implements OnInit {
     this._dashboardService.defaultPaylod = {
       options: {
         offset: 0,
-        limit: this.appConfigService.systemMatTableProperties.pageSizeOptions[2],
+        limit: this.appConfigService.systemMatTableProperties
+          .pageSizeOptions[2],
       },
-      query: {}
+      query: {},
     };
     this._getMessages();
   }
@@ -69,19 +67,20 @@ export class MessageEventsSetupComponent implements OnInit {
     //default paginator set
     this._searchPayload = {
       options: {
-            sort: {},
-            offset: 0,
-            limit: this.appConfigService.systemMatTableProperties.pageSizeOptions[2],
-            globalSearch: {
-              fieldNames: this.displayedColumns,
+        sort: {},
+        offset: 0,
+        limit: this.appConfigService.systemMatTableProperties
+          .pageSizeOptions[2],
+        globalSearch: {
+          fieldNames: this.displayedColumns,
           searchValue: this.searchText,
-            }
-            },
-      query: { }
-     };
-   this.getMessageEventsBySearch(this._searchPayload);
+        },
+      },
+      query: {},
+    };
+    this.getMessageEventsBySearch(this._searchPayload);
   }
-  applyFilter(e: any){
+  applyFilter(e: any) {
     this.searchText = e.target.value;
     this._getMessages();
   }
@@ -97,7 +96,7 @@ export class MessageEventsSetupComponent implements OnInit {
         offset: e.pageIndex ? e.pageSize * e.pageIndex : 0,
         limit: e.pageSize,
       },
-      query: { }
+      query: {},
     };
     this.getMessageEventsBySearch(this._searchPayload);
   }
@@ -107,12 +106,12 @@ export class MessageEventsSetupComponent implements OnInit {
     let order = e.direction === 'asc' ? 1 : e.direction === 'desc' ? -1 : 0;
     let sortObj;
     order
-    ? (sortObj = { [e.active]: order })
-    : delete this._searchPayload?.options?.sort[e.active];
+      ? (sortObj = { [e.active]: order })
+      : delete this._searchPayload?.options?.sort[e.active];
     this.filterColumns = {
-      ... this.filterColumns,
-      [e.active]: order
-    }
+      ...this.filterColumns,
+      [e.active]: order,
+    };
     this._searchPayload = this._dashboardService.defaultPaylod;
     this._searchPayload = {
       ...this._searchPayload,
@@ -121,7 +120,7 @@ export class MessageEventsSetupComponent implements OnInit {
         offset: this._searchPayload?.options?.offset,
         limit: this._searchPayload?.options?.limit,
         //sort: { ...this._searchPayload?.options?.sort, ...sortObj }
-        sort: this.filterColumns
+        sort: this.filterColumns,
       },
     };
 
@@ -129,43 +128,51 @@ export class MessageEventsSetupComponent implements OnInit {
     this.getMessageEventsBySearch(this._searchPayload);
   }
 
-  getMessageEventsBySearch(data: object){
+  getMessageEventsBySearch(data: object) {
     this._loadingService
-    .showProgressBarUntilCompleted(
-      this._systemAdminService.getMessageEventsListBySearch(data),
-      'query'
-    )
-    .subscribe(
-      async (response) => {
-        this._messageEventssList = response?.results;
-        this.totalRecords = response?.info?.totalCount;
-        this.dataSource = await new MatTableDataSource(this._messageEventssList);
-        this.dataSource.sort = await this.sort;
-        this._setLoading(false);
-      },
-      (error) => {
-        // shall be handled by Http Interceptor
-        this._setLoading(false);
-      }
-    );
+      .showProgressBarUntilCompleted(
+        this._systemAdminService.getMessageEventsListBySearch(data),
+        'query'
+      )
+      .subscribe(
+        async (response) => {
+          this._messageEventssList = response?.results;
+          this.totalRecords = response?.info?.totalCount;
+          this.dataSource = await new MatTableDataSource(
+            this._messageEventssList
+          );
+          this.dataSource.sort = await this.sort;
+          this._setLoading(false);
+        },
+        (error) => {
+          // shall be handled by Http Interceptor
+          this._setLoading(false);
+        }
+      );
   }
   onViewMessageEvent(id: string) {
     //6024056ae2ab7739f865e54e
     this._systemAdminService.getMessageEventsView(id).subscribe((res) => {
       this.messageEventViewMode = res?.eventType;
       this.messageEventData = res;
-      let orgVal: any = this.messageEventData?.eventType == 'interactiveTemplate' ?
-      this.messageEventData?.template : this.messageEventData?.eventType == 'interactiveSurvey' ?
-      this.messageEventData?.surveyVersion : this.messageEventData;
+      let orgVal: any =
+        this.messageEventData?.eventType == 'interactiveTemplate'
+          ? this.messageEventData?.template
+          : this.messageEventData?.eventType == 'interactiveSurvey'
+          ? this.messageEventData?.surveyVersion
+          : this.messageEventData;
       orgVal = {
-       ... orgVal,
-       lableName: orgVal?.memberOrg == null ? 'Holding' : 'Member',
-       value:  orgVal?.memberOrg == null ? orgVal?.holdingOrg?.name + ' (' + orgVal?.holdingOrg?.code + ') ' : orgVal?.memberOrg?.name + ' (' + orgVal?.memberOrg?.code + ') '
-      }
+        ...orgVal,
+        lableName: orgVal?.memberOrg == null ? 'Holding' : 'Member',
+        value:
+          orgVal?.memberOrg == null
+            ? orgVal?.holdingOrg?.name + ' (' + orgVal?.holdingOrg?.code + ') '
+            : orgVal?.memberOrg?.name + ' (' + orgVal?.memberOrg?.code + ') ',
+      };
       this.messageEventData = {
-        ... this.messageEventData,
-        orgValue:orgVal
-      }
+        ...this.messageEventData,
+        orgValue: orgVal,
+      };
       let selOrgInfo = {
         // selOrgInfo: {
         //   _id: res?.holdingOrg?._id,

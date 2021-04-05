@@ -11,6 +11,7 @@
  * 10022021 - Gaurav - Added apache echarts
  * 05032021 - Abhishek - Added DashboardOrgConfigurationComponent.
  * 17032021 - Gaurav - JIRA-CA-234: Reverted last UI for CRUD and will create per the backend API given
+ * 01042021 - Abhishek - CA-334: Implement Frontend "load file".
  */
 
 import { NgModule } from '@angular/core';
@@ -112,6 +113,24 @@ import { DataAttributesGroupComponent } from './features/system-admin/customer/d
 import { DataAttributesComponent } from './shared/components/data-attributes/data-attributes.component';
 import { DataAttributeEnumsComponent } from './shared/components/data-attribute-enums/data-attribute-enums.component';
 import { ReconcileSysDataAttributesComponent } from './features/client-setup/holding-org/reconcile-sys-data-attributes/reconcile-sys-data-attributes.component';
+import { LoadCustomerDataComponent } from './features/client-setup/load-customer-data/load-customer-data.component';
+import { AddFabButtonComponent } from './shared/components/buttons/add-button-fab/add-fab-button.component';
+import { BaseButtonComponent } from './shared/components/buttons/base-button/base-button.component';
+import { EditFabButtonComponent } from './shared/components/buttons/edit-button-fab/edit-fab-button.component';
+import { ViewFabButtonComponent } from './shared/components/buttons/view-button-fab/view-fab-button.component';
+import { DeleteFabButtonComponent } from './shared/components/buttons/delete-button-fab/delete-fab-button.component';
+import { OpenWeblinkFabButtonComponent } from './shared/components/buttons/open-weblink-button-fab/open-weblink-fab-button.component';
+import { StatusFabButtonComponent } from './shared/components/buttons/status-button-fab/status-fab-button.component';
+import { FabButtonRowComponent } from './shared/components/buttons/fab-button-row/fab-button-row.component';
+import { CopyFabButtonComponent } from './shared/components/buttons/copy-button-fab/copy-button-fab.component';
+import { PreviewButtonFabComponent } from './shared/components/buttons/preview-button-fab/preview-button-fab.component';
+import { TerminateButtonFabComponent } from './shared/components/buttons/terminate-button-fab/terminate-button-fab.component';
+import { ResetButtonFabComponent } from './shared/components/buttons/reset-button-fab/reset-button-fab.component';
+import { CancelButtonFabComponent } from './shared/components/buttons/cancel-button-fab/cancel-button-fab.component';
+import { SaveButtonFabComponent } from './shared/components/buttons/save-button-fab/save-button-fab.component';
+import { ShowMoreRightButtonFabComponent } from './shared/components/buttons/show-more-right-button-fab/show-more-right-button-fab.component';
+import { DownloadButtonFabComponent } from './shared/components/buttons/download-button-fab/download-button-fab.component';
+import { CloseButtonFabComponent } from './shared/components/buttons/close-button-fab/close-button-fab.component';
 
 @NgModule({
   declarations: [
@@ -172,6 +191,24 @@ import { ReconcileSysDataAttributesComponent } from './features/client-setup/hol
     DataAttributesComponent,
     DataAttributeEnumsComponent,
     ReconcileSysDataAttributesComponent,
+    LoadCustomerDataComponent,
+    AddFabButtonComponent,
+    BaseButtonComponent,
+    CopyFabButtonComponent,
+    EditFabButtonComponent,
+    ViewFabButtonComponent,
+    DeleteFabButtonComponent,
+    OpenWeblinkFabButtonComponent,
+    StatusFabButtonComponent,
+    FabButtonRowComponent,
+    PreviewButtonFabComponent,
+    TerminateButtonFabComponent,
+    ResetButtonFabComponent,
+    CancelButtonFabComponent,
+    SaveButtonFabComponent,
+    ShowMoreRightButtonFabComponent,
+    DownloadButtonFabComponent,
+    CloseButtonFabComponent,
   ],
   imports: [
     SharedModule,

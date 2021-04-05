@@ -1,0 +1,136 @@
+<!-- 26032021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons -->
+<ng-container *ngIf="buttonRowProps && buttonRowProps?.rowButtons?.length! > 0">
+  <div class="action-buttons-row">
+    <ng-container *ngFor="let member of buttonRowProps.rowButtons">
+      <ng-container
+        *ngIf="member.appButtonType === appButtonTypes.add"
+      ></ng-container>
+
+      <ng-container *ngIf="member.appButtonType === appButtonTypes.edit">
+        <app-edit-fab-button
+          *ngIf="member.isRender"
+          [isDisabled]="member?.isDisabled"
+          [matTooltipText]="member?.matTooltipText"
+          [isEnableSpecialClass]="member?.isEnableSpecialClass"
+          (clicked)="onClick(appButtonTypes.edit)"
+        ></app-edit-fab-button>
+      </ng-container>
+
+      <ng-container *ngIf="member.appButtonType === appButtonTypes.copy">
+        <app-copy-fab-button
+          *ngIf="member.isRender"
+          [isDisabled]="member?.isDisabled"
+          [matTooltipText]="member?.matTooltipText"
+          [isEnableSpecialClass]="member?.isEnableSpecialClass"
+          (clicked)="onClick(appButtonTypes.copy)"
+        ></app-copy-fab-button>
+      </ng-container>
+
+      <ng-container *ngIf="member.appButtonType === appButtonTypes.status">
+        <app-status-fab-button
+          *ngIf="member.isRender"
+          [isDisabled]="member?.isDisabled"
+          [status]="member?.status!"
+          [matTooltipText]="member?.matTooltipText"
+          [isEnableSpecialClass]="member?.isEnableSpecialClass"
+          (clicked)="onClick(appButtonTypes.status)"
+        ></app-status-fab-button>
+      </ng-container>
+
+      <ng-container *ngIf="member.appButtonType === appButtonTypes.webUri">
+        <app-open-weblink-fab-button
+          *ngIf="member.isRender"
+          [isDisabled]="member?.isDisabled"
+          [hrefURI]="member?.hrefURI!"
+          [matTooltipText]="member?.matTooltipText"
+          (clicked)="onClick(appButtonTypes.webUri)"
+        ></app-open-weblink-fab-button>
+      </ng-container>
+
+      <ng-container *ngIf="member.appButtonType === appButtonTypes.view">
+        <app-view-fab-button
+          [isDisabled]="member?.isDisabled"
+          [matTooltipText]="member?.matTooltipText"
+          [isEnableSpecialClass]="member?.isEnableSpecialClass"
+          (clicked)="onClick(appButtonTypes.view)"
+        >
+        </app-view-fab-button>
+      </ng-container>
+
+      <ng-container *ngIf="member.appButtonType === appButtonTypes.preview">
+        <app-preview-fab-button
+          *ngIf="member.isRender"
+          [isDisabled]="member?.isDisabled"
+          [matTooltipText]="member?.matTooltipText"
+          [isEnableSpecialClass]="member?.isEnableSpecialClass"
+          (clicked)="onClick(appButtonTypes.preview)"
+        >
+        </app-preview-fab-button>
+      </ng-container>
+
+      <ng-container *ngIf="member.appButtonType === appButtonTypes.terminate">
+        <app-terminate-fab-button
+          *ngIf="member.isRender"
+          [isDisabled]="member?.isDisabled"
+          [matTooltipText]="member?.matTooltipText"
+          [isEnableSpecialClass]="member?.isEnableSpecialClass"
+          (clicked)="onClick(appButtonTypes.terminate)"
+        >
+        </app-terminate-fab-button>
+      </ng-container>
+
+      <ng-container *ngIf="member.appButtonType === appButtonTypes.reset">
+        <app-reset-fab-button
+          *ngIf="member.isRender"
+          [isDisabled]="member?.isDisabled"
+          [matTooltipText]="member?.matTooltipText"
+          [isEnableSpecialClass]="member?.isEnableSpecialClass"
+          (clicked)="onClick(appButtonTypes.reset)"
+        >
+        </app-reset-fab-button>
+      </ng-container>
+
+      <ng-container *ngIf="member.appButtonType === appButtonTypes.delete">
+        <app-delete-fab-button
+          *ngIf="member.isRender"
+          [isDisabled]="member?.isDisabled"
+          [matTooltipText]="member?.matTooltipText"
+          [isEnableSpecialClass]="member?.isEnableSpecialClass"
+          (clicked)="onClick(appButtonTypes.delete)"
+        ></app-delete-fab-button>
+      </ng-container>
+
+      <ng-container *ngIf="member.appButtonType === appButtonTypes.save">
+        <app-save-fab-button
+          *ngIf="member.isRender"
+          [isDisabled]="member?.isDisabled"
+          [matTooltipText]="member?.matTooltipText"
+          [isEnableSpecialClass]="member?.isEnableSpecialClass"
+          (clicked)="onClick(appButtonTypes.save)"
+        ></app-save-fab-button>
+      </ng-container>
+
+      <ng-container *ngIf="member.appButtonType === appButtonTypes.cancel">
+        <app-cancel-fab-button
+          *ngIf="member.isRender"
+          [isDisabled]="member?.isDisabled"
+          [matTooltipText]="member?.matTooltipText"
+          [isEnableSpecialClass]="member?.isEnableSpecialClass"
+          (clicked)="onClick(appButtonTypes.cancel)"
+        ></app-cancel-fab-button>
+      </ng-container>
+
+      <ng-container
+        *ngIf="member.appButtonType === appButtonTypes.showMoreRight"
+      >
+        <app-show-more-right-fab-button
+          *ngIf="member.isRender"
+          [isDisabled]="member?.isDisabled"
+          [matTooltipText]="member?.matTooltipText"
+          [isEnableSpecialClass]="member?.isEnableSpecialClass"
+          (clicked)="onClick(appButtonTypes.showMoreRight)"
+        ></app-show-more-right-fab-button>
+      </ng-container>
+    </ng-container>
+  </div>
+</ng-container>

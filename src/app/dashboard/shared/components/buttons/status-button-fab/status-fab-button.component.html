@@ -1,0 +1,18 @@
+<button
+  mat-mini-fab
+  [matTooltip]="this.status === 1 ? 'Inactivate' : 'Activate'"
+  matTooltipPosition="above"
+  color="none"
+  [ngClass]="[
+    'mat-elevation-z0',
+    'action-buttons',
+    status === 1 ? 'status-button' : 'status-button-inactive'
+  ]"
+  (click)="onClick()"
+  [disabled]="isDisabled"
+>
+  <mat-icon
+    [ngClass]="[status === 1 ? 'status-icon' : 'status-icon-inactive']"
+    >{{ status === 1 ? "toggle_on" : "toggle_off" }}</mat-icon
+  >
+</button>

@@ -4,13 +4,14 @@
  * 22022021 - Gaurav - JIRA task: CA-163
  * 05032021 - Gaurav - JIRA-CA-154
  * 24032021 - Ramesh - JIRA CA-250: added app-config services
+ * 01042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons
  */
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortable } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import {MatBottomSheet, MatBottomSheetRef} from '@angular/material/bottom-sheet';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable, Subscription } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import {
@@ -36,8 +37,12 @@ import {
 } from '../communication-ai.service';
 import { OrgDrDwEmitStruct } from 'src/app/dashboard/shared/components/org-dropdownlist/org-dropdownlist.component';
 import { LoadingService } from 'src/app/shared/services/loading.service';
-import {AppConfigService} from 'src/app/shared/services/app-config.service';
+import { AppConfigService } from 'src/app/shared/services/app-config.service';
 import { consoleLog } from 'src/app/shared/util/common.util';
+import {
+  AppButtonTypes,
+  ButtonRowClickedParams,
+} from 'src/app/dashboard/shared/components/buttons/buttons.model';
 
 /** Created enum, instead of using boolean values, in case more than two filters condition are introduced */
 enum FilterBy {
@@ -48,7 +53,6 @@ enum FilterBy {
 @Component({
   selector: 'app-campaign-master-setup',
   templateUrl: './campaign-master-setup.component.html',
-  styleUrls: ['../../../shared/styling/setup-table-list.shared.css'],
 })
 export class CampaignMasterSetup implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -58,9 +62,11 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
   private _searchString = '';
   private _custMemberOrgList: any = {};
   private _filterCampaignListBy: FilterBy = FilterBy.HOLDING_ORG; // Default
+  readonly appButtonType = AppButtonTypes;
   readonly dataDomainList = DataDomainConfig;
   private _orgAccessInformation!: any;
   private _custCampDataConfig: any;
+  private _searchCampaignsPayload: any = {};
   currentFeature!: DataDomainConfig;
   dataSource!: MatTableDataSource<any>;
   selectedHoldingOrgData!: HoldingOrg;
@@ -76,6 +82,8 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
     'description',
     'status',
     'updatedAt',
+    'totalEvents',
+    'lastEventDate',
     'action_buttons',
   ];
   constructor(
@@ -84,201 +92,230 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
     private _snackbarService: SnackbarService,
     private _communicationAIService: CommunicationAIService,
     private _clientSetupService: ClientSetupService,
-    private _bottomSheet: MatBottomSheet,
     private _route: ActivatedRoute,
     private _router: Router,
     private _loadingService: LoadingService,
     public appConfigService: AppConfigService
   ) {}
 
-   ngOnInit() {
-     this._setLoading(true);
-     let routerPath = this._route.snapshot.routeConfig?.path;
+  ngOnInit() {
+    this._setLoading(true);
+    //to set pagination payload
+    this._dashboardService.defaultPaylod = {
+      options: {
+        offset: 0,
+        limit: this.appConfigService.systemMatTableProperties
+          .pageSizeOptions[2],
+        sort: {
+          date: -1,
+        },
+        globalSearch: {},
+      },
+      query: {},
+    };
+    this._searchCampaignsPayload = this._dashboardService.defaultPaylod;
+    let routerPath = this._route.snapshot.routeConfig?.path;
 
-     switch (this._route.snapshot.routeConfig?.path) {
-       case dashboardRouteLinks.COMMUNICATION_MANAGE_CAMPAIGN_MASTER.routerLink:
-         this.currentFeature = DataDomainConfig.communication;
-         break;
-       /** 22022021 - Gaurav - Fixed to set the correct currentFeature for Response AI and NPS in VIEW mode */
-       case dashboardRouteLinks.RESPONSE_MANAGE_FEEDBACK_CAMPAIGN.routerLink:
-       case dashboardRouteLinks.RESPONSE_FEEDBACK_CAMPAIGN_VIEW.routerLink:
-         this.currentFeature = DataDomainConfig.response;
-         break;
-       case dashboardRouteLinks.NPS_MANAGE_NPS_CAMPAIGN.routerLink:
-       case dashboardRouteLinks.NPS_NPS_CAMPAIGN_VIEW.routerLink:
-         this.currentFeature = DataDomainConfig.nps;
-         break;
-       default:
-         this.currentFeature = DataDomainConfig.communication;
-     }
+    switch (this._route.snapshot.routeConfig?.path) {
+      case dashboardRouteLinks.COMMUNICATION_MANAGE_CAMPAIGN_MASTER.routerLink:
+        this.currentFeature = DataDomainConfig.communication;
+        break;
+      /** 22022021 - Gaurav - Fixed to set the correct currentFeature for Response AI and NPS in VIEW mode */
+      case dashboardRouteLinks.RESPONSE_MANAGE_FEEDBACK_CAMPAIGN.routerLink:
+      case dashboardRouteLinks.RESPONSE_FEEDBACK_CAMPAIGN_VIEW.routerLink:
+        this.currentFeature = DataDomainConfig.response;
+        break;
+      case dashboardRouteLinks.NPS_MANAGE_NPS_CAMPAIGN.routerLink:
+      case dashboardRouteLinks.NPS_NPS_CAMPAIGN_VIEW.routerLink:
+        this.currentFeature = DataDomainConfig.nps;
+        break;
+      default:
+        this.currentFeature = DataDomainConfig.communication;
+    }
 
-     if (
-       routerPath ===
-         dashboardRouteLinks.COMMUNICATION_MANAGE_CAMPAIGN_MASTER.routerLink ||
-       routerPath ===
-         dashboardRouteLinks.RESPONSE_MANAGE_FEEDBACK_CAMPAIGN.routerLink ||
-       routerPath === dashboardRouteLinks.NPS_MANAGE_NPS_CAMPAIGN.routerLink
-     ) {
-       this._showEditComponents = true;
-     } else {
-       this._showEditComponents = false;
-     }
+    if (
+      routerPath ===
+        dashboardRouteLinks.COMMUNICATION_MANAGE_CAMPAIGN_MASTER.routerLink ||
+      routerPath ===
+        dashboardRouteLinks.RESPONSE_MANAGE_FEEDBACK_CAMPAIGN.routerLink ||
+      routerPath === dashboardRouteLinks.NPS_MANAGE_NPS_CAMPAIGN.routerLink
+    ) {
+      this._showEditComponents = true;
+    } else {
+      this._showEditComponents = false;
+    }
 
-     this.selModule = this._route.snapshot.url[0]?.path;
-     let propertyName: string = '';
-     switch (this.selModule) {
-       case 'communicationAI':
-         this.pageTitle = 'Message Campaign Master';
-         propertyName = DataDomainConfig.communication;
-         break;
-       case 'responseAI':
-         this.pageTitle = 'Survey Campaign Master';
-         propertyName = DataDomainConfig.response;
-         break;
-       case 'nps':
-         this.pageTitle = 'NPS Campaign Master';
-         propertyName = DataDomainConfig.nps;
-         break;
-       default:
-         break;
-     }
-     let commBindingData: any;
-     let customerDataConfig: any;
-     const initCampaignMasterListObs: Observable<any> = this._dashboardService
-       .getCurrentHoldingOrgListenerObs()
-       .pipe(
-         switchMap((selectedHoldingOrgData: HoldingOrg) => {
-           this.selectedHoldingOrgData = selectedHoldingOrgData;
+    this.selModule = this._route.snapshot.url[0]?.path;
+    let propertyName: string = '';
+    switch (this.selModule) {
+      case 'communicationAI':
+        this.pageTitle = 'Message Campaign Master';
+        propertyName = DataDomainConfig.communication;
+        break;
+      case 'responseAI':
+        this.pageTitle = 'Survey Campaign Master';
+        propertyName = DataDomainConfig.response;
+        break;
+      case 'nps':
+        this.pageTitle = 'NPS Campaign Master';
+        propertyName = DataDomainConfig.nps;
+        break;
+      default:
+        break;
+    }
+    let commBindingData: any;
+    let customerDataConfig: any;
+    const initCampaignMasterListObs: Observable<any> = this._dashboardService
+      .getCurrentHoldingOrgListenerObs()
+      .pipe(
+        switchMap((selectedHoldingOrgData: HoldingOrg) => {
+          this.selectedHoldingOrgData = selectedHoldingOrgData;
 
-           this.selectedHoldingOrgData = {
-             ...this.selectedHoldingOrgData,
-             memberOrgs: [],
-           };
-           this._searchString = `?holdingOrg=${selectedHoldingOrgData._id}`;
-           if (
-             this.selectedHoldingOrgData?.dataDomainConfig &&
-             Object.keys(this.selectedHoldingOrgData?.dataDomainConfig)?.length >
-               0 &&
-             this.selectedHoldingOrgData?.dataDomainConfig?.hasOwnProperty(
-               propertyName
-             )
-           ) {
-             commBindingData = this.selectedHoldingOrgData?.dataDomainConfig?.[
-               propertyName
-             ];
-             customerDataConfig = this.selectedHoldingOrgData?.dataDomainConfig
-               ?.customer;
-           }
-           if (
-             commBindingData?.memberOrgLevel &&
-             commBindingData?.holdingOrgLevel
-           ) {
-             this._filterCampaignListBy = FilterBy.BOTH_ORG;
-           } else if (commBindingData?.holdingOrgLevel) {
-             this._filterCampaignListBy = FilterBy.HOLDING_ORG;
-           } else if (commBindingData?.memberOrgLevel) {
-             this._filterCampaignListBy = FilterBy.MEMBER_ORG;
-           }
-           return this._clientSetupService.getOrgAccessInformation(
-             this.selectedHoldingOrgData._id
-           );
-         }),
-         tap((mOrgs) => {
-           this._orgAccessInformation = mOrgs;
-         }),
-         switchMap((mOrgs): any => {
-           this._custMemberOrgList = {};
-           if (mOrgs?.customer?.memberOrgs?.length > 0) {
-             this._custMemberOrgList = {
-               memberOrg: mOrgs?.customer?.memberOrgs.map(
-                 (member: any) => member
-               ),
-             };
-           }
-           if (mOrgs[propertyName]?.memberOrgs?.length > 0) {
-             this.selectedHoldingOrgData = {
-               ...this.selectedHoldingOrgData,
-               memberOrgs: mOrgs[propertyName]?.memberOrgs.map(
-                 (member: any) => member
-               ),
-             };
-             if (this._filterCampaignListBy == 2) {
-               this.bothOrgList = [
-                 {
-                   name: 'Holding Org',
-                   value: [
-                     {
-                       name: this.selectedHoldingOrgData?.name,
-                       _id: this.selectedHoldingOrgData?._id,
-                     },
-                   ],
-                 },
-                 {
-                   name: 'Member Org',
-                   value: this.selectedHoldingOrgData?.memberOrgs,
-                 },
-               ];
-               this.selectedMemberOrg = this.bothOrgList[0]?.value[0];
-               this.isShowBothOrgDropDown();
-             } else if (this.isShowMemberOrgDropDown()) {
-               this._searchString = '?';
-               this.selectedMemberOrg = this.selectedHoldingOrgData?.memberOrgs[0];
-               this.selectedHoldingOrgData?.memberOrgs.forEach((memberOrg) => {
-                 this._searchString += `memberOrg=${memberOrg?._id}&`;
-               });
-               this._searchString = this._searchString.slice(0, -1);
-             }
-           } else {
-             this.selectedMemberOrg = this.selectedHoldingOrgData;
-           }
-           this._custCampDataConfig = {
-             campDataCofig: commBindingData,
-             custDataConfig: customerDataConfig,
-           };
-           //let myData:any = this.manageOrgDrop();
-           return this.selModule == 'communicationAI'
-             ? this._communicationAIService.getCampaignList()
-             : this.selModule == 'responseAI'
-             ? this._communicationAIService.getRespCampaignList()
-             : this._communicationAIService.getNPSCampaignList();
-         })
-       );
+          this.selectedHoldingOrgData = {
+            ...this.selectedHoldingOrgData,
+            memberOrgs: [],
+          };
+          this._searchString = `?holdingOrg=${selectedHoldingOrgData._id}`;
+          if (
+            this.selectedHoldingOrgData?.dataDomainConfig &&
+            Object.keys(this.selectedHoldingOrgData?.dataDomainConfig)?.length >
+              0 &&
+            this.selectedHoldingOrgData?.dataDomainConfig?.hasOwnProperty(
+              propertyName
+            )
+          ) {
+            commBindingData = this.selectedHoldingOrgData?.dataDomainConfig?.[
+              propertyName
+            ];
+            customerDataConfig = this.selectedHoldingOrgData?.dataDomainConfig
+              ?.customer;
+          }
+          if (
+            commBindingData?.memberOrgLevel &&
+            commBindingData?.holdingOrgLevel
+          ) {
+            this._filterCampaignListBy = FilterBy.BOTH_ORG;
+          } else if (commBindingData?.holdingOrgLevel) {
+            this._filterCampaignListBy = FilterBy.HOLDING_ORG;
+          } else if (commBindingData?.memberOrgLevel) {
+            this._filterCampaignListBy = FilterBy.MEMBER_ORG;
+          }
+          return this._clientSetupService.getOrgAccessInformation(
+            this.selectedHoldingOrgData._id
+          );
+        }),
+        tap((mOrgs) => {
+          this._orgAccessInformation = mOrgs;
+        }),
+        switchMap((mOrgs): any => {
+          this._custMemberOrgList = {};
+          if (mOrgs?.customer?.memberOrgs?.length > 0) {
+            this._custMemberOrgList = {
+              memberOrg: mOrgs?.customer?.memberOrgs.map(
+                (member: any) => member
+              ),
+            };
+          }
+          if (mOrgs[propertyName]?.memberOrgs?.length > 0) {
+            this.selectedHoldingOrgData = {
+              ...this.selectedHoldingOrgData,
+              memberOrgs: mOrgs[propertyName]?.memberOrgs.map(
+                (member: any) => member
+              ),
+            };
+            if (this._filterCampaignListBy == 2) {
+              this.bothOrgList = [
+                {
+                  name: 'Holding Org',
+                  value: [
+                    {
+                      name: this.selectedHoldingOrgData?.name,
+                      _id: this.selectedHoldingOrgData?._id,
+                    },
+                  ],
+                },
+                {
+                  name: 'Member Org',
+                  value: this.selectedHoldingOrgData?.memberOrgs,
+                },
+              ];
+              this.selectedMemberOrg = this.bothOrgList[0]?.value[0];
+              this.isShowBothOrgDropDown();
+            } else if (this.isShowMemberOrgDropDown()) {
+              this._searchString = '?';
+              this.selectedMemberOrg = this.selectedHoldingOrgData?.memberOrgs[0];
+              this.selectedHoldingOrgData?.memberOrgs.forEach((memberOrg) => {
+                this._searchString += `memberOrg=${memberOrg?._id}&`;
+              });
+              this._searchString = this._searchString.slice(0, -1);
+            }
+          } else {
+            this.selectedMemberOrg = this.selectedHoldingOrgData;
+          }
+          this._custCampDataConfig = {
+            campDataCofig: commBindingData,
+            custDataConfig: customerDataConfig,
+          };
+          let orgType = this.valuesFromOrgDrDw?.selectedOrgInDrDw?.holOrMol;
+          this._searchCampaignsPayload = {
+            ...this._searchCampaignsPayload,
+            query: {
+              $or: [{ holdingOrg: this.selectedHoldingOrgData._id }],
+            },
+          };
+          //let myData:any = this.manageOrgDrop();
+          return this.selModule == 'communicationAI'
+            ? this._communicationAIService.getCampaignList(
+                'commCampaigns',
+                this._searchCampaignsPayload
+              )
+            : this.selModule == 'responseAI'
+            ? this._communicationAIService.getCampaignList(
+                'respCampaigns',
+                this._searchCampaignsPayload
+              )
+            : this._communicationAIService.getCampaignList(
+                'npsCampaigns',
+                this._searchCampaignsPayload
+              );
+        })
+      );
 
-     this._observableSub$ = this._loadingService
-       .showProgressBarUntilCompleted(initCampaignMasterListObs, 'query')
-       .subscribe(
-         async (campaignMasterList: any) => {
-           this.campaignMasterList = campaignMasterList?.results ?? [];
-           await this._filterQuestionsList();
-         },
-         (error) => {
-           this._setLoading(false);
-         }
-       );
-   }
-   ngOnDestroy() {
-     this._observableSub$.unsubscribe();
-     let orgDropVisible: any = this.manageOrgDrop();
-     let selValueType: any;
-     if (this._filterCampaignListBy == 2) {
-       if (this.selectedHoldingOrgData?._id == this.selectedMemberOrg?._id) {
-         selValueType = 'Holding Org';
-       } else {
-         this.selectedHoldingOrgData?.memberOrgs?.filter((item: any) => {
-           if (item?._id == this.selectedMemberOrg?._id) {
-             selValueType = 'Member Org';
-           }
-         });
-       }
-     }
-     let selOrgInfo = {
-       selOrgInfo: this.selectedHoldingOrgData,
-       selMemberOrg: this.selectedMemberOrg,
-       orgType: this.valuesFromOrgDrDw,
-       memOrgDrop: orgDropVisible,
-     };
-     this._communicationAIService.setSelOrgData(selOrgInfo);
-   }
+    this._observableSub$ = this._loadingService
+      .showProgressBarUntilCompleted(initCampaignMasterListObs, 'query')
+      .subscribe(
+        async (campaignMasterList: any) => {
+          this.campaignMasterList = campaignMasterList?.results ?? [];
+          await this._filterQuestionsList();
+        },
+        (error) => {
+          this._setLoading(false);
+        }
+      );
+  }
+  ngOnDestroy() {
+    this._observableSub$.unsubscribe();
+    let orgDropVisible: any = this.manageOrgDrop();
+    let selValueType: any;
+    if (this._filterCampaignListBy == 2) {
+      if (this.selectedHoldingOrgData?._id == this.selectedMemberOrg?._id) {
+        selValueType = 'Holding Org';
+      } else {
+        this.selectedHoldingOrgData?.memberOrgs?.filter((item: any) => {
+          if (item?._id == this.selectedMemberOrg?._id) {
+            selValueType = 'Member Org';
+          }
+        });
+      }
+    }
+    let selOrgInfo = {
+      selOrgInfo: this.selectedHoldingOrgData,
+      selMemberOrg: this.selectedMemberOrg,
+      orgType: this.valuesFromOrgDrDw,
+      memOrgDrop: orgDropVisible,
+    };
+    this._communicationAIService.setSelOrgData(selOrgInfo);
+  }
 
   manageOrgDrop(): any {
     let orgDropVisible: object = {};
@@ -321,6 +358,28 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
       this.dataSource.paginator.firstPage();
     }
   }
+
+  onButtonRowClicked(args: ButtonRowClickedParams) {
+    console.log({ args });
+
+    switch (args.appButtonType) {
+      case AppButtonTypes.edit:
+        return this.onEditTemplate(args._id, 'edit');
+      case AppButtonTypes.copy:
+        return this.onDuplicate(args._id, args?.name!);
+      case AppButtonTypes.view:
+        return this.onViewTemplate(args._id);
+      case AppButtonTypes.preview:
+        return this.onViewCampaignSurveyResponse(
+          args._id,
+          args?.name!,
+          args?.code!
+        );
+      case AppButtonTypes.terminate:
+        return this.openBottomSheet(args._id, args?.name!, args?.status!);
+    }
+  }
+
   //Navigating to email-template.component.ts for add new template
   onAddNewCampaign() {
     this._router.navigate(['add'], { relativeTo: this._route });
@@ -338,17 +397,15 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
     this._router.navigate(['view', id], { relativeTo: this._route });
   }
   //on selected campaign status change function
-  onStatusUpdate(status: number, id: string, campName: string){
+  onStatusUpdate(status: number, id: string, campName: string) {
     const messageOrResp: Observable<any> =
-    this.selModule == 'communicationAI'
-      ? this._communicationAIService.updateCampaign({ status }, id)
-      : this.selModule == 'responseAI'
-      ? this._communicationAIService.updateRespCampaign({ status }, id)
-      : this._communicationAIService.updateNpspCampaign({ status }, id);
+      this.selModule == 'communicationAI'
+        ? this._communicationAIService.updateCampaign({ status }, id)
+        : this.selModule == 'responseAI'
+        ? this._communicationAIService.updateRespCampaign({ status }, id)
+        : this._communicationAIService.updateNpspCampaign({ status }, id);
 
-  this._loadingService
-    .showProgressBarUntilCompleted(messageOrResp)
-    .subscribe(
+    this._loadingService.showProgressBarUntilCompleted(messageOrResp).subscribe(
       (result) => {
         /** Show snackbar to user */
         this._snackbarService.showSuccess(
@@ -389,80 +446,37 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
     );
   }
 
-   onDeleteTemplate(id: string, campName: string): void {
-     this._dialogService
-       .openSystemDialog({
-         alertType: SystemDialogType.warning_alert_yes_no,
-         dialogConditionType: DialogConditionType.prompt_custom_data,
-         title: 'Delete Campaign Master',
-         body: `Do you want to delete '${campName}' Campaign data?`,
-       })
-       .then((response) => {
-         if (response === SystemDialogReturnType.continue_yes) {
-           this._setLoading(true);
+  get selectedHoldingOrgDatas(): any {
+    return this.selectedHoldingOrgData;
+  }
+  get orgAccessInformation(): any {
+    return this._orgAccessInformation;
+  }
 
-           this._loadingService
-             .showProgressBarUntilCompleted(
-               this._communicationAIService.deleteCampaign(id)
-             )
-             .subscribe(
-               (result) => {
-                 this._snackbarService.showSuccess(`${campName} is deleted!`);
-                 const index = this.campaignMasterList.findIndex(
-                   (org: any) => org?._id === id
-                 );
-                 this.dataSource.data.splice(index, 1);
-                 /* 21122020 - Abhishek - remove splice fuction from template list */
-                 // this.campaignMasterList.splice(index, 1);
-                 this.dataSource._updateChangeSubscription();
-                 this.selModule == 'communicationAI'
-                   ? this._communicationAIService.getCampaignList()
-                   : this.selModule == 'responseAI'
-                   ? this._communicationAIService.getRespCampaignList()
-                   : this._communicationAIService.getNPSCampaignList();
-                 this._setLoading(false);
-               },
-               (error) => {
-                 this._setLoading(false);
-               }
-             );
-         }
-       })
-       .catch((error) => {
-         // DEV team => Pass VALID parameters to this service method
-       });
-   }
-   get selectedHoldingOrgDatas(): any {
-     return this.selectedHoldingOrgData;
-   }
-   get orgAccessInformation(): any {
-     return this._orgAccessInformation;
-   }
+  async listenToDrDw($event: any): Promise<void> {
+    this.valuesFromOrgDrDw = await $event;
+    await this._filterQuestionsList();
+  }
 
-   async listenToDrDw($event: any): Promise<void> {
-     this.valuesFromOrgDrDw = await $event;
-     await this._filterQuestionsList();
-   }
-
-   async _filterQuestionsList(): Promise<void> {
-     if (this.campaignMasterList?.length > 0) {
-       let filteredList: any[] = [];
-       filteredList = this.campaignMasterList.filter(
-         (listItem: any) =>
-           listItem[this.valuesFromOrgDrDw?.compareByKeyForFilter] ===
-           this.valuesFromOrgDrDw?.selectedOrgInDrDw?._id
-       );
-       this.sort.sort(({ id: 'updatedAt', start: 'desc'}) as MatSortable);
-       this.dataSource = await new MatTableDataSource(filteredList ?? []);
-       this.dataSource.paginator = await this.paginator;
-       this.dataSource.sort = await this.sort;
-     }
-     this._setLoading(false);
-   }
-   private _setLoading(value: boolean): void {
-     this.isLoading = value;
-     if (!value) this._loadingService.loadingOff();
-   }
+  async _filterQuestionsList(): Promise<void> {
+    if (this.campaignMasterList?.length > 0) {
+      let filteredList: any[] = [];
+      filteredList = this.campaignMasterList.filter(
+        (listItem: any) =>
+          listItem[this.valuesFromOrgDrDw?.compareByKeyForFilter] ===
+          this.valuesFromOrgDrDw?.selectedOrgInDrDw?._id
+      );
+      this.sort.sort({ id: 'updatedAt', start: 'desc' } as MatSortable);
+      this.dataSource = await new MatTableDataSource(filteredList ?? []);
+      this.dataSource.paginator = await this.paginator;
+      this.dataSource.sort = await this.sort;
+    }
+    this._setLoading(false);
+  }
+  private _setLoading(value: boolean): void {
+    this.isLoading = value;
+    if (!value) this._loadingService.loadingOff();
+  }
 
   /** 09022021 - Gaurav - Redirect user to a new window to view the consolidated campgaign Survey response
    *  05032021 - Gaurav - JIRA-CA-154: Refactored onViewCampaignSurveyResponse() per new API */
@@ -514,12 +528,18 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
         alertType: SystemDialogType.warning_alert_yes_no,
         dialogConditionType: DialogConditionType.prompt_custom_data,
         title: `Duplicate ${
-          this.currentFeature === DataDomainConfig.communication ? 'Communication' :
-          this.currentFeature === DataDomainConfig.response ? 'Response' : 'NPS'
+          this.currentFeature === DataDomainConfig.communication
+            ? 'Communication'
+            : this.currentFeature === DataDomainConfig.response
+            ? 'Response'
+            : 'NPS'
         } Campaign`,
         body: `Do you want to copy ${
-          this.currentFeature === DataDomainConfig.communication ? 'communication' :
-          this.currentFeature === DataDomainConfig.response ? 'response' : 'NPS'
+          this.currentFeature === DataDomainConfig.communication
+            ? 'communication'
+            : this.currentFeature === DataDomainConfig.response
+            ? 'response'
+            : 'NPS'
         } campaign '${name}'?`,
       })
       .then((response) => {
@@ -533,17 +553,16 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
   //open bottom sheet dialog for campaign status update
   openBottomSheet(id: string, name: string, status: number): void {
     //this._bottomSheet.open(BottomSheetDialog);
-     this._dialogService
-       .openBottomSheetDialog({
-         status: status,
-         title: `Change Status of '${name}'?`,
-         accessMode: 'list'
-       })
-       .then((response) => {
-         if(response === BottomSheetDialogReturnType.terminate_yes){
+    this._dialogService
+      .openBottomSheetDialog({
+        status: status,
+        title: `Change Status of '${name}'?`,
+        accessMode: 'list',
+      })
+      .then((response) => {
+        if (response === BottomSheetDialogReturnType.terminate_yes) {
           this.onStatusUpdate(-1, id, name);
-         }
-       });
-   }
-
+        }
+      });
+  }
 }

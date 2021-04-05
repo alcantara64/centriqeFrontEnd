@@ -1,0 +1,11 @@
+<button
+  mat-mini-fab
+  [matTooltip]="matTooltipText!"
+  matTooltipPosition="above"
+  color="none"
+  [ngClass]="['mat-elevation-z0', 'action-buttons', 'edit-button']"
+  (click)="onClick()"
+  [disabled]="isDisabled"
+>
+  <mat-icon [ngClass]="['edit-icon']">edit</mat-icon>
+</button>

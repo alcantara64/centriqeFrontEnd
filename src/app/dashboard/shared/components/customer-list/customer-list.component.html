@@ -19,7 +19,7 @@
             placeholder="Ex. org"
             [value]="searchText"
             #input
-            />
+          />
         </mat-form-field>
         <!-- 11122020 - Gaurav - Selected customers label -->
         <mat-label
@@ -54,14 +54,15 @@
         <!-- 2021-01-18 - Frank - Extension for Surveys -->
         <ng-container
           *ngIf="
-            (this.currentParentFeature === dashBoardEnumVal.COMM_AI
-              || this.currentParentFeature === dashBoardEnumVal.NPS
-              || this.currentParentFeature === dashBoardEnumVal.RESP_AI) &&
+            (this.currentParentFeature === dashBoardEnumVal.COMM_AI ||
+              this.currentParentFeature === dashBoardEnumVal.NPS ||
+              this.currentParentFeature === dashBoardEnumVal.RESP_AI) &&
             hasRequiredPrivileges()
           "
         >
           <mat-form-field
-           *ngIf="this.currentParentFeature === dashBoardEnumVal.COMM_AI">
+            *ngIf="this.currentParentFeature === dashBoardEnumVal.COMM_AI"
+          >
             <mat-label>Email Templates</mat-label>
             <mat-select
               [(value)]="selectedTemplateId"
@@ -80,55 +81,64 @@
             </mat-select>
           </mat-form-field>
 
-
           <mat-form-field
-          *ngIf=" this.currentParentFeature === dashBoardEnumVal.NPS
-              || this.currentParentFeature === dashBoardEnumVal.RESP_AI">
-           <mat-label>Surveys</mat-label>
-           <mat-select
-             [(value)]="selectedTemplateId"
-             [disabled]="
-               isLoading ||
-               !emailTemplateList ||
-               emailTemplateList.length === 0
-             "
-           >
-             <mat-option></mat-option>
-             <mat-option
-               [value]="template._id"
-               *ngFor="let template of emailTemplateList"
-               >{{ template.name }} ({{ template.code }})</mat-option
-             >
-           </mat-select>
-         </mat-form-field>
-         <!-- 17022021 - Abhishek - Set condition and added tooltip for disable send demo message button -->
-         <div>
-          <button
-            mat-raised-button
-            class="table-add-btn w-100"
-            [disabled]="isDisableMessageButton()"
-            [ngClass]="{
-              disabled: isDisableMessageButton()
-            }"
-            (click)="onSendMessage()"
+            *ngIf="
+              this.currentParentFeature === dashBoardEnumVal.NPS ||
+              this.currentParentFeature === dashBoardEnumVal.RESP_AI
+            "
           >
-            Send Message
-          </button>
-        </div>
-        <div
-          [matTooltip]="'Please select only one customer.'"
-          [matTooltipDisabled]="!(getSelectedCustomersCount() > 1 && this.selectedTemplateId)"
-          matTooltipPosition="left">
-          <button
-            class="table-add-btn mt-2 w-100"
-            mat-raised-button
-            [disabled]="isDisableMessageButton() || getSelectedCustomersCount() > 1"
-            [ngClass]="{
-              disabled: isDisableMessageButton() || getSelectedCustomersCount() > 1
-            }"
-            (click)="onSendDemoMessage()">
+            <mat-label>Surveys</mat-label>
+            <mat-select
+              [(value)]="selectedTemplateId"
+              [disabled]="
+                isLoading ||
+                !emailTemplateList ||
+                emailTemplateList.length === 0
+              "
+            >
+              <mat-option></mat-option>
+              <mat-option
+                [value]="template._id"
+                *ngFor="let template of emailTemplateList"
+                >{{ template.name }} ({{ template.code }})</mat-option
+              >
+            </mat-select>
+          </mat-form-field>
+          <!-- 17022021 - Abhishek - Set condition and added tooltip for disable send demo message button -->
+          <div>
+            <button
+              mat-raised-button
+              class="table-add-btn w-100"
+              [disabled]="isDisableMessageButton()"
+              [ngClass]="{
+                disabled: isDisableMessageButton()
+              }"
+              (click)="onSendMessage()"
+            >
+              Send Message
+            </button>
+          </div>
+          <div
+            [matTooltip]="'Please select only one customer.'"
+            [matTooltipDisabled]="
+              !(getSelectedCustomersCount() > 1 && this.selectedTemplateId)
+            "
+            matTooltipPosition="left"
+          >
+            <button
+              class="table-add-btn mt-2 w-100"
+              mat-raised-button
+              [disabled]="
+                isDisableMessageButton() || getSelectedCustomersCount() > 1
+              "
+              [ngClass]="{
+                disabled:
+                  isDisableMessageButton() || getSelectedCustomersCount() > 1
+              }"
+              (click)="onSendDemoMessage()"
+            >
               Send Demo Message
-          </button>
+            </button>
           </div>
         </ng-container>
       </div>
@@ -136,9 +146,15 @@
     <mat-divider></mat-divider>
 
     <div class="table-container-table">
-      <table mat-table (matSortChange)="sortData($event)" [dataSource]="dataSource" matSort *ngIf="dataSource && displayedColumns">
+      <table
+        mat-table
+        (matSortChange)="sortData($event)"
+        [dataSource]="dataSource"
+        matSort
+        *ngIf="dataSource && displayedColumns"
+      >
         <ng-container *ngFor="let item of customerData">
-          <ng-container *ngIf=" item.code === 'select' ">
+          <ng-container *ngIf="item.code === 'select'">
             <ng-container [matColumnDef]="item.code">
               <th mat-header-cell *matHeaderCellDef>
                 <mat-checkbox
@@ -160,49 +176,57 @@
               </td>
             </ng-container>
           </ng-container>
-          <ng-container *ngIf=" item.code !== 'select' && item.code !== 'action_buttons' ">
-        <ng-container [matColumnDef]="item.code">
-          <th mat-header-cell *matHeaderCellDef [mat-sort-header]="item.code">{{item.shortName}}</th>
-          <td mat-cell *matCellDef="let element">
-            <!-- 02052021 - Abhishek - Set interpolation based on type -->
-            <ng-container *ngIf="item.type === 'date' ">
-              {{ element[item.code] | date: 'yyyy-MM-dd' }}
-            </ng-container>
-            <ng-container *ngIf="item.type !== 'date' " >
-            {{ element[item.code] }}
-          </ng-container>
-          </td>
-        </ng-container>
-      </ng-container>
-      {{item.code}}
-      <ng-container *ngIf=" item.code === 'action_buttons' ">
-        <ng-container
-            class="action-buttons-container"
-            [matColumnDef]="item.code"
-
+          <ng-container
+            *ngIf="item.code !== 'select' && item.code !== 'action_buttons'"
           >
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row">
-              <div class="action-buttons-row">
-                <button
-                  mat-mini-fab
-                  matTooltip="View"
-                  matTooltipPosition="above"
-                  color="none"
-                  (click)="onViewCustomerData(row)"
-                  [ngClass]="[
-                    'mat-elevation-z0',
-                    'action-buttons',
-                    'view-button'
-                  ]"
-                  >
-                  <mat-icon [ngClass]="['view-icon']">visibility</mat-icon>
-                </button>
-              </div>
-            </td>
+            <ng-container [matColumnDef]="item.code">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                [mat-sort-header]="item.code"
+              >
+                {{ item.shortName }}
+              </th>
+              <td mat-cell *matCellDef="let element">
+                <!-- 02052021 - Abhishek - Set interpolation based on type -->
+                <ng-container *ngIf="item.type === 'date'">
+                  {{ element[item.code] | date: "yyyy-MM-dd" }}
+                </ng-container>
+                <ng-container *ngIf="item.type !== 'date'">
+                  {{ element[item.code] }}
+                </ng-container>
+              </td>
+            </ng-container>
+          </ng-container>
+          {{ item.code }}
+          <ng-container *ngIf="item.code === 'action_buttons'">
+            <ng-container
+              class="action-buttons-container"
+              [matColumnDef]="item.code"
+            >
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row">
+                <app-fab-button-row
+                  [buttonRowProps]="{
+                    rowButtons: [
+                      {
+                        appButtonType: appButtonType.view,
+                        isRender: true
+                      }
+                    ]
+                  }"
+                  (clicked)="
+                    onButtonRowClicked({
+                      appButtonType: $event,
+                      _id: '',
+                      data: row
+                    })
+                  "
+                ></app-fab-button-row>
+              </td>
+            </ng-container>
           </ng-container>
         </ng-container>
-      </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
@@ -218,7 +242,9 @@
     <mat-paginator
       [length]="totalRecords"
       [pageSize]="appConfigService.systemMatTableProperties.pageSize"
-      [pageSizeOptions]="appConfigService.systemMatTableProperties.pageSizeOptions"
+      [pageSizeOptions]="
+        appConfigService.systemMatTableProperties.pageSizeOptions
+      "
       (page)="onPageChange($event)"
       showFirstLastButtons
     ></mat-paginator>

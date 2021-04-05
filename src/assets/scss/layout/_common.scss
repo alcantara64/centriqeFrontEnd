@@ -8,7 +8,7 @@
 
 //Card container styles
 .card-container {
-  width: 100%;
+  width: $hundred-percent;
   .mat-card-header {
     .mat-card-header-text {
       margin: 0;
@@ -146,40 +146,33 @@
 
 //Mat styles
 /* Careful changing these ::ng-deep settings */
-//::ng-deep
-  .mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent
+::ng-deep .mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent
   .mat-ripple-element,
-//::ng-deep
-  .mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent
+::ng-deep .mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent
   .mat-ripple-element,
-//::ng-deep
-.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
-//::ng-deep
-.mat-checkbox-checked.mat-accent .mat-checkbox-background {
+::ng-deep .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
+::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-background {
   background-color: $btn-bgcolor;
 }
 
-//::ng-deep
-  .disable-bgColor.mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent
+::ng-deep .disable-bgColor.mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent
   .mat-ripple-element,
-//::ng-deep
-  .disable-bgColor.mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent
+::ng-deep .disable-bgColor.mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent
   .mat-ripple-element,
-//::ng-deep
-  .disable-bgColor.mat-checkbox-indeterminate.mat-accent
+::ng-deep .disable-bgColor.mat-checkbox-indeterminate.mat-accent
   .mat-checkbox-background,
-//::ng-deep
-  .disable-bgColor.mat-checkbox-checked.mat-accent
+::ng-deep .disable-bgColor.mat-checkbox-checked.mat-accent
   .mat-checkbox-background {
   background-color: $disabled-selections;
 }
 /* Roles Drag-Drop - Starts */
-//::ng-deep
-  .mat-button-toggle-appearance-standard
+::ng-deep .mat-button-toggle-appearance-standard
   .mat-button-toggle-label-content {
   line-height: 0px;
 }
-
+::ng-deep .mat-mini-fab .mat-button-wrapper {
+  padding: 0px;
+}
 
 mat-card-actions {
   text-align: right;
@@ -187,6 +180,7 @@ mat-card-actions {
 mat-form-field {
   width: $hundred-percent;
   padding-top: 8px;
+  font-size: 14px;
 }
 
 .field-required {
@@ -197,6 +191,11 @@ mat-form-field {
 }
 .tab-invalid, .invalid {
   color: $tab-invalid-textColor;
+}
+th.mat-header-cell:last-of-type,
+td.mat-cell:last-of-type,
+td.mat-footer-cell:last-of-type {
+  padding-right: 0px !important;
 }
 
 .grid-container {
@@ -215,7 +214,15 @@ mat-form-field {
 .config-tab {
   padding: 20px;
 }
-
+table {
+  width: 100%;
+  th.mat-sort-header-sorted {
+    color: $mat-sort-header-sorted;
+  }
+}
+.mat-header-cell {
+  font-size: 14px;
+}
 .table-container {
   width: $hundred-percent;
 }
@@ -238,4 +245,21 @@ mat-form-field {
 
 .table-title {
   margin-bottom: 8px !important;
+}
+
+.active {
+  color: $color-status-active;
+}
+
+.inactive {
+  color: $color-status-inactive;
+}
+
+.mat-row{
+  &:nth-child(odd) {
+    background: $table-odd-row-colour;
+  }
+  &:hover {
+    background: $table-hover-colour;
+  }
 }

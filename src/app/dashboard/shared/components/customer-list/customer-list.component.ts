@@ -19,6 +19,7 @@
  * 05022021 - Abhishek set payload for customerLis post call to set sorting, searching and pagination.
  * 08022021 - Gaurav - Added code for new progress-bar service
  * 10022021 - Abhishek - Set search filter observable same as globle org selector search is working.
+ * 01042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons
  */
 import { SelectionModel } from '@angular/cdk/collections';
 import {
@@ -37,9 +38,9 @@ import {
   switchMap,
   debounceTime,
   distinctUntilChanged,
-  filter,
   map,
-  startWith, } from 'rxjs/operators';
+  startWith,
+} from 'rxjs/operators';
 import { AuthStatusData } from 'src/app/auth/auth.service';
 import {
   DashboardService,
@@ -53,7 +54,6 @@ import {
 } from 'src/app/dashboard/shared/components/menu/constants.routes';
 import { SnackbarService } from 'src/app/shared/components/snackbar.service';
 import { EmailService } from 'src/app/shared/services/email.service';
-import { consoleLog, ConsoleTypes } from 'src/app/shared/util/common.util';
 import { CommunicationAIService } from '../../../features/communication-ai/communication-ai.service';
 import { ResponseAIService } from '../../../features/response-ai/response-ai.service';
 import { ClientSetupService } from '../../../features/client-setup/client-setup.service';
@@ -65,7 +65,11 @@ import {
   SystemDialogType,
 } from '../dialog/dialog.model';
 import { LoadingService } from 'src/app/shared/services/loading.service';
-import {AppConfigService} from 'src/app/shared/services/app-config.service';
+import { AppConfigService } from 'src/app/shared/services/app-config.service';
+import {
+  AppButtonTypes,
+  ButtonRowClickedParams,
+} from '../buttons/buttons.model';
 
 /** Created enum, instead of using boolean values, in case more than two filters condition are introduced */
 enum FilterBy {
@@ -79,6 +83,7 @@ enum FilterBy {
   styleUrls: ['./customer-list.component.css'],
 })
 export class CustomerListComponent implements OnInit, OnDestroy, AfterViewInit {
+  readonly appButtonType = AppButtonTypes;
   isLoading = false;
   private _searchString = '';
   private _customerList!: any[];
@@ -158,7 +163,7 @@ export class CustomerListComponent implements OnInit, OnDestroy, AfterViewInit {
       );
 
       filterOrg$.subscribe((filterText) => {
-        if(this._searchPayload?.query){
+        if (this._searchPayload?.query) {
           this.applyFilter(filterText);
         }
         this.searchFilter.nativeElement.focus();
@@ -197,7 +202,8 @@ export class CustomerListComponent implements OnInit, OnDestroy, AfterViewInit {
           this._dashboardService.defaultPaylod = {
             options: {
               offset: 0,
-              limit: this.appConfigService.systemMatTableProperties.pageSizeOptions[2],
+              limit: this.appConfigService.systemMatTableProperties
+                .pageSizeOptions[2],
             },
           };
         }
@@ -673,47 +679,47 @@ export class CustomerListComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.selection?.selected?.length;
   }
 
-  async filterCustomerList(event?:any) {
+  async filterCustomerList(event?: any) {
     let filteredList: any[] = [];
     let queryArray!: any[];
     /** 11022021 - Abhishek - Set customer list dropdown filter */
-    if(event) {
-    /** Check that (filter => global => holdinOrgs => dataDomainConfig => customer => memberOrg === true) && provided (filter => global => holdinOrgs => memberOrgs[].length > 0) */
-    if (this._filterCustomerListBy == FilterBy.MEMBER_ORG) {
-      queryArray = [
-        {
-          memberOrg: this.selectedMemberOrg._id,
+    if (event) {
+      /** Check that (filter => global => holdinOrgs => dataDomainConfig => customer => memberOrg === true) && provided (filter => global => holdinOrgs => memberOrgs[].length > 0) */
+      if (this._filterCustomerListBy == FilterBy.MEMBER_ORG) {
+        queryArray = [
+          {
+            memberOrg: this.selectedMemberOrg._id,
+          },
+        ];
+      } else {
+        queryArray = [{ holdingOrg: this.selectedHoldingOrgData._id }];
+      }
+      this._searchPayload = {
+        ...this._searchPayload,
+        query: {
+          $or: <any[]>queryArray,
         },
-      ];
-    } else {
-      queryArray = [{ holdingOrg: this.selectedHoldingOrgData._id }];
-    }
-    this._searchPayload = {
-      ...this._searchPayload,
-      query: {
-        $or: <any[]>queryArray,
-      },
-    }
-    this._setLoading(true);
-    /** 11022021 - Abhishek - Get search filtered customer list  */
-    this._loadingService
-      .showProgressBarUntilCompleted(
-        this._dashboardService.getCustomersListFromSearch(this._searchPayload)
-      )
-      .subscribe(
-        async (customerList) => {
-          this.totalRecords = customerList?.info?.totalCount;
-          this._customerList = customerList?.results ?? [];
-          await this.filterCustomerList();
-          this._setLoading(false);
-        },
-        () => {
-          this._setLoading(false);
-        }
-      );
+      };
+      this._setLoading(true);
+      /** 11022021 - Abhishek - Get search filtered customer list  */
+      this._loadingService
+        .showProgressBarUntilCompleted(
+          this._dashboardService.getCustomersListFromSearch(this._searchPayload)
+        )
+        .subscribe(
+          async (customerList) => {
+            this.totalRecords = customerList?.info?.totalCount;
+            this._customerList = customerList?.results ?? [];
+            await this.filterCustomerList();
+            this._setLoading(false);
+          },
+          () => {
+            this._setLoading(false);
+          }
+        );
     }
 
-      filteredList = (await filteredList?.length)
+    filteredList = (await filteredList?.length)
       ? filteredList
       : this._customerList;
     this.dataSource = await new MatTableDataSource(filteredList ?? []);
@@ -855,6 +861,15 @@ export class CustomerListComponent implements OnInit, OnDestroy, AfterViewInit {
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${
       row.position + 1
     }`;
+  }
+
+  onButtonRowClicked(args: ButtonRowClickedParams) {
+    console.log({ args });
+
+    switch (args.appButtonType) {
+      case AppButtonTypes.view:
+        return this.onViewCustomerData(args.data!);
+    }
   }
 
   onViewCustomerData(customerDetail: any) {

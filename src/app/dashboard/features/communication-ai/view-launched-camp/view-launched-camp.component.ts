@@ -23,8 +23,7 @@ enum FilterBy {
 
 @Component({
   selector: 'app-view-launched-camp',
-  templateUrl: './view-launched-camp.component.html',
-  styleUrls: ['../../../shared/styling/setup-table-list.shared.css'],
+  templateUrl: './view-launched-camp.component.html'
 })
 export class ViewLanchedCampComponent implements OnInit {
   currentFeature!: DataDomainConfig;

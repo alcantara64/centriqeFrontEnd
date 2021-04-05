@@ -1,5 +1,4 @@
-/* 26022021 - Gaurav - JIRA-CA-187: move huge html to reusable components for this module */
-/* CSS for Survey question display */
+/* Survey question display styles starts*/
 .likert-response th,
 .likert-response td {
   text-align: center;
@@ -96,3 +95,5 @@
     padding: 10px 5px !important;
   }
 }
+
+/* Survey question display styles end*/
