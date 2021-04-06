@@ -14,7 +14,8 @@
  * 05032021 - Abhishek - Added new     dashboardRouteLinks.CLIENT_SETUP_DASHBOARD_ORG_CONFIGURATION
  * 09032021 - Gaurav - JIRA-CA-226: Adjust UI to work with new login and global selector routes
  * 16032021 - Gaurav - JIRA-CA-237: Persist selected global holding org on browser refresh
- * 25032021 - Gaurav - JIRA-CA-305: Whitelist global org selector for analytics submenus */
+ * 25032021 - Gaurav - JIRA-CA-305: Whitelist global org selector for analytics submenus
+ * 06042021 - Gaurav - JIRA-CA-340: Show offline status of user in the header */
 import {
   AfterViewInit,
   Component,
@@ -109,6 +110,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewInit {
     dashboardRouteLinks.USER_MANAGEMENT_USERS_VIEW,
   ];
 
+  isOnline = true;
   isUserAuthenticated = false;
   selectedHoldingOrg!: HoldingOrg;
   filteredHoldingOrgs!: HoldingOrg[];
@@ -120,6 +122,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewInit {
   private _systemConfigData!: any;
   private _dashboardConfigData!: any;
   private _authStatusSub$!: Subscription;
+  private _onlineStatusSub$!: Subscription;
 
   constructor(
     private _authService: AuthService,
@@ -146,6 +149,13 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewInit {
         this._isEnabledHoldingOrgMenu = this._allowListRoutes.some(
           (route) => route.routerLink === currentRoute
         );
+      });
+
+    this._onlineStatusSub$ = this._authService
+      .isOnline$()
+      .subscribe((online) => {
+        this.isOnline = online;
+        console.log({ online });
       });
 
     this._authStatusSub$ = this._authService
@@ -200,6 +210,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     this._authStatusSub$.unsubscribe();
     this._routerEventsSub$.unsubscribe();
+    this._onlineStatusSub$.unsubscribe();
   }
 
   /** 10122020 - Gaurav - Added Holding Org filter

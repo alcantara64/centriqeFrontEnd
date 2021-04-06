@@ -1,6 +1,8 @@
 <!-- 10122020 - Gaurav - Modified to add search/filter field for the holding orgs (if holdingOrgs[].length > 10) -->
 <!-- 09022021 - Abhishek - Change logic for global org selector is also shown when canUseGlobalOrgSelector===true -->
 <!-- 16022021 - Gaurav - JIRA CA-140: show org logo on header, when side toggle-menu is collapsed -->
+<!-- 08032021 - Gaurav - JIRA-CA-232: Show org name under user name on the app header -->
+<!-- 06042021 - Gaurav - JIRA-CA-340: Show offline status of user in the header -->
 <mat-toolbar class="header">
   <span
     class="menu-title"
@@ -66,13 +68,19 @@
   </span>
   <span class="spacer"></span>
 
-  <!-- 08032021 - Gaurav - JIRA-CA-232: Show org name under user name on the app header -->
   <span
     class="d-flex flex-column justify-content-end align-items-end"
     style="line-height: 18px"
+    [matTooltip]="!isOnline ? 'You are offline!' : ''"
   >
-    <div class="user-name">{{ loginUserName }}</div>
-    <div *ngIf="isAdmin || canUseGlobalOrgSelector" class="org-name">
+    <div class="user-name {{ !isOnline ? 'offline' : '' }}">
+      <mat-icon *ngIf="!isOnline">cloud_off</mat-icon>
+      <span>{{ loginUserName }}</span>
+    </div>
+    <div
+      *ngIf="isAdmin || canUseGlobalOrgSelector"
+      class="org-name {{ !isOnline ? 'offline' : '' }}"
+    >
       {{ selectedHoldingOrg?.name }}
     </div>
   </span>

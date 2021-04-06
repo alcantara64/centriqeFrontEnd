@@ -1,12 +1,20 @@
 /** 18112020 - Gaurav - Init version: Service for Authentication related actions in the app
  * 16032021 - Gaurav - JIRA-CA-237: User is forced to dashboard 'home' page on page refresh, fixed to load last navigation before refresh
+ * 06042021 - Gaurav - JIRA-CA-340: Show offline status of user in the header
  */
 import { IUser } from './../core/models/user';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NavigationExtras, Router } from '@angular/router';
-import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  fromEvent,
+  Observable,
+  Observer,
+  of,
+  ReplaySubject,
+} from 'rxjs';
+import { map, mergeAll } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
 
@@ -50,15 +58,18 @@ export class AuthService {
     1
   );
 
-  // new BehaviorSubject<SelectedMenuLevels>(
-  //   {
-  //     selectedMenu: 0,
-  //     selectedChildMenu: 0,
-  //     isCanDeactivateInitiated: false,
-  //   }
-  // );
-
   constructor(private _http: HttpClient, private _router: Router) {}
+
+  isOnline$() {
+    return of(
+      fromEvent(window, 'offline').pipe(map(() => false)),
+      fromEvent(window, 'online').pipe(map(() => true)),
+      new Observable((sub: Observer<boolean>) => {
+        sub.next(navigator.onLine);
+        sub.complete();
+      })
+    ).pipe(mergeAll());
+  }
 
   setSelectedMenuLevelsListener(value: SelectedMenuLevels): void {
     this._selectedMenuLevelsListener.next(value);
@@ -78,10 +89,10 @@ export class AuthService {
     /** Return a copy of the observable to avoid any next() calls from outside here */
     return this._authStatusListener.asObservable();
   }
-  checkIfToResetPasswordOnNextLogon():boolean{
-    const localStorageItem =  localStorage.getItem('userInfo');
+  checkIfToResetPasswordOnNextLogon(): boolean {
+    const localStorageItem = localStorage.getItem('userInfo');
     let isResetPasswordOnLogon = false;
-    if(localStorageItem){
+    if (localStorageItem) {
       const userInfo = JSON.parse(localStorageItem);
       isResetPasswordOnLogon = userInfo.resetPasswordNextLogon;
     }

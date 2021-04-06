@@ -1,5 +1,5 @@
 //Header styles start
-.header{
+.header {
   .menu-title {
     .mat-icon {
       color: $color-white;
@@ -21,12 +21,29 @@
     color: $color-white;
     font-weight: 100;
     font-size: 1rem;
+
+    &.offline {
+      color: $table-hover-colour;
+      font-weight: 100;
+      font-size: 1rem;
+
+      mat-icon {
+        font-size: 1.4rem;
+        color: $table-hover-colour;
+      }
+    }
   }
 
   .org-name {
     color: $accent-color;
     font-weight: 100;
     font-size: 0.75rem;
+
+    &.offline {
+      color: $table-hover-colour;
+      font-weight: 100;
+      font-size: 0.75rem;
+    }
   }
 
   .mat-icon-button {
