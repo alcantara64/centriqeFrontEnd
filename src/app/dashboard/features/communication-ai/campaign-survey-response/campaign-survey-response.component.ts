@@ -8,12 +8,11 @@
  * 26022021 - Gaurav - JIRA-CA-185: bug, use nps specific API for survey results. Pass currentFeature to survey results API call
  * 01032021 - Gaurav - JIRA-CA-153: Save survey results to PDF
  * 04032021 - Gaurav - JIRA-CA-199: reduce survey report PDF size
+ * 06042021 - Gaurav - JIRA-CA-339: Update frontend with feature to show comments
  */
 import {
-  AfterViewInit,
   Component,
   ElementRef,
-  Inject,
   OnDestroy,
   OnInit,
   QueryList,
@@ -22,9 +21,8 @@ import {
 } from '@angular/core';
 import { MatAccordion } from '@angular/material/expansion';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
-import { concatMap, tap } from 'rxjs/operators';
-import * as ec from 'echarts';
+import { Observable, of, Subscription } from 'rxjs';
+import { delay, tap } from 'rxjs/operators';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -46,6 +44,7 @@ import {
   CampaignSurveyResponseMode,
   CommunicationAIService,
   PayloadCampaignSurveyResponse,
+  PayloadCampaignSurveyTextResponse,
 } from '../communication-ai.service';
 import { EchartsService } from 'src/app/dashboard/shared/components/echarts/echarts.service';
 import { ProcessSurveySubmissionStatus } from './process-survey-submission/process-survey-submission-status';
@@ -53,13 +52,13 @@ import { ProcessSurveyResponse } from './process-survey-response/process-survey-
 import { ProcessSurveyResponseBaseTypes } from './process-survey-response/process-survey-response-base-types';
 import { ProcessSurveyResponseLikertTypes } from './process-survey-response/process-survey-response-likert-types';
 import { ProcessSurveyResponseTextTypes } from './process-survey-response/process-survey-response-text-types';
-import { EchartsComponent } from 'src/app/dashboard/shared/components/echarts/echarts.component';
 import {
   DashboardService,
   HoldingOrg,
 } from 'src/app/dashboard/dashboard.service';
 import { DatePipe } from '@angular/common';
 import { SnackbarService } from 'src/app/shared/components/snackbar.service';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 
 @Component({
   templateUrl: './campaign-survey-response.component.html',
@@ -97,6 +96,7 @@ export class CampaignSurveyResponseComponent implements OnInit, OnDestroy {
   pdfGenerateProgress = 0;
   pdfGenerateStatus = '';
   serverError = false;
+  isTextLoading = false;
 
   constructor(
     private _route: ActivatedRoute,
@@ -154,6 +154,10 @@ export class CampaignSurveyResponseComponent implements OnInit, OnDestroy {
     return this._loading;
   }
 
+  get currentFeature(): DataDomainConfig {
+    return this._currentFeature;
+  }
+
   get currentCampaignData(): any {
     return this._currentCampaignData;
   }
@@ -168,6 +172,10 @@ export class CampaignSurveyResponseComponent implements OnInit, OnDestroy {
 
   get roundedPdfGenerateProgress(): number {
     return Math.round(this.pdfGenerateProgress);
+  }
+
+  get commAiServiceHandle(): CommunicationAIService {
+    return this._commAIService;
   }
 
   ngOnInit(): void {
@@ -312,6 +320,22 @@ export class CampaignSurveyResponseComponent implements OnInit, OnDestroy {
       this._campaignSurveyResponse?.responses &&
       this._campaignSurveyResponse?.surveyVersion
     ) {
+      let partPayload: PayloadCampaignSurveyTextResponse | undefined;
+
+      if (this._queryParams?.mode === CampaignSurveyResponseMode.campaign) {
+        partPayload = {
+          campaignId: this._id,
+          startDate: this._queryParams.startDate, //'YYYY-MM'DD'
+          endDate: this._queryParams.endDate,
+        };
+      } else if (
+        this._queryParams?.mode === CampaignSurveyResponseMode.messageEvent
+      ) {
+        partPayload = {
+          messageEventId: this._id,
+        };
+      }
+
       /** Sort the responses received per the question sequence in surveyVersion */
       this._campaignSurveyResponse.responses = ProcessSurveyResponse.sortResponsesPerSurveyQuestions(
         {
@@ -342,9 +366,12 @@ export class CampaignSurveyResponseComponent implements OnInit, OnDestroy {
             case QuestionTypes.matrixCheck:
             case QuestionTypes.multiChoiceCheckH:
               this._processSurveyResponse.push(
-                new ProcessSurveyResponseBaseTypes({
-                  ...this._campaignSurveyResponse?.responses[i],
-                })
+                new ProcessSurveyResponseBaseTypes(
+                  {
+                    ...this._campaignSurveyResponse?.responses[i],
+                  },
+                  partPayload
+                )
               );
 
               break;
@@ -352,9 +379,12 @@ export class CampaignSurveyResponseComponent implements OnInit, OnDestroy {
             case QuestionTypes.likertCheck:
             case QuestionTypes.likertRadio:
               this._processSurveyResponse.push(
-                new ProcessSurveyResponseLikertTypes({
-                  ...this._campaignSurveyResponse?.responses[i],
-                })
+                new ProcessSurveyResponseLikertTypes(
+                  {
+                    ...this._campaignSurveyResponse?.responses[i],
+                  },
+                  partPayload
+                )
               );
 
               break;
@@ -362,9 +392,12 @@ export class CampaignSurveyResponseComponent implements OnInit, OnDestroy {
             case QuestionTypes.singleTextInput:
             case QuestionTypes.singleTextArea:
               this._processSurveyResponse.push(
-                new ProcessSurveyResponseTextTypes({
-                  ...this._campaignSurveyResponse?.responses[i],
-                })
+                new ProcessSurveyResponseTextTypes(
+                  {
+                    ...this._campaignSurveyResponse?.responses[i],
+                  },
+                  partPayload
+                )
               );
 
               break;

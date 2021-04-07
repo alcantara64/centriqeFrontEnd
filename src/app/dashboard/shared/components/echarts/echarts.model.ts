@@ -3,6 +3,7 @@
  * 02032021 - Gaurav - JIRA-CA-195: totalHitsByResponseId
  */
 
+import { PayloadCampaignSurveyTextResponse } from 'src/app/dashboard/features/communication-ai/communication-ai.service';
 import { QuestionTypes } from 'src/app/dashboard/features/response-ai/data-models/question.model';
 import {
   ConsolidatedQuestionResponse,
@@ -53,6 +54,8 @@ export interface DisplayResponseData extends ChartQuestionText {
   responseCharts?: ChartData[];
   tableDataSource?: ConsolidatedQuestionResponse[];
   tableDisplayColumns?: string[];
+  textResponsePayload?: PayloadCampaignSurveyTextResponse | null;
+  textResponses?: any;
 }
 
 export interface SubmissionStatusDataSource {

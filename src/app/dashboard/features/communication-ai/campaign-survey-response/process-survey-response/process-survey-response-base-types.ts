@@ -1,5 +1,6 @@
 /** 23022021 - Gaurav - Refactored survey base type question response processing from campaign-survey-response component to classes
  * 25022021 - Gaurav - JIRA-CA-152: Show counter for additional text
+ * 07042021 - Gaurav - JIRA-CA-339: Update frontend with feature to show comments; added _surveyQuestionTextResponsesPayload and textResponsePayload
  */
 import {
   ChartData,
@@ -12,11 +13,15 @@ import {
   ConsolidatedQuestionResponse,
   SurveyQuestionResponses,
 } from '../../../response-ai/data-models/survey.model';
+import { PayloadCampaignSurveyTextResponse } from '../../communication-ai.service';
 import { ProcessSurveyResponse } from './process-survey-response';
 
 export class ProcessSurveyResponseBaseTypes extends ProcessSurveyResponse {
-  constructor(protected _surveyQuestionResponse: SurveyQuestionResponses) {
-    super(_surveyQuestionResponse);
+  constructor(
+    protected _surveyQuestionResponse: SurveyQuestionResponses,
+    protected _surveyQuestionTextResponsesPayload?: PayloadCampaignSurveyTextResponse
+  ) {
+    super(_surveyQuestionResponse, _surveyQuestionTextResponsesPayload);
   }
 
   protected _processQuestionResponse(): void {
@@ -170,6 +175,13 @@ export class ProcessSurveyResponseBaseTypes extends ProcessSurveyResponse {
       tableDisplayColumns,
       questionTypeStructure: this._surveyQuestionResponse
         ?.questionTypeStructure,
+      textResponsePayload: !!this._surveyQuestionTextResponsesPayload
+        ? {
+            ...this._surveyQuestionTextResponsesPayload,
+            questionId: this._surveyQuestionResponse?.questionId,
+            questionType: this._surveyQuestionResponse?.questionType,
+          }
+        : null,
     };
   }
 }

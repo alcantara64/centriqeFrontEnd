@@ -9,6 +9,7 @@
 <!-- 26022021 - Gaurav - JIRA-CA-187: move huge html to reusable components for this module -->
 <!-- 03032021 - Gaurav - JIRA-CA-196: Show Likert tables in generated response PDF -->
 <!-- 04032021 - Gaurav - JIRA-CA-199: reduce survey report PDF size -->
+<!-- 06042021 - Gaurav - JIRA-CA-339: Update frontend with feature to show comments -->
 <div class="main-container" *ngIf="!isPDFMode">
   <div class="card-container">
     <mat-card>
@@ -189,6 +190,33 @@
                             <app-survey-response-stats-by-question
                               [data]="res?.data"
                             ></app-survey-response-stats-by-question>
+                          </mat-tab>
+
+                          <mat-tab>
+                            <ng-template mat-tab-label>
+                              <ng-template #showIcon>
+                                <mat-icon
+                                  matTooltip="Survey Question Text Response List"
+                                  matTooltipPosition="above"
+                                  >assignment</mat-icon
+                                >
+                              </ng-template>
+
+                              <mat-spinner
+                                *ngIf="
+                                  res.isFetchingData$ | async;
+                                  else showIcon
+                                "
+                                color="primary"
+                                diameter="25"
+                              ></mat-spinner>
+                            </ng-template>
+                            <ng-template matTabContent>
+                              <app-stats-text-responses
+                                [currentFeature]="currentFeature"
+                                [instance]="res"
+                              ></app-stats-text-responses>
+                            </ng-template>
                           </mat-tab>
 
                           <mat-tab *ngIf="res?.data?.tableDataSource">

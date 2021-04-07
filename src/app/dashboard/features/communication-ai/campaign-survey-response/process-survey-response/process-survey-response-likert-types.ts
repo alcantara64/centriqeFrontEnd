@@ -4,6 +4,7 @@
  * 01032021 - Gaurav - JIRA-CA-189: Revert CA-175 changes.
  * 02032021 - Gaurav - JIRA-CA-195: Show totalHitsByResponseId per Likert row
  * 03032021 - Gaurav - JIRA-CA-196: Added rowspan property to likertTableData
+ * 07042021 - Gaurav - JIRA-CA-339: Update frontend with feature to show comments; added _surveyQuestionTextResponsesPayload and textResponsePayload
  */
 import {
   ChartData,
@@ -20,11 +21,15 @@ import {
   SurveyQuestionResponses,
   TextHitsResponse,
 } from '../../../response-ai/data-models/survey.model';
+import { PayloadCampaignSurveyTextResponse } from '../../communication-ai.service';
 import { ProcessSurveyResponse } from './process-survey-response';
 
 export class ProcessSurveyResponseLikertTypes extends ProcessSurveyResponse {
-  constructor(protected _surveyQuestionResponse: SurveyQuestionResponses) {
-    super(_surveyQuestionResponse);
+  constructor(
+    protected _surveyQuestionResponse: SurveyQuestionResponses,
+    protected _surveyQuestionTextResponsesPayload?: PayloadCampaignSurveyTextResponse
+  ) {
+    super(_surveyQuestionResponse, _surveyQuestionTextResponsesPayload);
   }
 
   protected _processQuestionResponse(): void {
@@ -330,6 +335,13 @@ export class ProcessSurveyResponseLikertTypes extends ProcessSurveyResponse {
       tableDisplayColumns: ['responseIdDisplayValue', 'percent_hits', 'hits'],
       questionTypeStructure: this._surveyQuestionResponse
         ?.questionTypeStructure,
+      textResponsePayload: !!this._surveyQuestionTextResponsesPayload
+        ? {
+            ...this._surveyQuestionTextResponsesPayload,
+            questionId: this._surveyQuestionResponse?.questionId,
+            questionType: this._surveyQuestionResponse?.questionType,
+          }
+        : null,
     };
   }
 }

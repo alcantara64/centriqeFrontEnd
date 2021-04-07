@@ -20,6 +20,11 @@ export function generateNameAndCodeString(code: string, name: string): string {
   return nameAndCode;
 }
 
+/** 07042021 - Gaurav - Returns the desired dots, to be used with setInterval (see usecase in stats-text-responses.component) */
+export function dotdotdot(cursor: number, times: number, dot: string) {
+  return Array(times - Math.abs((cursor % (times * 2)) - times) + 1).join(dot);
+}
+
 /** 10122020 - Gaurav - Central Console Log
  * Added allowConsoleLogs flag to control display of console logs from common.util.ts.
  * This shall prevent any accidental display of consoled information in prod mode */

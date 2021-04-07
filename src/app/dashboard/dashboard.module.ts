@@ -133,6 +133,7 @@ import { ShowMoreRightButtonFabComponent } from './shared/components/buttons/sho
 import { DownloadButtonFabComponent } from './shared/components/buttons/download-button-fab/download-button-fab.component';
 import { CloseButtonFabComponent } from './shared/components/buttons/close-button-fab/close-button-fab.component';
 import { FilterComponent } from './shared/components/filter/filter.component';
+import { StatsTextResponsesComponent } from './features/communication-ai/campaign-survey-response/display-components/stats-text-responses/stats-text-responses.component';
 
 @NgModule({
   declarations: [
@@ -212,6 +213,7 @@ import { FilterComponent } from './shared/components/filter/filter.component';
     DownloadButtonFabComponent,
     CloseButtonFabComponent,
     FilterComponent,
+    StatsTextResponsesComponent,
   ],
   imports: [
     SharedModule,

@@ -1,4 +1,8 @@
-/** 23022021 - Gaurav - Refactored survey response processing from campaign-survey-response component to classes */
+/** 23022021 - Gaurav - Refactored survey response processing from campaign-survey-response component to classes
+ * 06042021 - Gaurav - JIRA-CA-339: Update frontend with feature to show comments; added _surveyQuestionTextResponsesPayload
+ */
+import { BehaviorSubject, Observable } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import {
   ChartQuestionText,
   DisplayResponseData,
@@ -22,14 +26,22 @@ import {
   SurveyQuestionResponses,
   SurveyVersion,
 } from '../../../response-ai/data-models/survey.model';
+import { PayloadCampaignSurveyTextResponse } from '../../communication-ai.service';
 
 export abstract class ProcessSurveyResponse {
+  private _fetchingObs = new BehaviorSubject<boolean>(false);
+  public isFetchingData$: Observable<boolean> = this._fetchingObs
+    .asObservable()
+    .pipe(delay(0));
   protected _questionText!: ChartQuestionText;
   protected _providedOptions!: any[];
   protected _data!: DisplayResponseData;
   protected _echartsServiceInstance = EchartsService.instance;
 
-  constructor(protected _surveyQuestionResponse: SurveyQuestionResponses) {
+  constructor(
+    protected _surveyQuestionResponse: SurveyQuestionResponses,
+    protected _surveyQuestionTextResponsesPayload?: PayloadCampaignSurveyTextResponse
+  ) {
     /** 1. Get the provided options */
     this._providedOptions =
       this._surveyQuestionResponse?.providedOptions ?? <any[]>[];
@@ -117,6 +129,14 @@ export abstract class ProcessSurveyResponse {
 
   get data(): DisplayResponseData {
     return this._data;
+  }
+
+  public setDataFetching(value: boolean): void {
+    this._fetchingObs.next(value);
+  }
+
+  public setTextResponses(textResponses: any) {
+    this._data.textResponses = textResponses;
   }
 
   public isLikertGroup(index: number, item: any): boolean {

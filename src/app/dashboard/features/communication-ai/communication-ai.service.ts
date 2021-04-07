@@ -5,16 +5,17 @@
  * 12022021 - Gaurav - Added expected response format CampaignSurveyResponse for getCampaignSurveyResponse()
  * 26022021 - Gaurav - JIRA-CA-185: bug, use nps specific API for survey results
  * 05032021 - Gaurav - JIRA-CA-154 - Replaced Campaign Survey Response API with new post & payload
+ * 06042021 - Gaurav - JIRA-CA-339: Update frontend with feature to show comments; added PayloadCampaignSurveyTextResponse
  */
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { DateTime } from 'luxon';
 
 import { environment } from '../../../../environments/environment';
 import { CampaignSurveyResponse } from '../response-ai/data-models/survey.model';
 import { DataDomainConfig } from '../../shared/components/menu/constants.routes';
-import { tap } from 'rxjs/operators';
+import { delay, tap } from 'rxjs/operators';
 import { consoleLog } from 'src/app/shared/util/common.util';
 
 const BACKEND_URL = `${environment.apiUrlV1}`;
@@ -26,6 +27,12 @@ export interface PayloadCampaignSurveyResponse {
   endDate?: string;
   messageEventId?: string;
   currentUserTimeZone?: string;
+}
+
+export interface PayloadCampaignSurveyTextResponse
+  extends PayloadCampaignSurveyResponse {
+  questionId?: string;
+  questionType?: string;
 }
 
 export enum CampaignSurveyResponseMode {
@@ -48,6 +55,11 @@ export class CommunicationAIService {
   private _getCampStatusDialog = new Subject<any>();
   private _selOrgData = new Subject<any>();
   private _lunchedCampViewMode = new Subject<any>();
+  private _loadingSub = new BehaviorSubject<boolean>(false);
+
+  commAiApiLoading$: Observable<boolean> = this._loadingSub
+    .asObservable()
+    .pipe(delay(0));
 
   constructor(private _http: HttpClient) {}
 
@@ -86,6 +98,25 @@ export class CommunicationAIService {
           }
         })
       );
+  }
+
+  /** 06042021 - Gaurav - JIRA-CA-339: Update frontend with feature to show comments */
+  setLoading(value: boolean): void {
+    this._loadingSub.next(value);
+  }
+
+  getCampaignSurveyTextResponse(
+    currentFeature: DataDomainConfig,
+    payload: PayloadCampaignSurveyTextResponse
+  ): Observable<any> {
+    return this._http.post<any>(
+      `${BACKEND_URL}/${
+        currentFeature === DataDomainConfig.nps
+          ? 'npsCampaigns'
+          : 'respCampaigns'
+      }/surveyResults/comments`,
+      payload
+    );
   }
 
   /** Templates APIs */

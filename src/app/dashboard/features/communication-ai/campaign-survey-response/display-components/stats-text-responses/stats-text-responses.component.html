@@ -1,0 +1,21 @@
+<ng-container *ngIf="isLoading; else showResponse">
+  <p class="lead mt-2">Fetching data{{ dots }}</p>
+</ng-container>
+<ng-template #showResponse>
+  <ng-container *ngIf="responseArray; else noDataFound">
+    <ng-container *ngIf="responseArray?.length > 0; else noRecords">
+      <p class="mt-2" *ngFor="let text of responseArray; let i = index">
+        {{ i + 1 }}. {{ text }}
+      </p>
+    </ng-container>
+
+    <ng-template #noRecords>
+      <p class="lead mt-2">
+        No text data available or recorded for this question!
+      </p>
+    </ng-template>
+  </ng-container>
+  <ng-template #noDataFound>
+    <p class="lead mt-2" style="color: red">Error fetching data from server!</p>
+  </ng-template>
+</ng-template>

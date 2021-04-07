@@ -32,7 +32,7 @@ export class ErrorInterceptor implements HttpInterceptor {
           'Either the server may be down or restarting or you may be facing network issues, please refresh page after some time. If issue persists, please contact this webpage administrator or your network provider.';
 
         let showErrorMessage =
-          error?.error?.message ?? error?.error ?? errorMessage;
+          error?.error?.message ?? error?.message ?? errorMessage;
 
         !navigator.onLine &&
           (showErrorMessage =
