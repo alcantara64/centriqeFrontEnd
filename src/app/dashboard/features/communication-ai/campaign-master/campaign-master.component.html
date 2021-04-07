@@ -106,8 +106,8 @@
                         campaignFG?.controls?.expiryDuration?.errors?.required &&
                         (campaignFG?.controls?.expiryDuration?.touched ||
                         campaignFG?.controls?.expiryDuration?.dirty)
-                        ? "Expiry Date *"
-                        : "Expiry Date"
+                        ? "Survey Expiry Duration (Days) *"
+                        : "Survey Expiry Duration (Days)"
                         }}</mat-label>
                     <input matInput formControlName="expiryDuration" type="number" />
                     <mat-error *ngIf="campaignFG?.controls?.expiryDuration?.errors?.required">Expiry Date required</mat-error>
@@ -130,7 +130,7 @@
                 </div>
                 <div class="form-group" *ngIf="messageView">
                   <mat-form-field>
-                    <mat-label>Campaing Name (Code)</mat-label>
+                    <mat-label>Campaign Name (Code)</mat-label>
                     <input matInput formControlName="campaignCodeName" type="text" />
                   </mat-form-field>
                 </div>

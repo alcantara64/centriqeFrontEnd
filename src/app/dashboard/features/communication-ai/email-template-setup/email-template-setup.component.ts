@@ -28,7 +28,7 @@ import { ClientSetupService } from '../../client-setup/client-setup.service';
 import { consoleLog } from 'src/app/shared/util/common.util';
 import { LoadingService } from 'src/app/shared/services/loading.service';
 import { AppConfigService } from 'src/app/shared/services/app-config.service';
-import { OrgDrDwEmitStruct } from 'src/app/dashboard/shared/components/org-dropdownlist/org-dropdownlist.component';
+import { CanFilterByOrg, OrgDrDwEmitStruct } from 'src/app/dashboard/shared/components/org-dropdownlist/org-dropdownlist.component';
 import {
   AppButtonTypes,
   ButtonRowClickedParams,
@@ -167,9 +167,13 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
               this._searchString = this._searchString.slice(0, -1);
             }
           }
-         return this._communicationAIService.getTemplateListFromSearch(this.valuesFromOrgDrDw?.searchPayload)
-        }),  /** Delay to wait for the EventEmitter value of DrDw component */
+          if (this.valuesFromOrgDrDw?.filterByOrg === CanFilterByOrg.BOTH_ORGS) {
+            return this._communicationAIService.getTemplateListFromSearch(this.valuesFromOrgDrDw?.searchPayload);
+          }
 
+          /** valuesFromOrgDrDw?.searchString should always have a value for either a holdingOrgId or a search string of memberOrgs */
+          return this._communicationAIService.getTemplateList(this.valuesFromOrgDrDw?.searchString);
+        }),
       );
 
     this._templateListSub$ = this._loadingService
@@ -330,6 +334,7 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
   }
 
   async filterTemplateList() {
+    console.log(this.valuesFromOrgDrDw, 'this.valuesFromOrgDrDw');
     let filteredList: any[] = [];
     if (this.templateList?.length > 0) {
       filteredList = this.templateList.filter(
