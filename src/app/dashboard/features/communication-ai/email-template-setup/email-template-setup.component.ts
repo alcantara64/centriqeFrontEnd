@@ -10,7 +10,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortable } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Observable, Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, tap, delay, map } from 'rxjs/operators';
 import {
   DashboardService,
   HoldingOrg,
@@ -22,16 +22,18 @@ import {
   SystemDialogType,
 } from 'src/app/dashboard/shared/components/dialog/dialog.model';
 import { SnackbarService } from 'src/app/shared/components/snackbar.service';
-import { dashboardRouteLinks } from '../../../shared/components/menu/constants.routes';
+import { dashboardRouteLinks,DataDomainConfig } from '../../../shared/components/menu/constants.routes';
 import { CommunicationAIService } from '../communication-ai.service';
 import { ClientSetupService } from '../../client-setup/client-setup.service';
 import { consoleLog } from 'src/app/shared/util/common.util';
 import { LoadingService } from 'src/app/shared/services/loading.service';
 import { AppConfigService } from 'src/app/shared/services/app-config.service';
+import { OrgDrDwEmitStruct } from 'src/app/dashboard/shared/components/org-dropdownlist/org-dropdownlist.component';
 import {
   AppButtonTypes,
   ButtonRowClickedParams,
 } from 'src/app/dashboard/shared/components/buttons/buttons.model';
+
 /** Created enum, instead of using boolean values, in case more than two filters condition are introduced */
 enum FilterBy {
   HOLDING_ORG,
@@ -52,6 +54,9 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
   private _filterTemplateListBy: FilterBy = FilterBy.HOLDING_ORG; // Default
   dataSource!: MatTableDataSource<any>;
   selectedHoldingOrgData!: HoldingOrg;
+  valuesFromOrgDrDw!: OrgDrDwEmitStruct;
+  currentFeature!: DataDomainConfig;
+  private _orgAccessInformation!: any;
   templateList: any;
   selectedMemberOrg!: any;
   isLoading: boolean = false;
@@ -78,6 +83,7 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._setLoading(true);
+    this.currentFeature = DataDomainConfig.communication;
     this._showEditComponents =
       this._route.snapshot.routeConfig?.path ===
       dashboardRouteLinks.COMMUNICATION_MANAGE_TEMPLATE.routerLink;
@@ -121,7 +127,12 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
             this.selectedHoldingOrgData._id
           );
         }),
+        tap((mOrgs) => {
+          this._orgAccessInformation = mOrgs;
+        }),
+        delay(0),
         switchMap((mOrgs): any => {
+
           if (mOrgs?.communication?.memberOrgs?.length > 0) {
             this.selectedHoldingOrgData = {
               ...this.selectedHoldingOrgData,
@@ -156,8 +167,9 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
               this._searchString = this._searchString.slice(0, -1);
             }
           }
-          return this._communicationAIService.getTemplateList(this._searchString);
-        })
+         return this._communicationAIService.getTemplateListFromSearch(this.valuesFromOrgDrDw?.searchPayload)
+        }),  /** Delay to wait for the EventEmitter value of DrDw component */
+
       );
 
     this._templateListSub$ = this._loadingService
@@ -171,6 +183,13 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
           this._setLoading(false);
         }
       );
+  }
+  async listenToDrDw($event: OrgDrDwEmitStruct): Promise<void> {
+    this.valuesFromOrgDrDw = await $event;
+    await this.filterTemplateList();
+  }
+  get orgAccessInformation(): any {
+    return this._orgAccessInformation;
   }
 
   ngOnDestroy() {
@@ -313,27 +332,11 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
   async filterTemplateList() {
     let filteredList: any[] = [];
     if (this.templateList?.length > 0) {
-      if (this.isShowMemberOrgDropDown()) {
-        filteredList = this.templateList.filter((item: any) => {
-          if (item.memberOrg === this.selectedMemberOrg._id) {
-            return item;
-          }
-        });
-      } else if (this.isShowBothOrgDropDown()) {
-        filteredList = this.templateList.filter((listItem: any) => {
-          if (listItem.holdingOrg === this.selectedMemberOrg._id) {
-            return listItem;
-          } else if (listItem.memberOrg === this.selectedMemberOrg._id) {
-            return listItem;
-          }
-        });
-      } else {
-        filteredList = this.templateList.filter((listItem: any) => {
-          if (listItem.holdingOrg === this.selectedHoldingOrgData._id) {
-            return listItem;
-          }
-        });
-      }
+      filteredList = this.templateList.filter(
+        (listItem: any) =>
+          listItem[this.valuesFromOrgDrDw?.compareByKeyForFilter] ===
+          this.valuesFromOrgDrDw?.selectedOrgInDrDw?._id
+      );
     }
     consoleLog({ valuesArr: ['change', filteredList] });
     this.sort.sort({ id: 'updatedAt', start: 'desc' } as MatSortable);
@@ -369,7 +372,7 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
                 /* 21122020 - Abhishek - remove splice fuction from template list */
                 // this.templateList.splice(index, 1);
                 this.dataSource._updateChangeSubscription();
-                this._communicationAIService.getTemplateList(this._searchString);
+                this._communicationAIService.getTemplateListFromSearch(this.valuesFromOrgDrDw?.searchPayload);
                 this._setLoading(false);
               },
               (error) => {

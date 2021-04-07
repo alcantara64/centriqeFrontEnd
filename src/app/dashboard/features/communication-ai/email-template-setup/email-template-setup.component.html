@@ -19,43 +19,12 @@
       <!-- 05012021 - Abhishek - Removed row class to set design -->
       <div class="table-top_row2">
         <div class="col">
-          <mat-form-field *ngIf="isShowMemberOrgDropDown()">
-            <mat-label>{{
-              selectedHoldingOrgData?.memberOrgs?.length === 1
-                ? "Member Org"
-                : "Member Orgs"
-            }}</mat-label>
-            <mat-select
-              [(value)]="selectedMemberOrg"
-              (selectionChange)="filterTemplateList()"
-              [disabled]="selectedHoldingOrgData?.memberOrgs?.length === 1"
-            >
-              <mat-option
-                [value]="memberOrg"
-                *ngFor="let memberOrg of selectedHoldingOrgData?.memberOrgs"
-                >{{ memberOrg.name }}</mat-option
-              >
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field *ngIf="isShowBothOrgDropDown()">
-            <mat-label>Holding/Member Orgs</mat-label>
-            <mat-select
-              [(value)]="selectedMemberOrg"
-              (selectionChange)="filterTemplateList()"
-            >
-              <mat-optgroup
-                *ngFor="let group of bothOrgList"
-                [label]="group.name"
-              >
-                <mat-option
-                  *ngFor="let subItem of group.value"
-                  [value]="subItem"
-                >
-                  {{ subItem.name }}
-                </mat-option>
-              </mat-optgroup>
-            </mat-select>
-          </mat-form-field>
+          <app-org-dropdownlist
+          [currentFeatureDataDomain]="currentFeature"
+          [parentSelectedHoldingOrgData]="selectedHoldingOrgData"
+          [parentOrgAccessInformation]="orgAccessInformation"
+          (fromOrgDrDw)="listenToDrDw($event)"
+        ></app-org-dropdownlist>
         </div>
         <div class="col" *ngIf="isShowEditComponents()">
           <button
@@ -160,7 +129,7 @@
         ></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell" colspan="5">
+          <td class="mat-cell" colspan="6">
             No data matching the filter "{{ input.value }}"
           </td>
         </tr>

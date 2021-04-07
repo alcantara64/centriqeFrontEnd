@@ -260,6 +260,7 @@ export class CampaignMasterComponent implements OnInit, OnDestroy {
       tempCode: new FormControl(tempC),
       surveyCode: new FormControl(surveyText),
       campaignCodeName: new FormControl(campCodeName),
+      expiryDuration: new FormControl(this._currentCampData?.validInDays),
       campCode: new FormControl(
         this._currentCampData?.code,
         Validators.required
@@ -388,6 +389,9 @@ export class CampaignMasterComponent implements OnInit, OnDestroy {
     this.routerModule != 'communicationAI'
       ? this.campaignFG.controls.surveyCode.setValidators([Validators.required])
       : this.campaignFG.controls.surveyCode.clearValidators();
+      this.routerModule != 'communicationAI'
+      ? this.campaignFG.controls.expiryDuration.setValidators([Validators.required])
+      : this.campaignFG.controls.expiryDuration.clearValidators();
     this.userAccessOrgData?.memOrgDrop?.visible
       ? this.campaignFG.controls.memberOrgDrop.setValidators([
           Validators.required,
@@ -1000,6 +1004,7 @@ export class CampaignMasterComponent implements OnInit, OnDestroy {
           description: formData['description'],
           template: formData['tempCode'],
           survey: formData['surveyCode'],
+          validInDays: formData['expiryDuration'],
           filter: {
             holdingOrg: filterHoldingOrg,
             memberOrg: filterMemberOrg,
