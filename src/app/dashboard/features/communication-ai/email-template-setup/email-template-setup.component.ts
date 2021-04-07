@@ -377,7 +377,12 @@ export class EmailTemplateSetupComponent implements OnInit, OnDestroy {
                 /* 21122020 - Abhishek - remove splice fuction from template list */
                 // this.templateList.splice(index, 1);
                 this.dataSource._updateChangeSubscription();
-                this._communicationAIService.getTemplateListFromSearch(this.valuesFromOrgDrDw?.searchPayload);
+                if (this.valuesFromOrgDrDw?.filterByOrg === CanFilterByOrg.BOTH_ORGS) {
+                  this._communicationAIService.getTemplateListFromSearch(this.valuesFromOrgDrDw?.searchPayload);
+                }
+
+                /** valuesFromOrgDrDw?.searchString should always have a value for either a holdingOrgId or a search string of memberOrgs */
+                this._communicationAIService.getTemplateList(this.valuesFromOrgDrDw?.searchString);
                 this._setLoading(false);
               },
               (error) => {
