@@ -13,7 +13,7 @@ import { MatSort, MatSortable } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable, Subscription } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
+import { switchMap, tap, delay, map } from 'rxjs/operators';
 import {
   DashboardService,
   HoldingOrg,
@@ -66,7 +66,7 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
   readonly dataDomainList = DataDomainConfig;
   private _orgAccessInformation!: any;
   private _custCampDataConfig: any;
-  private _searchCampaignsPayload: any = {};
+
   currentFeature!: DataDomainConfig;
   dataSource!: MatTableDataSource<any>;
   selectedHoldingOrgData!: HoldingOrg;
@@ -100,20 +100,7 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._setLoading(true);
-    //to set pagination payload
-    this._dashboardService.defaultPaylod = {
-      options: {
-        offset: 0,
-        limit: this.appConfigService.systemMatTableProperties
-          .pageSizeOptions[2],
-        sort: {
-          date: -1,
-        },
-        globalSearch: {},
-      },
-      query: {},
-    };
-    this._searchCampaignsPayload = this._dashboardService.defaultPaylod;
+
     let routerPath = this._route.snapshot.routeConfig?.path;
 
     switch (this._route.snapshot.routeConfig?.path) {
@@ -207,6 +194,11 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
         tap((mOrgs) => {
           this._orgAccessInformation = mOrgs;
         }),
+        /** Delay to wait for the EventEmitter value of DrDw component */
+        delay(0),
+        map(() => {
+          return this.valuesFromOrgDrDw, this._orgAccessInformation;
+        }),
         switchMap((mOrgs): any => {
           this._custMemberOrgList = {};
           if (mOrgs?.customer?.memberOrgs?.length > 0) {
@@ -256,27 +248,21 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
             campDataCofig: commBindingData,
             custDataConfig: customerDataConfig,
           };
-          let orgType = this.valuesFromOrgDrDw?.selectedOrgInDrDw?.holOrMol;
-          this._searchCampaignsPayload = {
-            ...this._searchCampaignsPayload,
-            query: {
-              $or: [{ holdingOrg: this.selectedHoldingOrgData._id }],
-            },
-          };
+
           //let myData:any = this.manageOrgDrop();
           return this.selModule == 'communicationAI'
             ? this._communicationAIService.getCampaignList(
                 'commCampaigns',
-                this._searchCampaignsPayload
+                this.valuesFromOrgDrDw?.searchPayload
               )
             : this.selModule == 'responseAI'
             ? this._communicationAIService.getCampaignList(
                 'respCampaigns',
-                this._searchCampaignsPayload
+                this.valuesFromOrgDrDw?.searchPayload
               )
             : this._communicationAIService.getCampaignList(
                 'npsCampaigns',
-                this._searchCampaignsPayload
+                this.valuesFromOrgDrDw?.searchPayload
               );
         })
       );
