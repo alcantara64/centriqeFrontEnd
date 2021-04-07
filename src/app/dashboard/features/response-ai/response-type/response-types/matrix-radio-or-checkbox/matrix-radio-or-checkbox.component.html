@@ -1,4 +1,5 @@
 <!-- 05012021 - Gaurav - Init version -->
+<!-- 05042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons -->
 <div class="col-12">
   <form [formGroup]="form">
     <!-- Base Fields - Starts -->
@@ -177,27 +178,15 @@
     <div class="elements-main">
       <h3 [ngClass]="[viewOnly ? 'disable-bgColor' : '']">
         Add new select option
-        <button
-          mat-mini-fab
-          type="button"
-          matTooltip="Add"
-          matTooltipPosition="above"
-          color="none"
-          [ngClass]="[
-            'mat-elevation-z0',
-            viewOnly ? 'disable-bgColor' : 'action-buttons',
-            viewOnly ? 'disable-bgColor' : 'add-button'
-          ]"
-          (click)="onAddElement()"
-          [disabled]="viewOnly"
-        >
+        <app-add-fab-button (clicked)="onAddElement()" [isDisabled]="viewOnly">
           <mat-icon
             matBadgeSize="small"
             [matBadge]="elements?.length"
+            [matBadgeDisabled]="viewOnly"
             [ngClass]="['add-icon']"
             >playlist_add</mat-icon
           >
-        </button>
+        </app-add-fab-button>
       </h3>
 
       <div class="elements-table-container">
@@ -267,22 +256,10 @@
                   </div>
                 </td>
                 <td>
-                  <button
-                    mat-mini-fab
-                    type="button"
-                    color="none"
-                    matTooltip="Delete"
-                    matTooltipPosition="above"
-                    [ngClass]="[
-                      'mat-elevation-z0',
-                      viewOnly ? 'disable-bgColor' : 'action-buttons',
-                      viewOnly ? 'disable-bgColor' : 'delete-button'
-                    ]"
-                    (click)="onDeleteElement(i)"
-                    [disabled]="viewOnly"
-                  >
-                    <mat-icon [ngClass]="['delete-icon']">delete</mat-icon>
-                  </button>
+                  <app-delete-fab-button
+                    [isDisabled]="viewOnly"
+                    (clicked)="onDeleteElement(i)"
+                  ></app-delete-fab-button>
                 </td>
               </tr>
             </ng-container>

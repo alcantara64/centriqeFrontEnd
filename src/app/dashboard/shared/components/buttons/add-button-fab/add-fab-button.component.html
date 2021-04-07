@@ -1,1 +1,17 @@
-<p>add-button works!</p>
+<!-- 05042021 - Gaurav - JIRA-CA-310: projected the mat-icon with badge here because the badge was not overlapping -->
+<button
+  mat-mini-fab
+  type="button"
+  [matTooltip]="matTooltipText!"
+  matTooltipPosition="above"
+  color="none"
+  [ngClass]="[
+    'mat-elevation-z0',
+    isDisabled ? 'disabled-button' : 'action-buttons',
+    isDisabled ? 'disabled-button' : 'add-button'
+  ]"
+  (click)="onClick()"
+  [disabled]="isDisabled"
+>
+  <ng-content select="mat-icon"></ng-content>
+</button>

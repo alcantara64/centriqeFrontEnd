@@ -1,0 +1,20 @@
+/** 05042021 - Gaurav - JIRA-CA-310: Create all mixins here; created one for common action button styles */
+@mixin action-button-style($isEnabled) {
+  margin: 5px !important;
+  width: 30px !important;
+  height: 30px !important;
+  font-size: 0px !important;
+
+  @if $isEnabled != "enabled" {
+    color: $disabled-icon-button;
+  }
+
+  mat-icon {
+    font-size: 18px;
+    @if $isEnabled == "enabled" {
+      &:hover {
+        color: $all-icons-hover;
+      }
+    }
+  }
+}

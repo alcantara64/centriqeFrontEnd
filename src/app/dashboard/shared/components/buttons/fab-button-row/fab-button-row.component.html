@@ -2,9 +2,15 @@
 <ng-container *ngIf="buttonRowProps && buttonRowProps?.rowButtons?.length! > 0">
   <div class="action-buttons-row">
     <ng-container *ngFor="let member of buttonRowProps.rowButtons">
-      <ng-container
-        *ngIf="member.appButtonType === appButtonTypes.add"
-      ></ng-container>
+      <ng-container *ngIf="member.appButtonType === appButtonTypes.add">
+        <app-add-fab-button
+          *ngIf="member.isRender"
+          [isDisabled]="member?.isDisabled"
+          [matTooltipText]="member?.matTooltipText"
+          [isEnableSpecialClass]="member?.isEnableSpecialClass"
+          (clicked)="onClick(appButtonTypes.add)"
+        ></app-add-fab-button>
+      </ng-container>
 
       <ng-container *ngIf="member.appButtonType === appButtonTypes.edit">
         <app-edit-fab-button

@@ -54,18 +54,12 @@ button:focus {
 //   color: $right-icon;
 // }
 
-.action-buttons {
-  margin: 5px !important;
-  width: 30px !important;
-  height: 30px !important;
-  font-size: 0px !important;
-  mat-icon {
-    font-size: 18px;
-    &:hover {
-      color: $all-icons-hover;
-    }
-  }
+.disabled-button {
+  @include action-button-style("disabled");
+}
 
+.action-buttons {
+  @include action-button-style("enabled");
   &:hover mat-icon {
     color: $white;
   }
@@ -150,9 +144,8 @@ button:focus {
   // }
 }
 
-
 .mat-mini-fab {
-  .mat-button-wrapper{
+  .mat-button-wrapper {
     padding: 0 !important;
   }
 }
@@ -162,8 +155,8 @@ button:focus {
   flex-direction: column;
 }
 
-.table-top_row2  {
-  button{
+.table-top_row2 {
+  button {
     background-color: $btn-bgcolor;
     color: $btn-textColor;
   }

@@ -3,7 +3,11 @@
   [matTooltip]="matTooltipText!"
   matTooltipPosition="above"
   color="none"
-  [ngClass]="['mat-elevation-z0', 'action-buttons', 'delete-button']"
+  [ngClass]="[
+    'mat-elevation-z0',
+    isDisabled ? 'disabled-button' : 'action-buttons',
+    isDisabled ? 'disabled-button' : 'delete-button'
+  ]"
   (click)="onClick()"
   [disabled]="isDisabled"
 >

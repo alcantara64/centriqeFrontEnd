@@ -12,6 +12,7 @@
  * 05032021 - Abhishek - Added DashboardOrgConfigurationComponent.
  * 17032021 - Gaurav - JIRA-CA-234: Reverted last UI for CRUD and will create per the backend API given
  * 01042021 - Abhishek - CA-334: Implement Frontend "load file".
+ * 05042021 - Abhishek - CA-212: Implement advanced search for customer list.
  */
 
 import { NgModule } from '@angular/core';
@@ -131,6 +132,7 @@ import { SaveButtonFabComponent } from './shared/components/buttons/save-button-
 import { ShowMoreRightButtonFabComponent } from './shared/components/buttons/show-more-right-button-fab/show-more-right-button-fab.component';
 import { DownloadButtonFabComponent } from './shared/components/buttons/download-button-fab/download-button-fab.component';
 import { CloseButtonFabComponent } from './shared/components/buttons/close-button-fab/close-button-fab.component';
+import { FilterComponent } from './shared/components/filter/filter.component';
 
 @NgModule({
   declarations: [
@@ -209,6 +211,7 @@ import { CloseButtonFabComponent } from './shared/components/buttons/close-butto
     ShowMoreRightButtonFabComponent,
     DownloadButtonFabComponent,
     CloseButtonFabComponent,
+    FilterComponent,
   ],
   imports: [
     SharedModule,

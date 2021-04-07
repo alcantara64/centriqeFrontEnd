@@ -1,5 +1,6 @@
 <!-- 05012021 - Gaurav - Init version -->
 <!-- 25012021 - Gaurav - Added fields tableColSubHeading and tableDataRowSubHeading to likerts -->
+<!-- 05042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons -->
 <div class="col-12">
   <form [formGroup]="form">
     <!-- Base Fields - Starts -->
@@ -156,27 +157,15 @@
     <div class="elements-main">
       <h3 [ngClass]="[viewOnly ? 'disable-bgColor' : '']">
         Add new table column option
-        <button
-          mat-mini-fab
-          type="button"
-          matTooltip="Add"
-          matTooltipPosition="above"
-          color="none"
-          [ngClass]="[
-            'mat-elevation-z0',
-            viewOnly ? 'disable-bgColor' : 'action-buttons',
-            viewOnly ? 'disable-bgColor' : 'add-button'
-          ]"
-          (click)="onAddCol()"
-          [disabled]="viewOnly"
-        >
+        <app-add-fab-button (clicked)="onAddCol()" [isDisabled]="viewOnly">
           <mat-icon
             matBadgeSize="small"
             [matBadge]="tableCols?.length"
+            [matBadgeDisabled]="viewOnly"
             [ngClass]="['add-icon']"
             >playlist_add</mat-icon
           >
-        </button>
+        </app-add-fab-button>
       </h3>
 
       <div class="elements-table-container">
@@ -322,22 +311,10 @@
                 </ng-template>
 
                 <td>
-                  <button
-                    mat-mini-fab
-                    type="button"
-                    color="none"
-                    matTooltip="Delete"
-                    matTooltipPosition="above"
-                    [ngClass]="[
-                      'mat-elevation-z0',
-                      viewOnly ? 'disable-bgColor' : 'action-buttons',
-                      viewOnly ? 'disable-bgColor' : 'delete-button'
-                    ]"
-                    (click)="onDeleteCol(i)"
-                    [disabled]="viewOnly"
-                  >
-                    <mat-icon [ngClass]="['delete-icon']">delete</mat-icon>
-                  </button>
+                  <app-delete-fab-button
+                    [isDisabled]="viewOnly"
+                    (clicked)="onDeleteCol(i)"
+                  ></app-delete-fab-button>
                 </td>
               </tr>
             </ng-container>
@@ -348,27 +325,15 @@
         <div class="elements-main">
           <h3 [ngClass]="[viewOnly ? 'disable-bgColor' : '']">
             Add new table row option
-            <button
-              mat-mini-fab
-              type="button"
-              matTooltip="Add"
-              matTooltipPosition="above"
-              color="none"
-              [ngClass]="[
-                'mat-elevation-z0',
-                viewOnly ? 'disable-bgColor' : 'action-buttons',
-                viewOnly ? 'disable-bgColor' : 'add-button'
-              ]"
-              (click)="onAddRow()"
-              [disabled]="viewOnly"
-            >
+            <app-add-fab-button (clicked)="onAddRow()" [isDisabled]="viewOnly">
               <mat-icon
                 matBadgeSize="small"
                 [matBadge]="tableRows?.length"
+                [matBadgeDisabled]="viewOnly"
                 [ngClass]="['add-icon']"
                 >playlist_add</mat-icon
               >
-            </button>
+            </app-add-fab-button>
           </h3>
           <div class="elements-table-container">
             <table class="elements-table" *ngIf="tableRows?.length! > 0">
@@ -450,22 +415,10 @@
                     </td>
 
                     <td>
-                      <button
-                        mat-mini-fab
-                        type="button"
-                        color="none"
-                        matTooltip="Delete"
-                        matTooltipPosition="above"
-                        [ngClass]="[
-                          'mat-elevation-z0',
-                          viewOnly ? 'disable-bgColor' : 'action-buttons',
-                          viewOnly ? 'disable-bgColor' : 'delete-button'
-                        ]"
-                        (click)="onDeleteRow(i)"
-                        [disabled]="viewOnly"
-                      >
-                        <mat-icon [ngClass]="['delete-icon']">delete</mat-icon>
-                      </button>
+                      <app-delete-fab-button
+                        [isDisabled]="viewOnly"
+                        (clicked)="onDeleteRow(i)"
+                      ></app-delete-fab-button>
                     </td>
                   </tr>
                 </ng-container>

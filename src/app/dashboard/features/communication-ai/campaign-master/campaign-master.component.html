@@ -135,152 +135,20 @@
                   </mat-form-field>
                 </div>
               </div>
-              <div class="row m-0">
-                <div class="col p-0 align-self-end">
-                  <h2>Customer Filter Criteria</h2>
-                </div>
-                <div class="col-4 p-0 text-right" [hidden]="!(userAccessOrgData?.memOrgDrop?.visible)">
-                  <mat-form-field>
-                    <mat-label>
-                      {{
-                        campaignFG?.controls?.memberOrgDrop?.errors?.required &&
-                        (campaignFG?.controls?.memberOrgDrop?.touched ||
-                        campaignFG?.controls?.memberOrgDrop?.dirty)
-                        ? "Member Org Name (Code)*"
-                        : "Member Org Name (Code)"
-                        }}
-                    </mat-label>
-                    <mat-select formControlName="memberOrgDrop">
-                      <mat-option [value]="memOrg?._id" *ngFor="let memOrg of userAccessOrgData?.memOrgDrop?.dropItems">{{ memOrg?.name }} ({{ memOrg?.code }})
-                      </mat-option>
-                    </mat-select>
-                    <mat-error *ngIf="campaignFG?.controls?.memberOrgDrop?.errors?.required">Member Org required</mat-error>
-                  </mat-form-field>
-                </div>
-              </div>
-
-              <!-- 05012021 - Abhishek - Added div with bootstrap classes to set horizontal scroll in table -->
-              <div class="w-100 overflow-auto">
-                <table class="filter-criteria-table table table-striped table-bordered table-hover table-sm mb-0">
-                  <thead>
-                    <tr>
-                      <th style="max-width: 100px">Start</th>
-                      <th>Attribute</th>
-                      <th>Operator</th>
-                      <th>Value</th>
-                      <th style="max-width: 100px">End</th>
-                      <th style="min-width: 100px">And/Or</th>
-                    </tr>
-                  </thead>
-                  <tbody formArrayName="filterCriteriaArray">
-                    <tr *ngFor="let item of filterCriteria.controls; let i = index;" [formGroupName]="i">
-                      <td class="startParamTd">
-                        <mat-form-field>
-                          <mat-label>Start</mat-label>
-                          <input matInput formControlName="startParam" value="1" tabindex="-1" />
-                        </mat-form-field>
-                        <mat-icon class="arrow-up" (click)="startParamFun(i, 'add')" *ngIf="isCanDo()">keyboard_arrow_up
-                        </mat-icon>
-                        <mat-icon class="arrow-down" (click)="startParamFun(i, 'remove')" *ngIf="isCanDo()">
-                          keyboard_arrow_down</mat-icon>
-                      </td>
-                      <td>
-                        <mat-form-field>
-                          <mat-label>Attributes</mat-label>
-                          <mat-select formControlName="attributes" (selectionChange)="attrChangeFun(i)">
-                            <mat-option [value]="attr?.value" *ngFor="let attr of attributList">{{ attr?.type }}
-                            </mat-option>
-                          </mat-select>
-                        </mat-form-field>
-                      </td>
-                      <td>
-                        <mat-form-field>
-                          <mat-label>Operator</mat-label>
-                          <mat-select formControlName="operator" (selectionChange)="operatorChange(i)">
-                            <mat-option [value]="opt?.type"
-                              *ngFor="let opt of operatorList[filterCriteriaArray[i].get('attributes')?.value != null ? filterCriteriaArray[i].get('attrType')?.value : null]">
-                              {{
-                              opt?.view }}</mat-option>
-                          </mat-select>
-                        </mat-form-field>
-                      </td>
-                      <td>
-                        <mat-form-field *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'string'">
-                          <mat-label>Value</mat-label>
-                          <mat-select formControlName="attrValue">
-                            <mat-option [value]="item?.id" *ngFor="let item of dynamicDropDown[i][i]">{{ item?.value }}
-                            </mat-option>
-                          </mat-select>
-                        </mat-form-field>
-                        <mat-form-field *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'Text'">
-                          <mat-label>Value</mat-label>
-                          <input matInput formControlName="attrValue" type="text" />
-                        </mat-form-field>
-                        <mat-form-field *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'NumberDate'">
-                          <mat-label>Value</mat-label>
-                          <input matInput type="number" min="1" max="31" (keypress)="numberChange($event)"
-                            formControlName="attrValue" value="1" placeholder="Only 0 to 31 allowed" />
-                        </mat-form-field>
-                        <mat-form-field *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'integer' || filterCriteriaArray[i].get('attrValueType')?.value == 'number'">
-                          <mat-label>Value</mat-label>
-                          <input matInput type="number" (keypress)="filterIntegerChnage(filterCriteriaArray[i].get('attrValueType')?.value, $event)" min="1" formControlName="attrValue" value="1" />
-                        </mat-form-field>
-                        <!-- <input class="form-control" type="text" formControlName="attrValue" value="1" *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'Text'" /> -->
-                        <!-- <input class="form-control" type="number" maxlength="2" min="1" max="31" (keypress)="numberChange($event)" formControlName="attrValue" value="1" *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'NumberDate'" placeholder="Only 0 to 31 allowed" /> -->
-                        <!-- <input class="form-control" type="number" maxlength="2" min="1" formControlName="attrValue" value="1" *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'Number'"/> -->
-                        <mat-form-field *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'date' || filterCriteriaArray[i].get('attrValueType')?.value == 'stringMonthDay'">
-                          <mat-label>Value</mat-label>
-                          <input matInput [matDatepicker]="picker" formControlName="attrValue">
-                          <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-                          <mat-datepicker #picker></mat-datepicker>
-                        </mat-form-field>
-                        <mat-form-field *ngIf="filterCriteriaArray[i].get('attrValueType')?.value == 'Multiple'">
-                          <mat-label>Value</mat-label>
-                          <mat-select formControlName="attrValue" multiple>
-                            <mat-option *ngFor="let attr of dynamicDropDown[i][i]" [value]="attr">{{attr?.value}}
-                            </mat-option>
-                          </mat-select>
-                        </mat-form-field>
-                        <input class="form-control d-none" type="text" formControlName="attrValueType" value="1" />
-                        <input class="form-control d-none" type="text" formControlName="attrType" value="1" />
-                      </td>
-                      <td class="startParamTd">
-                        <mat-form-field>
-                          <mat-label>End</mat-label>
-                          <input matInput maxlength="2" min="1" formControlName="endParam" value="1" tabindex="-1" />
-                        </mat-form-field>
-                        <mat-icon class="arrow-up" (click)="endParamFun(i, 'add')" *ngIf="isCanDo()">keyboard_arrow_up
-                        </mat-icon>
-                        <mat-icon class="arrow-down" (click)="endParamFun(i, 'remove')" *ngIf="isCanDo()">
-                          keyboard_arrow_down</mat-icon>
-                      </td>
-                      <td class="and-or">
-                        <input type="text" class="d-none" formControlName="andOr" />
-                        <span *ngIf="filterCriteriaArray[i].get('andOr')?.value != null"
-                          class="mr-2">{{filterCriteriaArray[i].get('andOr')?.value}}</span>
-                        <a class="text-danger float-right" *ngIf="filterCriteriaArray.length > 1 && isCanDo()"
-                          href="javascript:void(0)" style="font-size: 1.6rem;" (click)="delRoleRow(i)">
-                          <mat-icon [ngClass]="['delete-icon']">delete</mat-icon>
-                        </a>
-                        <a class="text-danger float-right" *ngIf="filterCriteriaArray.length == 1 && isCanDo()"
-                          href="javascript:void(0)" style="font-size: 1.6rem;" (click)="delRoleRow(i)">
-                          <mat-icon [ngClass]="['view-icon']">cached</mat-icon>
-                        </a>
-                        <span class="p-buttonset" *ngIf="filterCriteriaArray.length == i+1">
-                          <button *ngIf="isCanDo()" mat-raised-button class="btn-action" type="button" label="AND"
-                            (click)="customerFilterCr('AND', i)">AND</button>
-                          <button *ngIf="isCanDo()" mat-raised-button class="btn-cancel mr-2" type="button" label="OR"
-                            (click)="customerFilterCr('OR', i)">OR</button>
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div class="text-right mt-2" *ngIf="modalType != 'View'">
-                <button mat-raised-button class="btn-action" type="button" (click)="checkCriteriaFun()"
-                  *ngIf="isCanDo()">Check Criteria</button>
-              </div>
+              <!-- 05042021 - Abhishek - CA-212: Implement advanced search for customer list. -->
+             <app-filter
+             [userAccessOrgData]="userAccessOrgData"
+             [advancedFilterForm]="campaignFG"
+             [filterCriteria]="filterCriteria"
+             [isCanDo]="isCanDo()"
+             [attributList]="attributList"
+             [filterCriteriaArray]="filterCriteriaArray"
+             [dynamicDropDown]="dynamicDropDown"
+             [modalType]="modalType"
+             [loginUserInfo]="loginUserInfo"
+             (checkCriteria)="checkCriteriaFun()"
+             >
+            </app-filter>
               <div class="row p-0 m-0">
                 <h2 class="col-md align-self-end p-0">Communication Frequency & Schedule<sup class="text-danger">*</sup></h2>
                 <div class="col-md-auto">
