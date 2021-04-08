@@ -99,10 +99,18 @@
                     <mat-error *ngIf="campaignFG?.controls?.campName?.errors?.required">Campaign Name required</mat-error>
                   </mat-form-field>
                 </div>
-                <div class="form-group" *ngIf="messageView">
+                <div class="form-group" *ngIf="routerModule != 'communicationAI'">
                   <mat-form-field>
-                    <mat-label>Campaing Name (Code)</mat-label>
-                    <input matInput formControlName="campaignCodeName" type="text" />
+                    <mat-label>
+                      {{
+                        campaignFG?.controls?.expiryDuration?.errors?.required &&
+                        (campaignFG?.controls?.expiryDuration?.touched ||
+                        campaignFG?.controls?.expiryDuration?.dirty)
+                        ? "Survey Expiry Duration (Days) *"
+                        : "Survey Expiry Duration (Days)"
+                        }}</mat-label>
+                    <input matInput formControlName="expiryDuration" type="number" />
+                    <mat-error *ngIf="campaignFG?.controls?.expiryDuration?.errors?.required">Expiry Date required</mat-error>
                   </mat-form-field>
                 </div>
                 <div class="form-group">
@@ -118,6 +126,12 @@
                     </mat-label>
                     <input matInput formControlName="description" type="text" />
                     <mat-error *ngIf="campaignFG?.controls?.description?.errors?.required">Description required</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="form-group" *ngIf="messageView">
+                  <mat-form-field>
+                    <mat-label>Campaign Name (Code)</mat-label>
+                    <input matInput formControlName="campaignCodeName" type="text" />
                   </mat-form-field>
                 </div>
               </div>
