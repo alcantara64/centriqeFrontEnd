@@ -1,0 +1,18 @@
+:host {
+  --table-hover-colour: #d4edda80;
+  --table-odd-row-colour: #d4edda1a;
+}
+
+.survey-text-responses-viewport {
+  height: 200px;
+  width: 100%;
+  background-color: var(--table-odd-row-colour);
+}
+
+.survey-text-responses-item {
+  height: 18px;
+}
+
+.survey-text-responses-alternate {
+  background: var(--table-hover-colour);
+}

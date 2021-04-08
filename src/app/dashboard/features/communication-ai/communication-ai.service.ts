@@ -17,6 +17,7 @@ import { CampaignSurveyResponse } from '../response-ai/data-models/survey.model'
 import { DataDomainConfig } from '../../shared/components/menu/constants.routes';
 import { delay, tap } from 'rxjs/operators';
 import { consoleLog } from 'src/app/shared/util/common.util';
+import { QuestionTypes } from '../response-ai/data-models/question.model';
 
 const BACKEND_URL = `${environment.apiUrlV1}`;
 
@@ -32,7 +33,13 @@ export interface PayloadCampaignSurveyResponse {
 export interface PayloadCampaignSurveyTextResponse
   extends PayloadCampaignSurveyResponse {
   questionId?: string;
-  questionType?: string;
+  questionType?: QuestionTypes;
+}
+
+export interface CampaignSurveyTextResponse {
+  comments: string[];
+  questionId: string;
+  questionType: QuestionTypes;
 }
 
 export enum CampaignSurveyResponseMode {
@@ -108,8 +115,8 @@ export class CommunicationAIService {
   getCampaignSurveyTextResponse(
     currentFeature: DataDomainConfig,
     payload: PayloadCampaignSurveyTextResponse
-  ): Observable<any> {
-    return this._http.post<any>(
+  ): Observable<CampaignSurveyTextResponse> {
+    return this._http.post<CampaignSurveyTextResponse>(
       `${BACKEND_URL}/${
         currentFeature === DataDomainConfig.nps
           ? 'npsCampaigns'

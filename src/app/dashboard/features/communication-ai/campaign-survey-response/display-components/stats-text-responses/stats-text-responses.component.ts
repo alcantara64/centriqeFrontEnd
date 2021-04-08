@@ -2,7 +2,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DataDomainConfig } from 'src/app/dashboard/shared/components/menu/constants.routes';
 import { dotdotdot } from 'src/app/shared/util/common.util';
-import { CommunicationAIService } from '../../../communication-ai.service';
+import {
+  CampaignSurveyTextResponse,
+  CommunicationAIService,
+} from '../../../communication-ai.service';
 import { ProcessSurveyResponse } from '../../process-survey-response/process-survey-response';
 
 @Component({
@@ -37,14 +40,15 @@ export class StatsTextResponsesComponent implements OnInit {
           this.instance?.data?.textResponsePayload!
         )
         .subscribe(
-          (response) => {
-            console.log(this.instance.data?.textResponsePayload);
+          (response: CampaignSurveyTextResponse) => {
+            // console.log(this.instance.data?.textResponsePayload);
             console.log('campaign survey text', { response });
 
             this.responseArray =
-              Array.isArray(response) && response?.length > 0
-                ? response[0]?.comments
-                : [];
+              response && Array.isArray(response?.comments)
+                ? response?.comments
+                : <string[]>[];
+
             this.instance.setTextResponses(this.responseArray);
             this._setLoading(false);
           },

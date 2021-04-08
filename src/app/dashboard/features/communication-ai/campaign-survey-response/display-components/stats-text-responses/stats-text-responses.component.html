@@ -4,9 +4,24 @@
 <ng-template #showResponse>
   <ng-container *ngIf="responseArray; else noDataFound">
     <ng-container *ngIf="responseArray?.length > 0; else noRecords">
-      <p class="mt-2" *ngFor="let text of responseArray; let i = index">
-        {{ i + 1 }}. {{ text }}
-      </p>
+      <cdk-virtual-scroll-viewport
+        itemSize="30"
+        class="survey-text-responses-viewport mt-3 shadow-sm"
+      >
+        <div
+          *cdkVirtualFor="
+            let text of responseArray;
+            let i = index;
+            let count = count;
+            let odd = odd
+          "
+          [class.survey-text-responses-alternate]="odd"
+        >
+          <div class="survey-text-resdivonses-item mb-1">
+            {{ i + 1 }}. {{ text }}
+          </div>
+        </div>
+      </cdk-virtual-scroll-viewport>
     </ng-container>
 
     <ng-template #noRecords>

@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 /** 23112020 - Gaurav - Init version: Created a separate module for Angular Material Modules imports, to not to clutter the Dash module */
 
+import { ScrollingModule } from '@angular/cdk/scrolling';
+
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -29,9 +31,9 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, MatRippleModule } from '@angular/material/core';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import {MatBadgeModule} from '@angular/material/badge';
-import {MatAutocompleteModule} from '@angular/material/autocomplete';
-import {MatBottomSheetModule} from '@angular/material/bottom-sheet';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 @NgModule({
   exports: [
@@ -65,7 +67,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     MatSlideToggleModule,
     MatBadgeModule,
     MatAutocompleteModule,
-    MatBottomSheetModule
+    MatBottomSheetModule,
+    ScrollingModule,
   ],
 })
 export class AngularMaterialModule {}
