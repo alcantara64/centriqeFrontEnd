@@ -5,6 +5,7 @@
  * 05032021 - Gaurav - JIRA-CA-154
  * 24032021 - Ramesh - JIRA CA-250: added app-config services
  * 01042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons
+ * 08042021 - Gaurav - JIRA-CA-350: Fix for 'Empty campaign and message template lists generates error' bug
  */
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
@@ -249,20 +250,45 @@ export class CampaignMasterSetup implements OnInit, OnDestroy {
             custDataConfig: customerDataConfig,
           };
 
-          //let myData:any = this.manageOrgDrop();
+          console.log(
+            'this._searchString',
+            this._searchString,
+            'this.valuesFromOrgDrDw?.searchPayload',
+            this.valuesFromOrgDrDw?.searchPayload,
+            'both orgs',
+            this._filterCampaignListBy === FilterBy.BOTH_ORG
+          );
+
+          if (this._filterCampaignListBy === FilterBy.BOTH_ORG) {
+            return this.selModule == 'communicationAI'
+              ? this._communicationAIService.getCampaignListFromPayload(
+                  'commCampaigns',
+                  this.valuesFromOrgDrDw?.searchPayload
+                )
+              : this.selModule == 'responseAI'
+              ? this._communicationAIService.getCampaignListFromPayload(
+                  'respCampaigns',
+                  this.valuesFromOrgDrDw?.searchPayload
+                )
+              : this._communicationAIService.getCampaignListFromPayload(
+                  'npsCampaigns',
+                  this.valuesFromOrgDrDw?.searchPayload
+                );
+          }
+
           return this.selModule == 'communicationAI'
-            ? this._communicationAIService.getCampaignList(
+            ? this._communicationAIService.getCampaignListFromSearch(
                 'commCampaigns',
-                this.valuesFromOrgDrDw?.searchPayload
+                this._searchString
               )
             : this.selModule == 'responseAI'
-            ? this._communicationAIService.getCampaignList(
+            ? this._communicationAIService.getCampaignListFromSearch(
                 'respCampaigns',
-                this.valuesFromOrgDrDw?.searchPayload
+                this._searchString
               )
-            : this._communicationAIService.getCampaignList(
+            : this._communicationAIService.getCampaignListFromSearch(
                 'npsCampaigns',
-                this.valuesFromOrgDrDw?.searchPayload
+                this._searchString
               );
         })
       );

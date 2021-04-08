@@ -6,6 +6,7 @@
  * 26022021 - Gaurav - JIRA-CA-185: bug, use nps specific API for survey results
  * 05032021 - Gaurav - JIRA-CA-154 - Replaced Campaign Survey Response API with new post & payload
  * 06042021 - Gaurav - JIRA-CA-339: Update frontend with feature to show comments; added PayloadCampaignSurveyTextResponse
+ * 08042021 - Gaurav - JIRA-CA-350: Fix for 'Empty campaign and message template lists generates error' bug
  */
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -150,8 +151,11 @@ export class CommunicationAIService {
     return this._http.delete(`${BACKEND_URL}/emailTemplates/${tempId}`);
   }
   //Get campaign master list
-  getCampaignList(dataDomain: string, search: object) {
+  getCampaignListFromPayload(dataDomain: string, search: object) {
     return this._http.post<any>(`${BACKEND_URL}/${dataDomain}/search`, search);
+  }
+  getCampaignListFromSearch(dataDomain: string, searchString: string) {
+    return this._http.get<any>(`${BACKEND_URL}/${dataDomain}${searchString}`);
   }
   //Get campaign master item by id
   getCampaignById(campId: string) {
