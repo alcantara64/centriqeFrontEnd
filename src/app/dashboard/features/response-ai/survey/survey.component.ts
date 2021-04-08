@@ -16,7 +16,8 @@
  * 15032021 - Gaurav - Use enum AccessModes from constants file instead of local one
  * 30032021 - Gaurav - JIRA-CA-277: Add message templates to survey setup
  * 31032021 - Gaurav - JIRA-CA-326: Increase survey title from 50 to 100
- * 01042021 - Gaurav - JIRA-CA-277: Fixed email editor issue with lazy-load child tabs */
+ * 01042021 - Gaurav - JIRA-CA-277: Fixed email editor issue with lazy-load child tabs
+ * 08042021 - Gaurav - JIRA-CA-351: Update NPS/ Resp default email template body */
 import { Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
@@ -72,7 +73,7 @@ import {
 import { ResponseAIService } from '../response-ai.service';
 
 import { EmailEditorComponent } from 'angular-email-editor';
-import { unsubscribeContent } from '../../communication-ai/email-template/email-template-content';
+import { defaultSurveyEmailTemplate } from './survey-email-template';
 
 interface InvalidPageIndexes {
   pageTabIndex: number;
@@ -795,7 +796,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
     let tempBody: any;
     tempBody = this.form.get('channel.email.templateData')?.value
       ? JSON.parse(this.form.get('channel.email.templateData')?.value)
-      : unsubscribeContent;
+      : defaultSurveyEmailTemplate;
 
     setTimeout(() => {
       this.editor.loadDesign(tempBody);
