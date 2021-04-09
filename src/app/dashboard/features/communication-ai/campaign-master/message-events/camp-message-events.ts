@@ -1,7 +1,8 @@
 /** 08022021 - Gaurav - Added code for new progress-bar service
  *  05032021 - Gaurav - JIRA-CA-154: View Survey Response icon button for campaign survey results and its processing
  * 05042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons
- * 09042021 - Gaurav - Fixed JIRA-CA-356: Page count is not accurate */
+ * 09042021 - Gaurav - Fixed JIRA-CA-356: Page count is not accurate
+ * 09042021 - Gaurav - Fixed JIRA-CA-355: Cannot type text in search box in List of View Launched Survey Campaign */
 import {
   Component,
   OnDestroy,
@@ -10,6 +11,7 @@ import {
   QueryList,
   ViewChildren,
   ElementRef,
+  AfterViewInit,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
@@ -26,7 +28,7 @@ import {
   CampaignSurveyResponseMode,
   CommunicationAIService,
 } from '../../communication-ai.service';
-import { Observable, Subscription } from 'rxjs';
+import { fromEvent, Observable, Subscription } from 'rxjs';
 import { DashboardService } from 'src/app/dashboard/dashboard.service';
 import {
   dashboardRouteLinks,
@@ -41,6 +43,12 @@ import {
   AppButtonTypes,
   ButtonRowClickedParams,
 } from 'src/app/dashboard/shared/components/buttons/buttons.model';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  startWith,
+} from 'rxjs/operators';
 @Component({
   selector: 'camp-message-event',
   templateUrl: './camp-message-events.html',
@@ -55,10 +63,12 @@ import {
     ]),
   ],
 })
-export class CampMessageEventComponent implements OnInit, OnDestroy {
+export class CampMessageEventComponent
+  implements OnInit, OnDestroy, AfterViewInit {
   @ViewChildren(MatPaginator) paginator = new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort = new QueryList<MatSort>();
   @ViewChild('bodyframe', { static: false }) bodyframe!: ElementRef;
+  @ViewChild('searchFilter') searchFilter!: ElementRef<any>;
   readonly appButtonType = AppButtonTypes;
   expandedElement: any | null;
   isLoading = false;
@@ -129,7 +139,8 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
   isUserAdmin: boolean = false;
   messageViewData: any = [];
   routerPath!: string;
-  currentOrgQuery!: any;
+  private _currentOrgQuery!: any;
+  private _globalSearchText = '';
 
   constructor(
     private _communicationAIService: CommunicationAIService,
@@ -226,7 +237,7 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
             ?.holOrMol;
 
           /** 09042021 - Gaurav - Fixed JIRA-CA-356: Store current query to use later and use correct key from orgType */
-          this.currentOrgQuery = {
+          this._currentOrgQuery = {
             $or: [
               {
                 [orgType]: this.messageViewData?.orgType
@@ -237,7 +248,7 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
 
           this._searchMessageEventsPayload = {
             ...this._searchMessageEventsPayload,
-            query: this.currentOrgQuery,
+            query: this._currentOrgQuery,
           };
           this.getCampMessageEvents();
         }
@@ -250,6 +261,27 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.subscription$.unsubscribe();
     this.pauseTimer();
+  }
+
+  /** 09042021 - Gaurav - Fixed JIRA-CA-355 */
+  ngAfterViewInit(): void {
+    if (this.searchFilter) {
+      const filterOrg$: Observable<string> = fromEvent<any>(
+        this.searchFilter.nativeElement,
+        'keyup'
+      ).pipe(
+        map((event) => event.target.value),
+        startWith(''),
+        debounceTime(700),
+        distinctUntilChanged()
+      );
+
+      filterOrg$.subscribe((filterText) => {
+        console.log({ filterText });
+        this._globalSearchText = filterText ?? '';
+        this.applyEventFilter(this._globalSearchText ?? '');
+      });
+    }
   }
 
   /** 05032021 - Gaurav - JIRA-CA-154 */
@@ -373,6 +405,8 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
 
   //On search filter by message events/messages list
   applyFilter(e: any) {
+    console.log('applyFilter this.eventMode', this.eventMode);
+
     //filter by messages list
     if (this.eventMode == 'messageMode') {
       this._searchMessagesPayload = {
@@ -388,18 +422,23 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
       this.getMessagesByEvent(this._searchMessagesPayload);
     } else {
       //filter by message event list
-      this._searchMessageEventsPayload = {
-        ...this._searchMessageEventsPayload,
-        options: {
-          ...this._searchMessageEventsPayload?.options,
-          globalSearch: {
-            fieldNames: this.displayedColumnsByFilter,
-            searchValue: e.target.value,
-          },
-        },
-      };
-      this.getCampMessageEvents();
+      this.applyEventFilter(e.target.value);
     }
+  }
+
+  /** 09042021 - Gaurav - Fixed JIRA-CA-355 */
+  applyEventFilter(searchValue: string): void {
+    this._searchMessageEventsPayload = {
+      ...this._searchMessageEventsPayload,
+      options: {
+        ...this._searchMessageEventsPayload?.options,
+        globalSearch: {
+          fieldNames: this.displayedColumnsByFilter,
+          searchValue,
+        },
+      },
+    };
+    this.getCampMessageEvents();
   }
 
   backToTable() {
@@ -478,13 +517,17 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
       this._searchMessageEventsPayload = {
         ...this._searchMessageEventsPayload,
         options: {
-          globalSearch: this._searchMessageEventsPayload?.options?.globalSearch,
+          /** 09042021 - Gaurav - Fixed JIRA-CA-355: Unrelated to CA-355, it was observed that on page change, the filter criteria was cleared. */
+          globalSearch: {
+            fieldNames: this.messagesColumnsByFilter,
+            searchValue: this._globalSearchText,
+          },
           sort: this._searchMessageEventsPayload?.options?.sort,
           offset: e.pageIndex ? e.pageSize * e.pageIndex : 0,
           limit: e.pageSize,
         },
         /** 09042021 - Gaurav - Fixed JIRA-CA-356: Use the store current org query */
-        query: this.currentOrgQuery,
+        query: this._currentOrgQuery,
       };
       this.getCampMessageEvents();
     }
