@@ -6,6 +6,7 @@
  * 2021-01-18 - Frank - new post API to search survey list with special conditions (payload)
  * 22012021 - Gaurav - Added new methods for response/nps questions and survey fetch based on selected org in Org DrDw. Removed now obsolete getQuestions() and getSurveys() which fetched
  * records based on the globally selected holding Org
+ * 09042021 - Gaurav - JIRA-CA-256: Adjust survey type names
  */
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -320,18 +321,18 @@ export class ResponseAIService {
   getDisplayQuestionTypes(currentFeature: DataDomainConfig): any[] {
     if (currentFeature === DataDomainConfig.nps) {
       return [
+        { displayName: 'Emoji Rating', name: QuestionTypes.ratingEmoji },
         {
           displayName: 'NPS Box Row',
           name: QuestionTypes.singleChoiceRadioBox,
         },
-        { displayName: 'Rating Star', name: QuestionTypes.ratingStar },
-        { displayName: 'Rating Emoji', name: QuestionTypes.ratingEmoji },
+        { displayName: 'Star Rating', name: QuestionTypes.ratingStar },
         {
-          displayName: 'Text Input 100 characters',
+          displayName: 'Text Box - 100 Characters',
           name: QuestionTypes.singleTextInput,
         },
         {
-          displayName: 'Text Input 1000 characters',
+          displayName: 'Text Box - Max 1000 Characters',
           name: QuestionTypes.singleTextArea,
         },
       ];
@@ -342,31 +343,45 @@ export class ResponseAIService {
         displayName: 'DropDown Selection',
         name: QuestionTypes.dropDownSelection,
       },
-      { displayName: 'Likert Radio Buttons', name: QuestionTypes.likertRadio },
-      { displayName: 'Likert Check Boxes', name: QuestionTypes.likertCheck },
-      { displayName: 'Matrix Radio Buttons', name: QuestionTypes.matrixRadio },
-      { displayName: 'Matrix Checkboxes', name: QuestionTypes.matrixCheck },
-      { displayName: 'Rating Star', name: QuestionTypes.ratingStar },
-      { displayName: 'Rating Emoji', name: QuestionTypes.ratingEmoji },
+      { displayName: 'Emoji Rating', name: QuestionTypes.ratingEmoji },
       {
-        displayName: 'Single Choice Answer Row (Radio Buttons)',
-        name: QuestionTypes.singleChoiceRadioH,
+        displayName: 'Likert - Check Boxes (Multiple Choice)',
+        name: QuestionTypes.likertCheck,
       },
       {
-        displayName: 'Single Choice Radio Box Row',
+        displayName: 'Likert - Radio Buttons (Single Choice)',
+        name: QuestionTypes.likertRadio,
+      },
+      {
+        displayName:
+          'Matrix - Check Boxes (Multi Row and Columns Multiple Choice)',
+        name: QuestionTypes.matrixCheck,
+      },
+      {
+        displayName:
+          'Matrix - Radio Buttons (Multi Row and Columns Single Choice)',
+        name: QuestionTypes.matrixRadio,
+      },
+      {
+        displayName: 'Single Row - Boxes (Single Choice with 0 to 11 Values)',
         name: QuestionTypes.singleChoiceRadioBox,
       },
       {
-        displayName: 'Text Input 100 characters',
+        displayName: 'Single Row - Check Boxes (Multiple Choice)',
+        name: QuestionTypes.multiChoiceCheckH,
+      },
+      {
+        displayName: 'Single Row - Radio Button (Single Choice)',
+        name: QuestionTypes.singleChoiceRadioH,
+      },
+      { displayName: 'Star Rating', name: QuestionTypes.ratingStar },
+      {
+        displayName: 'Text Box - 100 Characters',
         name: QuestionTypes.singleTextInput,
       },
       {
-        displayName: 'Text Input 1000 characters',
+        displayName: 'Text Box - Max 1000 Characters',
         name: QuestionTypes.singleTextArea,
-      },
-      {
-        displayName: 'Multi Choice Answer Row (Checkboxes)',
-        name: QuestionTypes.multiChoiceCheckH,
       },
     ];
   }
