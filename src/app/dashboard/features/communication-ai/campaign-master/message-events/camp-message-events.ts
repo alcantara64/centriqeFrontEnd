@@ -1,6 +1,7 @@
 /** 08022021 - Gaurav - Added code for new progress-bar service
  *  05032021 - Gaurav - JIRA-CA-154: View Survey Response icon button for campaign survey results and its processing
- * 05042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons */
+ * 05042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons
+ * 09042021 - Gaurav - Fixed JIRA-CA-356: Page count is not accurate */
 import {
   Component,
   OnDestroy,
@@ -128,6 +129,7 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
   isUserAdmin: boolean = false;
   messageViewData: any = [];
   routerPath!: string;
+  currentOrgQuery!: any;
 
   constructor(
     private _communicationAIService: CommunicationAIService,
@@ -182,6 +184,7 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
     }
 
     this.messageViewData = this._communicationAIService.getSelOrgData();
+
     if (this.messageViewData?.from == 'messageEvents') {
       this.onViewCammpMessage(this.messageViewData?.messageData);
       this.messageViewMode = true;
@@ -213,24 +216,28 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
     this.displayedColumns = this.viewLaunchedPage
       ? this.campDisplayedColumns
       : this.displayedColumns;
+
     this.subscription$ = this._communicationAIService
       .getSelOrgDataObservable()
       .subscribe((res) => {
         if (this.viewLaunchedPage) {
           this.messageViewData = res;
-          let orgType = this.messageViewData?.orgType?.selectedOrgInDrDw
+          let orgType = this.messageViewData?.orgType?.queryParamsForNewRecord
             ?.holOrMol;
+
+          /** 09042021 - Gaurav - Fixed JIRA-CA-356: Store current query to use later and use correct key from orgType */
+          this.currentOrgQuery = {
+            $or: [
+              {
+                [orgType]: this.messageViewData?.orgType
+                  ?.queryParamsForNewRecord?.orgId,
+              },
+            ],
+          };
 
           this._searchMessageEventsPayload = {
             ...this._searchMessageEventsPayload,
-            query: {
-              $or: [
-                {
-                  [orgType]: this.messageViewData?.orgType?.selectedOrgInDrDw
-                    ?._id,
-                },
-              ],
-            },
+            query: this.currentOrgQuery,
           };
           this.getCampMessageEvents();
         }
@@ -285,11 +292,21 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
     if (this.messageViewData?.from == 'messageEvents') {
       return;
     }
+
     this._setLoading(true);
     //to get message event list by its source path to sending 'comm/resp/nps', 'campaignId', 'searchPayload'
     const messageEvents: Observable<any> = this._systemAdminService.getCampaignMessageEvents(
       this.campSource,
       this._id,
+      this._searchMessageEventsPayload
+    );
+
+    console.log(
+      'insdie getCampMessageEvents() this.campSource',
+      this.campSource,
+      'this._id',
+      this._id,
+      'this._searchMessageEventsPayload',
       this._searchMessageEventsPayload
     );
 
@@ -436,9 +453,13 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
       });
   }
   onMessagePageChange(e: any) {
+    console.log('inside onMessagePageChange');
+    console.log('this.eventMode', this.eventMode);
+
     this._setLoading(true);
     if (this.eventMode == 'messageMode') {
       this._searchMessagesPayload = this._dashboardService.defaultPaylod;
+
       this._searchMessagesPayload = {
         ...this._searchMessagesPayload,
         options: {
@@ -453,6 +474,7 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
     } else {
       //filter by message event list
       this._searchMessageEventsPayload = this._dashboardService.defaultPaylod;
+
       this._searchMessageEventsPayload = {
         ...this._searchMessageEventsPayload,
         options: {
@@ -461,7 +483,8 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
           offset: e.pageIndex ? e.pageSize * e.pageIndex : 0,
           limit: e.pageSize,
         },
-        query: {},
+        /** 09042021 - Gaurav - Fixed JIRA-CA-356: Use the store current org query */
+        query: this.currentOrgQuery,
       };
       this.getCampMessageEvents();
     }
