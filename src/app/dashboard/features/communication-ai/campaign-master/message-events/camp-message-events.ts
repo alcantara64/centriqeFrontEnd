@@ -345,24 +345,24 @@ export class CampMessageEventComponent
     this._loadingService
       .showProgressBarUntilCompleted(messageEvents, 'query')
       .subscribe(async (res: any) => {
-        let eventsList: Array<Object> = this.viewLaunchedPage
-          ? res?.results
-          : [];
-        if (!this.viewLaunchedPage) {
-          await res?.results?.forEach((item: any, index: any) => {
-            eventsList.push(
-              (item = {
-                ...item,
-                date: this._communicationAIService.handleDateTimeZoneReceive(
-                  item?.date,
-                  this.timeZone
-                ),
-              })
-            );
-          });
-          eventsList.reverse();
-        }
-        this.campMessageList = eventsList;
+        // let eventsList: Array<Object> = this.viewLaunchedPage
+        //   ? res?.results
+        //   : [];
+        // if (!this.viewLaunchedPage) {
+        //   await res?.results?.forEach((item: any, index: any) => {
+        //     eventsList.push(
+        //       (item = {
+        //         ...item,
+        //         date: this._communicationAIService.handleDateTimeZoneReceive(
+        //           item?.date,
+        //           this.timeZone
+        //         ),
+        //       })
+        //     );
+        //   });
+        //   eventsList.reverse();
+        // }
+        this.campMessageList = res?.results;
         this.dataSource = await new MatTableDataSource(
           this.campMessageList ?? []
         );
