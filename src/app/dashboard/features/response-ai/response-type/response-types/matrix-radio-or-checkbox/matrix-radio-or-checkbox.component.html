@@ -157,6 +157,14 @@
             >Total matrix columns cannot be less than 1 or greater than
             12</mat-error
           >
+          <mat-error
+            *ngIf="
+              form?.controls?.matrixColumns?.errors
+                ?.columnMoreThanOrEqualsOptions
+            "
+            >Total matrix columns should be less than the total count of select
+            options!</mat-error
+          >
         </mat-form-field>
       </div>
 
@@ -172,6 +180,22 @@
           "
           >Show Label on left</mat-slide-toggle
         >
+      </div>
+
+      <div
+        *ngIf="
+          !(
+            form?.controls?.matrixColumns?.errors?.required ||
+            form?.controls?.matrixColumns?.errors?.max ||
+            form?.controls?.matrixColumns?.errors?.min
+          ) &&
+          form?.controls?.matrixColumns?.errors?.columnMoreThanOrEqualsOptions
+        "
+        class="col-12 alert alert-danger fade show mt-2"
+        role="alert"
+      >
+        <strong>Matrix Columns</strong> should be less than the total count of
+        select options!
       </div>
     </div>
 

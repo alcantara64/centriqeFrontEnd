@@ -380,6 +380,8 @@ export class ResponseTypeComponent implements OnInit, OnDestroy {
       return;
     }
 
+    console.log('this.form.valid', this.form.valid, 'this.form', this.form);
+
     if (!this.form.valid || !this._formPayload) return;
 
     let payload = {

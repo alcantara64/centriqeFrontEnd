@@ -1,7 +1,15 @@
-/** 05012021 - Gaurav - Init version */
+/** 05012021 - Gaurav - Init version
+ * 12042021 - Gaurav - JIRA-CA-364: Validate matrix column field to be not equal to the user option entries
+ */
 import { Component, Injector, OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
-import { consoleLog } from 'src/app/shared/util/common.util';
+import {
+  AbstractControl,
+  FormArray,
+  FormControl,
+  FormGroup,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { MatrixValuesStruct } from '../../../data-models/question.model';
 import { BaseTypeComponent } from '../base-type/base-type.component';
 
@@ -45,7 +53,12 @@ export class MatrixRadioOrCheckboxComponent
         this.responseTypeData?.questionTypeStructure?.matrixColumns ??
           this.question?.questionTypeStructure?.matrixColumns ??
           1,
-        [Validators.required, Validators.min(1), Validators.max(12)]
+        [
+          Validators.required,
+          Validators.min(1),
+          Validators.max(12),
+          this.columnsMoreThanOptions(this.form),
+        ]
       )
     );
 
@@ -73,7 +86,7 @@ export class MatrixRadioOrCheckboxComponent
 
     this.form.addControl(
       'matrixValues',
-      new FormArray([], Validators.required)
+      new FormArray([], [Validators.required])
     );
     this._loadSavedElements(
       this.responseTypeData?.questionTypeStructure?.matrixValues ??
@@ -89,6 +102,52 @@ export class MatrixRadioOrCheckboxComponent
      * 1. send array of fieldNames to disable
      * 2. would disable complete form if view-only mode */
     this.disableForm(['matrixName', 'additionalTextName']);
+  }
+
+  /** Custom form control validators */
+  columnsMoreThanOptions(form: FormGroup): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const matrixOptionsLength = form
+        ? form?.get('matrixValues')?.value?.length
+        : 0;
+
+      if (!control.value || matrixOptionsLength === 0) {
+        return null;
+      }
+
+      if (control.value >= matrixOptionsLength) {
+        return { columnMoreThanOrEqualsOptions: true };
+      }
+
+      return null;
+    };
+  }
+
+  checkMatrixColumnsValueValidity() {
+    const matrixColumns = this.form?.get('matrixColumns')?.value;
+    const matrixOptionsLength = this.form?.get('matrixValues')?.value
+      ? this.form?.get('matrixValues')?.value?.length
+      : 0;
+
+    if (!matrixColumns || matrixOptionsLength === 0) {
+      return;
+    }
+
+    if (matrixColumns >= matrixOptionsLength) {
+      this.form
+        ?.get('matrixColumns')
+        ?.setErrors({ columnMoreThanOrEqualsOptions: true });
+    } else {
+      if (
+        !(
+          this.form?.controls?.matrixColumns?.errors?.required ||
+          this.form?.controls?.matrixColumns?.errors?.max ||
+          this.form?.controls?.matrixColumns?.errors?.min
+        )
+      ) {
+        this.form?.get('matrixColumns')?.setErrors(null);
+      }
+    }
   }
 
   /** Form array methods */
@@ -133,6 +192,8 @@ export class MatrixRadioOrCheckboxComponent
       })
     );
 
+    this.checkMatrixColumnsValueValidity();
+
     /** This shall copy some empty values for undefind entries */
     this._populateQuesionObjectForMatrixValues();
   }
@@ -144,6 +205,7 @@ export class MatrixRadioOrCheckboxComponent
 
   onDeleteElement(index: number): void {
     (<FormArray>this.form.get('matrixValues')).removeAt(index);
+    this.checkMatrixColumnsValueValidity();
 
     /** This shall update the removed entries */
     this._populateQuesionObjectForMatrixValues();

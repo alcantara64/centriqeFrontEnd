@@ -256,7 +256,11 @@
     <div class="container" *ngIf="displayMatrixValues">
       <div class="row">
         <ng-container *ngFor="let matrixValue of displayMatrixValues">
-          <div class="col-md-{{ 12 / form.get('matrixColumns')?.value }}">
+          <div
+            class="col-md-{{
+              12 / form.get('matrixColumns')?.value | number: '1.0-0'
+            }}"
+          >
             <label [for]="matrixValue.id"
               >{{ form.get("showLabelLeft")?.value ? matrixValue.label : "" }}
               <input
@@ -299,7 +303,11 @@
     <div class="container" *ngIf="displayMatrixValues">
       <div class="row">
         <ng-container *ngFor="let matrixValue of displayMatrixValues">
-          <div class="col-md-{{ 12 / form.get('matrixColumns')?.value }}">
+          <div
+            class="col-md-{{
+              12 / form.get('matrixColumns')?.value | number: '1.0-0'
+            }}"
+          >
             <label [for]="matrixValue.id"
               >{{ form.get("showLabelLeft")?.value ? matrixValue.label : "" }}
               <input

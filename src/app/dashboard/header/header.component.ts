@@ -224,7 +224,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewInit {
       ).pipe(
         map((event) => event.target.value),
         startWith(''),
-        debounceTime(400),
+        debounceTime(700),
         distinctUntilChanged()
       );
 
