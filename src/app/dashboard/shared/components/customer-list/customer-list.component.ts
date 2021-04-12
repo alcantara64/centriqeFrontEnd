@@ -20,6 +20,7 @@
  * 08022021 - Gaurav - Added code for new progress-bar service
  * 10022021 - Abhishek - Set search filter observable same as globle org selector search is working.
  * 01042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons
+ * 12042021 - Abhishek - CA-212: Implement advanced search for customer list.
  */
 import { SelectionModel } from '@angular/cdk/collections';
 import {
@@ -47,6 +48,7 @@ import {
   HoldingOrg,
 } from 'src/app/dashboard/dashboard.service';
 import {
+  AccessModes,
   DashboardMenuEnum,
   dashboardRouteLinks,
   DataDomainConfig,
@@ -70,6 +72,8 @@ import {
   AppButtonTypes,
   ButtonRowClickedParams,
 } from '../buttons/buttons.model';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { consoleLog } from 'src/app/shared/util/common.util';
 
 /** Created enum, instead of using boolean values, in case more than two filters condition are introduced */
 enum FilterBy {
@@ -90,7 +94,6 @@ export class CustomerListComponent implements OnInit, OnDestroy, AfterViewInit {
   private _customerListSub$!: Subscription;
   private _authStatusSub$!: Subscription;
   selectedHoldingOrgData!: HoldingOrg;
-
   selectedMemberOrg!: any;
   private _filterCustomerListBy!: FilterBy;
   /** 11122020 - Gaurav - Add Email Template DrDw change */
@@ -98,6 +101,11 @@ export class CustomerListComponent implements OnInit, OnDestroy, AfterViewInit {
   private _userPrivileges!: string[];
   selectedTemplateId!: any;
   sendingEmail = false;
+  advancedFilterForm!: FormGroup;
+  private _currentCampData: any;
+  isCanDo:boolean = true;
+  modalType:string = '';
+  accessMode!:AccessModes;
   searchText: string = '';
   /** 14122020 - Gaurav - store the getOrgAccessInformation */
   private _orgAccessInformation!: any;
@@ -146,9 +154,103 @@ export class CustomerListComponent implements OnInit, OnDestroy, AfterViewInit {
     private _route: ActivatedRoute,
     private _router: Router,
     public appConfigService: AppConfigService,
-    private _loadingService: LoadingService
-  ) {}
+    private _loadingService: LoadingService,
+    private formBuilder: FormBuilder,
+  ) {
+    this._initForm();
+  }
 
+   //to set initial form
+   private _initForm() {
+    let scheduleData =
+      this._currentCampData?.schedulePattern == undefined
+        ? null
+        : this._currentCampData?.schedulePattern;
+    let monthlyRecurr =
+      scheduleData?.byWeekDay == undefined
+        ? 'day'
+        : scheduleData?.byWeekDay?.monthRecurrenceCount == null
+        ? 'day'
+        : 'weekly';
+    let yearlyRecurr = scheduleData?.byMonthDay == undefined ? 'day' : 'days';
+    let endSet =
+      scheduleData?.endDate != undefined
+        ? 'oneTime'
+        : scheduleData?.endAfterOccurrenceCount != undefined
+        ? 'daily'
+        : 'weekly';
+
+    /**2021-01-18 - Frank - fixed date handling */
+    const timeZone = this._currentCampData?.schedulePattern.timeZone;
+    const startDate = this._communicationAIService.handleDateTimeZoneReceive(
+      scheduleData?.startDate,
+      timeZone
+    );
+    const endDateSet = !scheduleData?.endDate
+      ? null
+      : this._communicationAIService.handleDateTimeZoneReceive(
+          scheduleData?.endDate,
+          timeZone
+        );
+    const time = this._currentCampData?.schedulePattern.sendTime;
+    const tempC = this._currentCampData?.template;
+
+    const surveyText =
+      this._currentCampData?.survey?.name +
+      ' (' +
+      this._currentCampData?.survey?.code +
+      ')';
+    const orgValue =
+      this.selectedMemberOrg?.selectedOrgInDrDw?.name +
+      ' (' +
+      this.selectedMemberOrg?.selectedOrgInDrDw?.code +
+      ')';
+    this.advancedFilterForm = new FormGroup({
+      memberOrgDrop: new FormControl(this._currentCampData?.filter?.memberOrg),
+      memberOrg: new FormControl(orgValue, Validators.required),
+
+      filterCriteriaArray: this.formBuilder.array([]),
+    });
+    this.advancedFilterForm.controls.memberOrg.disable();
+    if (this.filterCriteriaArray.length) {
+      let fa = <FormArray>this.advancedFilterForm.get('filterCriteriaArray');
+      fa.controls = [];
+      fa.reset();
+    }
+
+    setTimeout(() => {
+      this._setLoading(false);
+    }, 300);
+  }
+
+  //Get filter criteria array data
+  get filterCriteria(): FormArray {
+    return this.advancedFilterForm.get('filterCriteriaArray') as FormArray;
+  }
+
+  get filterCriteriaArray() {
+    return (<FormArray>this.advancedFilterForm.get('filterCriteriaArray')).controls;
+  }
+
+  //Check criteria function
+  checkCriteriaFun(postData:any) {
+
+    this._loadingService
+    .showProgressBarUntilCompleted(
+      this._communicationAIService.checkCriteria(postData)
+    )
+    .subscribe(
+      (res:any) => {
+        this.totalRecords = res?.info?.totalCount;
+        this.dataSource = new MatTableDataSource(res?.results);
+      },
+      (error) => {
+        this._snackbarService.showError(error.message);
+        consoleLog(error);
+        this._setLoading(false);
+      }
+    );
+  }
   /** 05022021 - Abhishek - Set pagination when user redirect from detail view to list view */
   ngAfterViewInit(): void {
     if (this.searchFilter) {
