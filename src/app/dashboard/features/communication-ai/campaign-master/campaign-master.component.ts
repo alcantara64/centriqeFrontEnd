@@ -408,6 +408,161 @@ export class CampaignMasterComponent implements OnInit, OnDestroy {
       this.accessMode === this.accessModes.View ||
       this.accessMode === this.accessModes.Copy
     ) {
+      this.statusType = this._currentCampData?.status;
+      this.timeControl.reset(scheduleData?.timeZone);
+      this.timeControl.disable();
+      this.campaignFG.controls.surveyCode.disable();
+      this.endbyRadioChange(endSet);
+      this._communicationAIService.setReceivedTimeZone(scheduleData?.timeZone);
+      this.radioButtonClick(
+        this._currentCampData?.schedulePattern?.scheduleType,
+        'type1'
+      );
+      monthlyRecurr == 'day' ? this.daySelctionFun() : this.theSelctionFun();
+      yearlyRecurr == 'day' ? this.onTheRadioFun() : this.onRadioFun();
+      let formArray = this._currentCampData?.filter?.criteria;
+      this.dynamicDropDown = [];
+      if (formArray?.length == 0) {
+        this.addRowCriteria();
+      } else {
+        formArray.forEach((item: any, index: number) => {
+          setTimeout(() => {
+            let doopList: any = [];
+            let dropList: any = [];
+            let dataType: any = '';
+            let value: any = '';
+            let attrType: any = '';
+            let attrValtype: any = '';
+            this.loginUserInfo.filter((data: any) => {
+              if (data['code'] == item?.attributeName && dataType == '') {
+                dataType = data;
+                attrValtype = data.type;
+              }
+            });
+
+            switch (dataType.dataProviderType) {
+              case 'enum':
+                if (dataType.type == 'number') {
+                  attrValtype = 'number-enum';
+                }
+                dropList = dataType.data;
+                break;
+              case 'dynamic':
+                dataType?.data.forEach((item: any) => {
+                  if (item != '') {
+                    if (!doopList.includes(item)) {
+                      dropList.push({ id: item, value: item, dataT: 'Edit' });
+                      doopList.push(item);
+                    }
+                  }
+                });
+                break;
+              default:
+                attrType = dataType.type;
+                if (dataType.type == 'string') {
+                  attrValtype = 'string-input';
+                  attrType = 'Text';
+                } else if (dataType.type == 'integer') {
+                  attrValtype = 'number';
+                } else if (dataType.type == 'date') {
+                  attrValtype = 'date';
+                  attrType = 'integer';
+                } else if (dataType.type == 'stringMonthDay') {
+                  attrValtype = 'stringMonthDay';
+                  attrType = 'integer';
+                }
+                break;
+            }
+            if (this.dynamicDropDown[index] == undefined) {
+              this.dynamicDropDown.push({ [index]: dropList });
+            } else {
+              this.dynamicDropDown.push({ [index]: '' });
+            }
+            let sartParam: string = '';
+            let endParam: string = '';
+            if (item?.startParenthesisCount > 0) {
+              for (let i = 0; item?.startParenthesisCount > i; i++) {
+                sartParam += '( ';
+              }
+            }
+            if (item?.endParenthesisCount > 0) {
+              for (let i = 0; item?.endParenthesisCount > i; i++) {
+                endParam += ') ';
+              }
+            }
+
+            switch (item?.operator) {
+              case 'Not In List':
+              case 'In List':
+                attrType = 'Multiple';
+                let test: any = [];
+                for (let i = 0; item?.values.length > i; i++) {
+                  dropList.forEach((val: any) => {
+                    if (val.id == item?.values[i]) {
+                      test.push(val);
+                    }
+                  });
+                }
+                value = test;
+                break;
+              case 'Is populated':
+              case 'Is not populated':
+                attrType = null;
+                value = null;
+                break;
+              case 'contains':
+                attrType = 'Text';
+                value = item?.values;
+                break;
+              case 'days before':
+              case 'days after':
+                attrType = 'NumberDate';
+                value = item?.values[0];
+                break;
+              default:
+                value = item?.values[0];
+                break;
+            }
+            if (dataType?.type == 'Date' && attrType != 'NumberDate') {
+              value = new Date(item?.values[0]);
+            }
+            this.filterCriteriaArray.push(
+              this.formBuilder.group({
+                startParam: {
+                  value: sartParam,
+                  disabled: this.accessMode === this.accessModes.View,
+                },
+                attributes: {
+                  value: item?.attributeName,
+                  disabled: this.accessMode === this.accessModes.View,
+                },
+                operator: {
+                  value: item?.operator,
+                  disabled: this.accessMode === this.accessModes.View,
+                },
+                attrValue: {
+                  value: value,
+                  disabled: this.accessMode === this.accessModes.View,
+                },
+                endParam: {
+                  value: endParam,
+                  disabled: this.accessMode === this.accessModes.View,
+                },
+                attrValueType: {
+                  value: attrType != '' ? attrType : dataType.type,
+                  disabled: this.accessMode === this.accessModes.View,
+                },
+                attrType: attrValtype,
+                andOr: {
+                  value: item?.logicalConcatenation,
+                  disabled: this.accessMode === this.accessModes.View,
+                },
+              })
+            );
+          });
+        });
+      }
+
     }
     if (this.accessMode === this.accessModes.Add) {
       //this.tableViewHide = true;
