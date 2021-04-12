@@ -4,6 +4,6 @@ export const environment = {
   ngMultiPurposeAppUrl: 'https://cust.centriqe.com',
   allowConsoleLogs: false,
   featureFlags: {
-    disabledPaths: []
-  }
+    disabledPaths: [],
+  },
 };

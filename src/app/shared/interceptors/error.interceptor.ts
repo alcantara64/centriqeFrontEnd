@@ -36,7 +36,7 @@ export class ErrorInterceptor implements HttpInterceptor {
 
         !navigator.onLine &&
           (showErrorMessage =
-            'Please check your network connection and try again');
+            "You're offline! Please check your network connection and try again.");
 
         this._snackbarService.showError(showErrorMessage);
 
