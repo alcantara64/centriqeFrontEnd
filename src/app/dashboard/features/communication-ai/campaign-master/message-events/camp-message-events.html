@@ -53,9 +53,9 @@
           <input
             matInput
             placeholder="Ex. org"
-            #input
+            #searchFilter
             [disabled]="isLoading"
-            (keyup)="applyFilter($event)"
+            (click)="$event.stopPropagation()"
           />
         </mat-form-field>
       </div>
@@ -74,8 +74,7 @@
               Event Date
             </th>
             <td mat-cell *matCellDef="let element">
-              {{ element?.date | date:'fullDate' }}, {{ element?.date |
-              date:'shortTime'}}
+              {{ element?.date | date:'YYYY-MM-dd HH:MM' }}
             </td>
           </ng-container>
           <ng-container matColumnDef="campaign" *ngIf="viewLaunchedPage">

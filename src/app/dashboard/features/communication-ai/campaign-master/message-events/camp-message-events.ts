@@ -1,6 +1,8 @@
 /** 08022021 - Gaurav - Added code for new progress-bar service
  *  05032021 - Gaurav - JIRA-CA-154: View Survey Response icon button for campaign survey results and its processing
- * 05042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons */
+ * 05042021 - Gaurav - JIRA-CA-310: Componentize setup-list action buttons
+ * 09042021 - Gaurav - Fixed JIRA-CA-356: Page count is not accurate
+ * 09042021 - Gaurav - Fixed JIRA-CA-355: Cannot type text in search box in List of View Launched Survey Campaign */
 import {
   Component,
   OnDestroy,
@@ -9,6 +11,7 @@ import {
   QueryList,
   ViewChildren,
   ElementRef,
+  AfterViewInit,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
@@ -25,7 +28,7 @@ import {
   CampaignSurveyResponseMode,
   CommunicationAIService,
 } from '../../communication-ai.service';
-import { Observable, Subscription } from 'rxjs';
+import { fromEvent, Observable, Subscription } from 'rxjs';
 import { DashboardService } from 'src/app/dashboard/dashboard.service';
 import {
   dashboardRouteLinks,
@@ -40,6 +43,12 @@ import {
   AppButtonTypes,
   ButtonRowClickedParams,
 } from 'src/app/dashboard/shared/components/buttons/buttons.model';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  startWith,
+} from 'rxjs/operators';
 @Component({
   selector: 'camp-message-event',
   templateUrl: './camp-message-events.html',
@@ -54,10 +63,12 @@ import {
     ]),
   ],
 })
-export class CampMessageEventComponent implements OnInit, OnDestroy {
+export class CampMessageEventComponent
+  implements OnInit, OnDestroy, AfterViewInit {
   @ViewChildren(MatPaginator) paginator = new QueryList<MatPaginator>();
   @ViewChildren(MatSort) sort = new QueryList<MatSort>();
   @ViewChild('bodyframe', { static: false }) bodyframe!: ElementRef;
+  @ViewChild('searchFilter') searchFilter!: ElementRef<any>;
   readonly appButtonType = AppButtonTypes;
   expandedElement: any | null;
   isLoading = false;
@@ -128,6 +139,8 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
   isUserAdmin: boolean = false;
   messageViewData: any = [];
   routerPath!: string;
+  private _currentOrgQuery!: any;
+  private _globalSearchText = '';
 
   constructor(
     private _communicationAIService: CommunicationAIService,
@@ -182,6 +195,7 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
     }
 
     this.messageViewData = this._communicationAIService.getSelOrgData();
+
     if (this.messageViewData?.from == 'messageEvents') {
       this.onViewCammpMessage(this.messageViewData?.messageData);
       this.messageViewMode = true;
@@ -213,24 +227,28 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
     this.displayedColumns = this.viewLaunchedPage
       ? this.campDisplayedColumns
       : this.displayedColumns;
+
     this.subscription$ = this._communicationAIService
       .getSelOrgDataObservable()
       .subscribe((res) => {
         if (this.viewLaunchedPage) {
           this.messageViewData = res;
-          let orgType = this.messageViewData?.orgType?.selectedOrgInDrDw
+          let orgType = this.messageViewData?.orgType?.queryParamsForNewRecord
             ?.holOrMol;
+
+          /** 09042021 - Gaurav - Fixed JIRA-CA-356: Store current query to use later and use correct key from orgType */
+          this._currentOrgQuery = {
+            $or: [
+              {
+                [orgType]: this.messageViewData?.orgType
+                  ?.queryParamsForNewRecord?.orgId,
+              },
+            ],
+          };
 
           this._searchMessageEventsPayload = {
             ...this._searchMessageEventsPayload,
-            query: {
-              $or: [
-                {
-                  [orgType]: this.messageViewData?.orgType?.selectedOrgInDrDw
-                    ?._id,
-                },
-              ],
-            },
+            query: this._currentOrgQuery,
           };
           this.getCampMessageEvents();
         }
@@ -243,6 +261,27 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.subscription$.unsubscribe();
     this.pauseTimer();
+  }
+
+  /** 09042021 - Gaurav - Fixed JIRA-CA-355 */
+  ngAfterViewInit(): void {
+    if (this.searchFilter) {
+      const filterOrg$: Observable<string> = fromEvent<any>(
+        this.searchFilter.nativeElement,
+        'keyup'
+      ).pipe(
+        map((event) => event.target.value),
+        startWith(''),
+        debounceTime(700),
+        distinctUntilChanged()
+      );
+
+      filterOrg$.subscribe((filterText) => {
+        console.log({ filterText });
+        this._globalSearchText = filterText ?? '';
+        this.applyEventFilter(this._globalSearchText ?? '');
+      });
+    }
   }
 
   /** 05032021 - Gaurav - JIRA-CA-154 */
@@ -285,6 +324,7 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
     if (this.messageViewData?.from == 'messageEvents') {
       return;
     }
+
     this._setLoading(true);
     //to get message event list by its source path to sending 'comm/resp/nps', 'campaignId', 'searchPayload'
     const messageEvents: Observable<any> = this._systemAdminService.getCampaignMessageEvents(
@@ -293,27 +333,36 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
       this._searchMessageEventsPayload
     );
 
+    console.log(
+      'insdie getCampMessageEvents() this.campSource',
+      this.campSource,
+      'this._id',
+      this._id,
+      'this._searchMessageEventsPayload',
+      this._searchMessageEventsPayload
+    );
+
     this._loadingService
       .showProgressBarUntilCompleted(messageEvents, 'query')
       .subscribe(async (res: any) => {
-        let eventsList: Array<Object> = this.viewLaunchedPage
-          ? res?.results
-          : [];
-        if (!this.viewLaunchedPage) {
-          await res?.results?.forEach((item: any, index: any) => {
-            eventsList.push(
-              (item = {
-                ...item,
-                date: this._communicationAIService.handleDateTimeZoneReceive(
-                  item?.date,
-                  this.timeZone
-                ),
-              })
-            );
-          });
-          eventsList.reverse();
-        }
-        this.campMessageList = eventsList;
+        // let eventsList: Array<Object> = this.viewLaunchedPage
+        //   ? res?.results
+        //   : [];
+        // if (!this.viewLaunchedPage) {
+        //   await res?.results?.forEach((item: any, index: any) => {
+        //     eventsList.push(
+        //       (item = {
+        //         ...item,
+        //         date: this._communicationAIService.handleDateTimeZoneReceive(
+        //           item?.date,
+        //           this.timeZone
+        //         ),
+        //       })
+        //     );
+        //   });
+        //   eventsList.reverse();
+        // }
+        this.campMessageList = res?.results;
         this.dataSource = await new MatTableDataSource(
           this.campMessageList ?? []
         );
@@ -356,6 +405,8 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
 
   //On search filter by message events/messages list
   applyFilter(e: any) {
+    console.log('applyFilter this.eventMode', this.eventMode);
+
     //filter by messages list
     if (this.eventMode == 'messageMode') {
       this._searchMessagesPayload = {
@@ -371,18 +422,23 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
       this.getMessagesByEvent(this._searchMessagesPayload);
     } else {
       //filter by message event list
-      this._searchMessageEventsPayload = {
-        ...this._searchMessageEventsPayload,
-        options: {
-          ...this._searchMessageEventsPayload?.options,
-          globalSearch: {
-            fieldNames: this.displayedColumnsByFilter,
-            searchValue: e.target.value,
-          },
-        },
-      };
-      this.getCampMessageEvents();
+      this.applyEventFilter(e.target.value);
     }
+  }
+
+  /** 09042021 - Gaurav - Fixed JIRA-CA-355 */
+  applyEventFilter(searchValue: string): void {
+    this._searchMessageEventsPayload = {
+      ...this._searchMessageEventsPayload,
+      options: {
+        ...this._searchMessageEventsPayload?.options,
+        globalSearch: {
+          fieldNames: this.displayedColumnsByFilter,
+          searchValue,
+        },
+      },
+    };
+    this.getCampMessageEvents();
   }
 
   backToTable() {
@@ -436,9 +492,13 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
       });
   }
   onMessagePageChange(e: any) {
+    console.log('inside onMessagePageChange');
+    console.log('this.eventMode', this.eventMode);
+
     this._setLoading(true);
     if (this.eventMode == 'messageMode') {
       this._searchMessagesPayload = this._dashboardService.defaultPaylod;
+
       this._searchMessagesPayload = {
         ...this._searchMessagesPayload,
         options: {
@@ -453,15 +513,21 @@ export class CampMessageEventComponent implements OnInit, OnDestroy {
     } else {
       //filter by message event list
       this._searchMessageEventsPayload = this._dashboardService.defaultPaylod;
+
       this._searchMessageEventsPayload = {
         ...this._searchMessageEventsPayload,
         options: {
-          globalSearch: this._searchMessageEventsPayload?.options?.globalSearch,
+          /** 09042021 - Gaurav - Fixed JIRA-CA-355: Unrelated to CA-355, it was observed that on page change, the filter criteria was cleared. */
+          globalSearch: {
+            fieldNames: this.messagesColumnsByFilter,
+            searchValue: this._globalSearchText,
+          },
           sort: this._searchMessageEventsPayload?.options?.sort,
           offset: e.pageIndex ? e.pageSize * e.pageIndex : 0,
           limit: e.pageSize,
         },
-        query: {},
+        /** 09042021 - Gaurav - Fixed JIRA-CA-356: Use the store current org query */
+        query: this._currentOrgQuery,
       };
       this.getCampMessageEvents();
     }
