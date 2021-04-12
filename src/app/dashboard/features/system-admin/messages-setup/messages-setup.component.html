@@ -39,8 +39,7 @@
         <ng-container matColumnDef="createdAt">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Created At</th>
           <td mat-cell *matCellDef="let element">
-            {{ element?.createdAt | date: "fullDate" }}
-            {{ element?.createdAt | date: "shortTime" }}
+            {{ element?.createdAt | date: "YYYY-MM-dd HH:MM" }}
           </td>
         </ng-container>
 
@@ -147,8 +146,7 @@
           <div class="col-4">
             <label>Date</label>
             <span
-              >{{ messageEventList?.createdAt | date: "fullDate" }}
-              {{ messageEventList?.createdAt | date: "shortTime" }}</span
+              >{{ messageEventList?.createdAt | date: "YYYY-MM-dd HH:MM" }}</span
             >
           </div>
           <div class="col-4">
@@ -194,8 +192,7 @@
               <ng-container matColumnDef="timestamp">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
                 <td mat-cell *matCellDef="let element">
-                  {{ element?.timestamp | date: "fullDate" }}
-                  {{ element?.timestamp | date: "shortTime" }}
+                  {{ element?.timestamp | date: "YYYY-MM-dd HH:MM" }}
                 </td>
               </ng-container>
               <ng-container matColumnDef="event">

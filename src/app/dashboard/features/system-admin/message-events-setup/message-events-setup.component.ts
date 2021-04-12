@@ -34,6 +34,7 @@ export class MessageEventsSetupComponent implements OnInit {
     'status',
     'processStart',
     'processEnd',
+    'generated',
     'action_buttons',
   ];
   dataSource!: MatTableDataSource<any>;
@@ -53,21 +54,9 @@ export class MessageEventsSetupComponent implements OnInit {
     this._setLoading(true);
     this._dashboardService.defaultPaylod = {
       options: {
-        offset: 0,
-        limit: this.appConfigService.systemMatTableProperties
-          .pageSizeOptions[2],
-      },
-      query: {},
-    };
-    this._getMessages();
-  }
-  ngOnDestroy() {}
-
-  private _getMessages(): void {
-    //default paginator set
-    this._searchPayload = {
-      options: {
-        sort: {},
+        sort: {
+          date: -1,
+        },
         offset: 0,
         limit: this.appConfigService.systemMatTableProperties
           .pageSizeOptions[2],
@@ -78,9 +67,26 @@ export class MessageEventsSetupComponent implements OnInit {
       },
       query: {},
     };
+    this._getMessages();
+  }
+  ngOnDestroy() {}
+
+  private _getMessages(): void {
+    //default paginator set
+    this._searchPayload = this._dashboardService.defaultPaylod;
     this.getMessageEventsBySearch(this._searchPayload);
   }
   applyFilter(e: any) {
+    this._dashboardService.defaultPaylod = {
+      ...this._dashboardService.defaultPaylod,
+      options : {
+        ...this._dashboardService.defaultPaylod.options,
+        globalSearch : {
+          ...this._dashboardService.defaultPaylod.options.globalSearch,
+          searchValue: e.target.value
+        }
+      }
+    }
     this.searchText = e.target.value;
     this._getMessages();
   }
@@ -110,20 +116,19 @@ export class MessageEventsSetupComponent implements OnInit {
       : delete this._searchPayload?.options?.sort[e.active];
     this.filterColumns = {
       ...this.filterColumns,
+      date: e.active == 'eventDate' ? order : -1,
       [e.active]: order,
     };
-    this._searchPayload = this._dashboardService.defaultPaylod;
     this._searchPayload = {
       ...this._searchPayload,
       options: {
         globalSearch: this._searchPayload?.options?.globalSearch,
         offset: this._searchPayload?.options?.offset,
         limit: this._searchPayload?.options?.limit,
-        //sort: { ...this._searchPayload?.options?.sort, ...sortObj }
         sort: this.filterColumns,
       },
     };
-
+    this._dashboardService.defaultPaylod = this._searchPayload;
     this._setLoading(true);
     this.getMessageEventsBySearch(this._searchPayload);
   }

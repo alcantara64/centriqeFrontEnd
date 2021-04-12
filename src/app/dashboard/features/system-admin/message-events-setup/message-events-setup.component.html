@@ -32,8 +32,7 @@
         <ng-container matColumnDef="eventDate">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
           <td mat-cell *matCellDef="let element">
-            {{ element?.date | date: "YYYY-MM-dd" }}
-            {{ element?.date | date: "shortTime" }}
+            {{ element?.date | date: "YYYY-MM-dd HH:MM" }}
           </td>
         </ng-container>
 
@@ -57,15 +56,19 @@
             Process Start
           </th>
           <td mat-cell *matCellDef="let element">
-            {{ element?.processStartDt | date: "fullDate" }}
-            {{ element?.processStartDt | date: "shortTime" }}
+            {{ element?.processStartDt | date: "YYYY-MM-dd HH:MM" }}
           </td>
         </ng-container>
         <ng-container matColumnDef="processEnd">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Process End</th>
           <td mat-cell *matCellDef="let element">
-            {{ element?.processEndDt | date: "fullDate" }}
-            {{ element?.processEndDt | date: "shortTime" }}
+            {{ element?.processEndDt | date: "YYYY-MM-dd HH:MM" }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="generated">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Generated</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element?.summary?.generated | date: "YYYY-MM-dd HH:MM" }}
           </td>
         </ng-container>
         <ng-container
@@ -73,7 +76,7 @@
           matColumnDef="action_buttons"
           stickyEnd
         >
-          <th mat-header-cell *matHeaderCellDef></th>
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let element">
             <app-view-fab-button
               (clicked)="onViewMessageEvent(element?._id)"
@@ -123,8 +126,7 @@
               <div class="col-3">
                 <label>Date</label>
                 <span
-                  >{{ messageEventData?.date | date: "YYYY-MM-dd" }}
-                  {{ messageEventData?.date | date: "shortTime" }}</span
+                  >{{ messageEventData?.date | date: "YYYY-MM-dd HH:MM" }}</span
                 >
               </div>
               <div class="col-3">
