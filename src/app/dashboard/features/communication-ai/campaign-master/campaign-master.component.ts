@@ -3,6 +3,7 @@
  * 08022021 - Abhishek - Added getSubtitle() to set subtitle and import generateNameAndCodeString for sub title.
  * 08022021 - Gaurav - Added code for new progress-bar service
  * 15032021 - Gaurav - Use enum AccessModes from constants file instead of local one
+ * 12042021 - Abhishek - CA-212: Implement advanced search for customer list.
  */
 import {
   FormArray,
@@ -561,15 +562,16 @@ export class CampaignMasterComponent implements OnInit, OnDestroy {
           });
         });
       }
+
     }
     if (this.accessMode === this.accessModes.Add) {
       //this.tableViewHide = true;
       this.dynamicDropDown = [];
+      this.addRowCriteria();
       this.campaignFG.controls['setTime'].reset();
       this.timeControl.reset(this.timeZone);
       this._filter(this.timeZone);
       //this.editMemberOrgList = [];
-      this.addRowCriteria();
       this.radioButtonClick('oneTime', 'type1');
       this.endbyRadioChange('weekly');
       this.daySelctionFun();
@@ -1097,57 +1099,7 @@ export class CampaignMasterComponent implements OnInit, OnDestroy {
         : ' NPS';
     return this.accessMode + pageTitle + ' Campaign Master';
   }
-  delRoleRow(index: any) {
-    let checkVal = this.filterCriteriaArray[index].get('andOr')?.value;
-    let operate = this.filterCriteriaArray[index].get('operator')?.value;
-    if ((checkVal == null || checkVal == 'null') && this.dynamicDropDown > 1) {
-      this.filterCriteriaArray[index - 1].get('andOr')?.reset(null);
-    }
-    let dropItems = this.dynamicDropDown;
-    this.dynamicDropDown.splice(index, 1);
-    dropItems.forEach((item: any, ind: number) => {
-      if (index <= ind) {
-        this.dynamicDropDown[ind][ind] = this.dynamicDropDown[ind][ind + 1];
-      }
-    });
-    this.onDeleteRowFilterCriteria(index);
-    if (this.dynamicDropDown.length == 0) {
-      this.addRowCriteria();
-    }
-  }
-  onDeleteRowFilterCriteria(index: number): void {
-    (<FormArray>this.campaignFG.get('filterCriteriaArray')).removeAt(index);
-  }
-  startParamFun(index: any, type: any) {
-    let strValue = this.filterCriteriaArray[index].get('startParam')?.value;
-    if (type == 'add') {
-      if (strValue != null && strValue != 'null') {
-        strValue = strValue + '( ';
-      } else {
-        strValue = '( ';
-      }
-    } else {
-      if (strValue != null && strValue != 'null' && strValue.length > 0) {
-        strValue = strValue.substring(0, strValue.length - 2);
-      }
-    }
-    this.filterCriteriaArray[index].get('startParam')?.reset(strValue);
-  }
-  endParamFun(index: number, type: any) {
-    let edValue = this.filterCriteriaArray[index].get('endParam')?.value;
-    if (type == 'add') {
-      if (edValue != null && edValue != 'null') {
-        edValue = edValue + ') ';
-      } else {
-        edValue = ') ';
-      }
-    } else {
-      if (edValue != null && edValue != 'null' && edValue.length > 0) {
-        edValue = edValue.substring(0, edValue.length - 2);
-      }
-    }
-    this.filterCriteriaArray[index].get('endParam')?.reset(edValue);
-  }
+
   radioButtonClick(e: any, type: string) {
     this.recurrPattern = e;
   }
@@ -1191,60 +1143,26 @@ export class CampaignMasterComponent implements OnInit, OnDestroy {
   }
 
   //Check criteria function
-  checkCriteriaFun() {
-    this.testCriteriaFun('Save');
-    if (this.differenceCount != 0) {
-      this._snackbarService.showError('Invalid Filter Criteria');
-      this.filterSuccess = false;
-      return;
-    }
-    if (this.filterSuccess) {
-      this._setLoading(true);
-      this.testCriteriaData = '';
-      let holdingOrgVal: any = null;
-      let memberOrgVal: any = null;
-
-      if (this.orgLable == 'Holding Org') {
-        holdingOrgVal = this.userAccessOrgData?.orgType?.selectedOrgInDrDw?._id;
-        memberOrgVal = null;
-      } else {
-        holdingOrgVal = null;
-        memberOrgVal = this.userAccessOrgData?.orgType?.selectedOrgInDrDw?._id;
+  checkCriteriaFun(postData:any) {
+    this._loadingService
+    .showProgressBarUntilCompleted(
+      this._communicationAIService.checkCriteria(postData)
+    )
+    .subscribe(
+      (res) => {
+        this.testCriteriaData = res;
+        this._setLoading(false);
+        this.showModal = true;
+        this.modalType = 'Criteria';
+        this._openDialog();
+      },
+      (error) => {
+        this._snackbarService.showError(error.message);
+        consoleLog(error);
+        this._setLoading(false);
+        this.closeCriteria();
       }
-      let postData = {
-        options: {
-          offset: 0,
-          limit: 10,
-        },
-        queryByCriteria: {
-          orgLimiter: {
-            holdingOrg: holdingOrgVal,
-            memberOrg: memberOrgVal,
-          },
-          filter: { criteria: this.finalCriteriaJson },
-        },
-      };
-
-      this._loadingService
-        .showProgressBarUntilCompleted(
-          this._communicationAIService.checkCriteria(postData)
-        )
-        .subscribe(
-          (res) => {
-            this.testCriteriaData = res;
-            this._setLoading(false);
-            this.showModal = true;
-            this.modalType = 'Criteria';
-            this._openDialog();
-          },
-          (error) => {
-            this._snackbarService.showError(error.message);
-            consoleLog(error);
-            this._setLoading(false);
-            this.closeCriteria();
-          }
-        );
-    }
+    );
   }
   closeCriteria() {
     this.showModal = false;
@@ -1432,129 +1350,11 @@ export class CampaignMasterComponent implements OnInit, OnDestroy {
     this.addRowCriteria();
   }
 
-  operatorChange(index: number) {
-    this.attributeSetFun(index, 'opr');
-  }
-  attributeSetFun(index: number, dType: string) {
-    //let fa = <FormArray>this.campaignFG.controls['filterCriteriaArray'];
-    let attrValue = this.filterCriteriaArray[index].get('attributes')?.value;
-    this.filterCriteriaArray[index].get('attrValue')?.reset();
-    if (attrValue == null || attrValue == 'null') {
-      this.filterCriteriaArray[index].get('attributes')?.reset(null);
-      this.filterCriteriaArray[index].get('attrValueType')?.reset();
-      return;
-    }
-    let dataType: any = '';
-    this.loginUserInfo.filter((item: any) => {
-      if (item['code'] == attrValue && dataType == '') {
-        dataType = item;
-      }
-    });
-    let optValue = this.filterCriteriaArray[index].get('operator')?.value;
-    let type = dataType.type;
-    if (dataType != '') {
-      let doopList: any = [];
-      let dropList: any = [];
-      if (this.dynamicDropDown.length > 0) {
-        this.dynamicDropDown[index] = [];
-      }
 
-      if (dType == 'attr') {
-        this.filterCriteriaArray[index].get('attrType')?.reset(dataType.type);
-      }
-      switch (dataType.dataProviderType) {
-        case 'enum':
-          if (dataType.type == 'number') {
-            this.filterCriteriaArray[index]
-              .get('attrType')
-              ?.reset('number-enum');
-            type = 'string';
-          }
-          dropList = dataType.data;
-          break;
-        case 'dynamic':
-          dataType.data.forEach((item: any) => {
-            if (!doopList.includes(item)) {
-              dropList.push({ id: item, value: item, dataT: type });
-              doopList.push(item);
-            }
-          });
-          break;
-        default:
-          if (dataType.type == 'string') {
-            this.filterCriteriaArray[index]
-              .get('attrType')
-              ?.reset('string-input');
-            type = 'Text';
-          } else if (dataType.type == 'integer') {
-            this.filterCriteriaArray[index].get('attrType')?.reset('number');
-            type = dataType.type;
-          } else if (dataType.type == 'date') {
-            this.filterCriteriaArray[index].get('attrType')?.reset('date');
-            type = dataType.type;
-          } else if (dataType.type == 'stringMonthDay') {
-            this.filterCriteriaArray[index]
-              .get('attrType')
-              ?.reset('stringMonthDay');
-            type = dataType.type;
-          }
-          break;
-      }
-
-      if (this.dynamicDropDown[index] == undefined) {
-        this.dynamicDropDown.push({ [index]: dropList });
-      } else {
-        this.dynamicDropDown[index] = { [index]: dropList };
-      }
-    }
-
-    if (optValue != null && optValue != 'null') {
-      switch (optValue) {
-        case 'In List':
-        case 'Not In List':
-          if (dataType.data == undefined) {
-            //fa.controls[index]['controls']['attrValueType'].reset('Chips');
-            this.filterCriteriaArray[index].get('attrValueType')?.reset(type);
-          } else {
-            this.filterCriteriaArray[index]
-              .get('attrValueType')
-              ?.reset('Multiple');
-          }
-          break;
-        case 'Is populated':
-        case 'Is not populated':
-          this.filterCriteriaArray[index].get('attrValueType')?.reset();
-          break;
-        case 'contains':
-          this.filterCriteriaArray[index].get('attrValueType')?.reset('Text');
-          break;
-        case 'days before':
-        case 'days after':
-        case 'days before (no year)':
-        case 'days after (no year)':
-          this.filterCriteriaArray[index]
-            .get('attrValueType')
-            ?.reset('integer');
-          break;
-        default:
-          this.filterCriteriaArray[index].get('attrValueType')?.reset(type);
-          break;
-      }
-    } else {
-      if (dataType.type == 'date' || dataType.type == 'stringMonthDay') {
-        this.filterCriteriaArray[index].get('attrValueType')?.reset('integer');
-      } else {
-        this.filterCriteriaArray[index].get('attrValueType')?.reset(type);
-      }
-    }
-  }
   get filterCriteriaArray() {
     return (<FormArray>this.campaignFG.get('filterCriteriaArray')).controls;
   }
-  attrChangeFun(index: number) {
-    this.filterCriteriaArray[index].get('operator')?.reset();
-    this.attributeSetFun(index, 'attr');
-  }
+
   //Number change function in filter criteria
   numberChange(e: any): any {
     if (e.which == 45 || e.which == 44 || e.which == 46) {
