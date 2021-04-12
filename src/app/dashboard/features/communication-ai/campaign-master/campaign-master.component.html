@@ -135,18 +135,49 @@
                   </mat-form-field>
                 </div>
               </div>
-              <!-- 05042021 - Abhishek - CA-212: Implement advanced search for customer list. -->
+              <!-- 12042021 - Abhishek - CA-212: Implement advanced search for customer list. -->
+              <div class="row m-0">
+                <div class="col p-0 align-self-end">
+                  <h2>
+                    {{ accessMode ? "Customer Filter Criteria" : "" }}
+                  </h2>
+                </div>
+                <div
+                  class="col-4 p-0 text-right"
+                  [hidden]="!userAccessOrgData?.memOrgDrop?.visible"
+                >
+                  <mat-form-field>
+                    <mat-label>
+                      {{
+                        campaignFG?.controls?.memberOrgDrop?.errors?.required &&
+                        (campaignFG?.controls?.memberOrgDrop?.touched ||
+                          campaignFG?.controls?.memberOrgDrop?.dirty)
+                          ? "Member Org Name (Code)*"
+                          : "Member Org Name (Code)"
+                      }}
+                    </mat-label>
+                    <mat-select formControlName="memberOrgDrop">
+                      <mat-option
+                        [value]="memOrg?._id"
+                        *ngFor="let memOrg of userAccessOrgData?.memOrgDrop?.dropItems"
+                        >{{ memOrg?.name }} ({{ memOrg?.code }})
+                      </mat-option>
+                    </mat-select>
+                    <mat-error
+                      *ngIf="campaignFG?.controls?.memberOrgDrop?.errors?.required"
+                      >Member Org required</mat-error
+                    >
+                  </mat-form-field>
+                </div>
+              </div>
              <app-filter
-             [userAccessOrgData]="userAccessOrgData"
+             [isCanDo]="isCanDo()"
+             [modalType]="modalType"
              [advancedFilterForm]="campaignFG"
              [filterCriteria]="filterCriteria"
-             [isCanDo]="isCanDo()"
-             [attributList]="attributList"
              [filterCriteriaArray]="filterCriteriaArray"
-             [dynamicDropDown]="dynamicDropDown"
-             [modalType]="modalType"
-             [loginUserInfo]="loginUserInfo"
-             (checkCriteria)="checkCriteriaFun()"
+             (checkCriteria)="checkCriteriaFun($event)"
+             [accessMode]="accessMode"
              >
             </app-filter>
               <div class="row p-0 m-0">

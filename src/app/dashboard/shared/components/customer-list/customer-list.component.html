@@ -6,29 +6,45 @@
 <!-- 01022021 - Abhishek - Added click event for view button -->
 <!-- 05022021 - Abhishek - Added sortData method date pipe to set date format 'yyyy-MM-dd' -->
 <!-- 05022021 - Abhishek - Added pagination properties -->
+<!-- 12042021 - Abhishek - CA-212: Implement advanced search for customer list. -->
 <div class="main-container">
   <div class="table-container mat-elevation-z8">
     <div class="table-top">
       <div class="table-top_row1">
         <h2 class="table-title">Customer List</h2>
-        <mat-form-field>
-          <mat-label>Search</mat-label>
-          <input
-            matInput
-            type="text"
-            placeholder="Ex. org"
-            [value]="searchText"
-            #input
-          />
-        </mat-form-field>
-        <!-- 11122020 - Gaurav - Selected customers label -->
-        <mat-label
-          >Selected customers: {{ getSelectedCustomersCount() }}</mat-label
-        >
+        <!-- 12042021 - Abhishek - Tabs for filter and search -->
+        <mat-tab-group>
+          <mat-tab label="Search">
+            <mat-form-field>
+              <mat-label>Search</mat-label>
+              <input
+                matInput
+                type="text"
+                placeholder="Ex. org"
+                [value]="searchText"
+                #input
+              />
+            </mat-form-field>
+          </mat-tab>
+          <mat-tab label="Advance Search">
+            <div class="w-100 overflow-auto mt-3">
+            <app-filter
+             [isCanDo]="isCanDo"
+             [modalType]="modalType"
+             [advancedFilterForm]="advancedFilterForm"
+             [filterCriteria]="filterCriteria"
+             [filterCriteriaArray]="filterCriteriaArray"
+             (checkCriteria)="checkCriteriaFun($event)"
+             [accessMode]="accessMode"
+             >
+            </app-filter>
+          </div>
+          </mat-tab>
+        </mat-tab-group>
       </div>
 
       <div class="table-top_row2">
-        <mat-form-field *ngIf="isShowMemberOrgDropDown()">
+        <mat-form-field class="custom-margin" *ngIf="isShowMemberOrgDropDown()">
           <mat-label>{{
             selectedHoldingOrgData?.memberOrgs?.length === 1
               ? "Member Org"
@@ -60,7 +76,7 @@
             hasRequiredPrivileges()
           "
         >
-          <mat-form-field
+          <mat-form-field class="custom-margin"
             *ngIf="this.currentParentFeature === dashBoardEnumVal.COMM_AI"
           >
             <mat-label>Email Templates</mat-label>
@@ -81,7 +97,7 @@
             </mat-select>
           </mat-form-field>
 
-          <mat-form-field
+          <mat-form-field class="custom-margin"
             *ngIf="
               this.currentParentFeature === dashBoardEnumVal.NPS ||
               this.currentParentFeature === dashBoardEnumVal.RESP_AI
@@ -105,10 +121,10 @@
             </mat-select>
           </mat-form-field>
           <!-- 17022021 - Abhishek - Set condition and added tooltip for disable send demo message button -->
-          <div>
+          <div class="custom-margin">
             <button
               mat-raised-button
-              class="table-add-btn w-100"
+              class="table-add-btn mt-2 w-100"
               [disabled]="isDisableMessageButton()"
               [ngClass]="{
                 disabled: isDisableMessageButton()
@@ -118,7 +134,7 @@
               Send Message
             </button>
           </div>
-          <div
+          <div class="custom-margin"
             [matTooltip]="'Please select only one customer.'"
             [matTooltipDisabled]="
               !(getSelectedCustomersCount() > 1 && this.selectedTemplateId)
@@ -142,6 +158,11 @@
           </div>
         </ng-container>
       </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="p-3">
+      <!-- 11122020 - Gaurav - Selected customers label -->
+      <mat-label>Selected customers: {{ getSelectedCustomersCount() }}</mat-label>
     </div>
     <mat-divider></mat-divider>
 

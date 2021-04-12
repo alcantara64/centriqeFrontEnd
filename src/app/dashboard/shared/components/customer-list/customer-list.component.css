@@ -1,5 +1,6 @@
 /* 28112020 - Gaurav - Init version */
 /* 29012021 - Abhishek - Added action view button css */
+/* 12042021 - Abhishek - CA-212: Implement advanced search for customer list. */
 :host {
   /* Search CSS Colors */
   --button-bgcolor: #145993;
@@ -69,6 +70,8 @@
   justify-content: space-between;
   align-items: center;
   box-sizing: border-box;
+  width: 100%;
+  overflow: auto;
 }
 
 .table-top_row1,
@@ -176,5 +179,29 @@ td.mat-footer-cell:last-of-type {
 @media screen and (max-width: 400px) {
   .hide-small-screen {
     display: none;
+  }
+}
+@media screen and (max-width: 1300px) {
+  .table-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .table-top_row1 {
+    flex-direction: inherit;
+  }
+  .table-top_row2 {
+    flex-direction: row;
+  }
+  .custom-margin {
+    margin-right: 15px;
+  }
+}
+
+@media screen and (max-width: 790px) {
+  .table-top_row2 {
+    flex-direction: column;
+  }
+  .custom-margin {
+    margin-right: 0px;
   }
 }
