@@ -11,6 +11,7 @@ import { ClientSetupService } from '../client-setup.service';
 import { BaseComponent } from 'src/app/shared/base/base.component';
 import { HoldingOrg } from 'src/app/dashboard/dashboard.service';
 import { SnackbarService } from 'src/app/shared/components/snackbar.service';
+import { HttpEventType } from '@angular/common/http';
 
 @Component({
   selector: 'app-load-customer-data',
@@ -28,6 +29,9 @@ export class LoadCustomerDataComponent
 
   /** Cols chosen to be displayed on the table */
   displayedColumns: string[] = ['name', 'size', 'action_buttons'];
+  uploadedProgress: number = 0;
+  isUploadComplete: boolean = false;
+
   constructor(
     private _clientSetupService: ClientSetupService,
     _loadingService: LoadingService,
@@ -60,21 +64,36 @@ export class LoadCustomerDataComponent
   }
   onUpload(event: FileList) {
     const file: File = event[0];
+    this.isUploadComplete = false;
+    this.uploadedProgress = 0;
+
     if (file) {
       const formData = new FormData();
       formData.append('holdingOrg', this.globalHoldingOrg._id);
       formData.append('code', this.globalHoldingOrg?.code);
       formData.append('file', file);
-      this._clientSetupService
-        .uploadCustomerData(formData)
-        .toPromise()
-        .then((res) => {
-          this._snackbarService.showSuccess('File Uploaded successfully');
-          this.getCustomerUploads();
-        })
-        .catch((error) => {
-          this._snackbarService.showError('fileUpload error');
-        });
+      this._clientSetupService.uploadCustomerData(formData).subscribe(res => {
+        console.log('response ==>', res)
+        switch (res.type) {
+          case HttpEventType.UploadProgress:
+            if (res.total && res['loaded'] !== res['total']) {
+              this.uploadedProgress = Math.round(res['loaded'] / res['total'] * 100);
+            }
+            break;
+          case HttpEventType.Response:
+           this._snackbarService.showSuccess('File Uploaded successfully');
+            this.getCustomerUploads();
+            this.isUploadComplete = true;
+            break;
+        }
+
+      }, error => {
+        console.log('eeror ==>', error);
+        this.isUploadComplete = true;
+        this._snackbarService.showError('fileUpload error');
+
+      });
+
     }
   }
 

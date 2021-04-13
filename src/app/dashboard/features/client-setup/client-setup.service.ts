@@ -166,9 +166,13 @@ export class ClientSetupService {
       // uploadsParams.append('holdingOrg', holdingOrg);
      return this._http.get<CustomerUpload[]>(`${BACKEND_URL}/customerFileUpload/uploads`,{params:{holdingOrg}});
     }
-    uploadCustomerData(payload:FormData):Observable<string>{
-     return this._http.post<string>(`${BACKEND_URL}/customerFileUpload/upload`,payload);
-    }
+    uploadCustomerData(payload:FormData){
+      return this._http.post<string>(`${BACKEND_URL}/customerFileUpload/upload`,payload,{
+        reportProgress:true,
+        observe:'events',
+      });
+     }
+ 
     
     //#endregion
 }

@@ -20,7 +20,8 @@ fdescribe('ResetPasswordComponent', () => {
   let authService: AuthService;
   let router: Router;
   let snackbarService: SnackbarService;
-
+ 
+  let  newPassword = 'testVal4#';
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ResetPasswordComponent],
@@ -55,11 +56,13 @@ fdescribe('ResetPasswordComponent', () => {
   });
   it('[Password] should check if user password is invalid', () => {
     let password = component.resetPasswordForm.controls['password'];
+
     expect(password.valid).toBeFalsy();
     expect(password.pristine).toBeTruthy();
     expect(password.touched).toBeFalsy();
     password.setValue('testVal'); //check if password is not equal to eight
     expect(password.errors).toBeTruthy();
+    //expect(password.touched).toBeTruthy();
   })
   it('[password] should check for password validity', () =>{
     let password = component.resetPasswordForm.controls['password'];
@@ -70,17 +73,18 @@ fdescribe('ResetPasswordComponent', () => {
     expect(password.errors).toBeFalsy();
   } )
   it('[Form] should be valid when confirm password', () =>{
-    let password = component.resetPasswordForm.controls['password'].setValue('testVal4');
-    let confirmPassword = component.resetPasswordForm.controls['confirmPassword'].setValue('testVal4');
+    let password = component.resetPasswordForm.controls['password'].setValue(newPassword);
+    let confirmPassword = component.resetPasswordForm.controls['confirmPassword'].setValue(newPassword);
     
     expect(component.resetPasswordForm.valid).toBeTruthy();
 
   } )
   it('[changePassword] should be able to submit form', () =>{
-     component.resetPasswordForm.controls['password'].setValue('testVal4');
-     component.resetPasswordForm.controls['confirmPassword'].setValue('testVal4');
+     component.resetPasswordForm.controls['password'].setValue(newPassword);
+     component.resetPasswordForm.controls['confirmPassword'].setValue(newPassword);
      spyOn(authService, 'resetPassword').and.resolveTo({message:'created successfully'});
-     spyOn(component._router, 'navigate');
+     spyOn(component._router, 'navigate').and.resolveTo(true);
+     spyOn(authService, 'logout').and.resolveTo();
    
     component.changePassword( component.resetPasswordForm);
     fixture.detectChanges()
@@ -91,14 +95,16 @@ fdescribe('ResetPasswordComponent', () => {
 
   } )
   it('[changePassword] should throw an error auth service fails', () =>{
-    component.resetPasswordForm.controls['password'].setValue('testVal4');
-    component.resetPasswordForm.controls['confirmPassword'].setValue('testVal4');
+    component.resetPasswordForm.controls['password'].setValue('testVal4#');
+    component.resetPasswordForm.controls['confirmPassword'].setValue('testVal4#');
     spyOn(authService, 'resetPassword').and.rejectWith({message:'An error occurred'});
     spyOn(snackbarService, 'showError')
    component.changePassword(component.resetPasswordForm);
    expect(component.isSubmitButtonDisabled).toBeFalsy();
    expect(authService.resetPassword).toHaveBeenCalled();
-  // expect(snackbarService.showError).toHaveBeenCalled();
+  //expect(snackbarService.showError).toHaveBeenCalled();
+  //expect(snackbarService.showError).toHaveBeenCalledWith('an error occured');
+  
 
  } )
 });

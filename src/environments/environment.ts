@@ -7,8 +7,8 @@
  * 30122020 - Gaurav - Added ngMultiPurposeAppUrl to access the ng-survey app urls */
 export const environment = {
   production: false,
-  //  apiUrlV1: 'http://localhost:5000',
-  apiUrlV1: 'https://app.dev.centriqe.com/api/v2',
+  apiUrlV1: 'http://localhost:5000',
+ // apiUrlV1: 'https://app.dev.centriqe.com/api/v2',
   ngMultiPurposeAppUrl: 'http://localhost:4201',
   allowConsoleLogs: true,
   // featureFlags: {

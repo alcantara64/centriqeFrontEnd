@@ -8,24 +8,12 @@
       </div>
 
       <div class="table-top_row2 d-flex">
-        <!-- <h2 class="table-title">Download sample file:</h2>
-
-        <button
-          mat-mini-fab
-          matTooltip="Download"
-          matTooltipPosition="above"
-          color="none"
-          [ngClass]="[
-            'mat-elevation-z0',
-            'action-buttons',
-            'download-button'
-          ]"
-          >
-          <mat-icon [ngClass]="['download-icon']">download</mat-icon>
-        </button> -->
+      
       </div>
     </div>
     <mat-divider></mat-divider>
+      <mat-progress-bar *ngIf="uploadedProgress && !isUploadComplete" mode="indeterminate" color="warn" [ngStyle]="{ height: '3px' }"></mat-progress-bar>
+
     <mat-card style="padding: 0px 16px;">
       <!-- <mat-card-content> -->
         <mat-tab-group
