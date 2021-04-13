@@ -160,6 +160,11 @@ export class FilterComponent implements OnInit, OnDestroy {
         .subscribe((selectedHoldingOrg: HoldingOrg) => {
           const orgId = selectedHoldingOrg._id;
           this.getOrgListFun(orgId);
+          this.filterCriteria.controls.forEach((element, i) => {
+            console.log(i);
+            this.delRoleRow(i);
+          });
+          this.advancedFilterForm.reset();
         })
     if (!this.accessMode) {
       this.dynamicDropDown = [];
